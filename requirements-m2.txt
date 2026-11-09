@@ -1,6 +1,6 @@
-# M2(KcELECTRA) 학습·평가용. requirements-dev.txt 위에 추가로 설치: pip install -r requirements-m2.txt
+# M2(KcELECTRA) 학습·평가용 (로컬). requirements.txt 위에 추가로 설치합니다.
 # 직접 쓰는 패키지: torch transformers safetensors
--r requirements-dev.txt
+-r requirements.txt
 filelock==4.2.9
 fsspec==2026.9.0
 hf-xet==1.8.0

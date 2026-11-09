@@ -179,3 +179,4 @@ def test_web_page_served(client):
     # 화면은 API만 호출하고, 외부 스크립트를 불러오지 않음
     assert "/v1/filter" in r.text and "/v1/evidence/report" in r.text
     assert "<script src=" not in r.text
+

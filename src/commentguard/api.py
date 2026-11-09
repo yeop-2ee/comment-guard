@@ -1,6 +1,6 @@
 """댓글 가드 API (명세서 2장).
 
-로컬:  MODEL_URI 없이 실행하면 models/LATEST를 씁니다.
+로컬:  MODEL_URI 없이 실행하면 configs/serving.yaml이 가리키는 모델을 씁니다.
     uvicorn commentguard.api:app --port 8080
 클라우드: 환경변수 MODEL_URI로 모델 경로를 지정합니다 (명세서 6.3장).
 

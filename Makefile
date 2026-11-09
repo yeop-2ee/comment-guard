@@ -12,7 +12,7 @@ export PYTHONPATH := $(CURDIR)/src
 setup:
 	$(PYTHON_BIN) -m venv $(VENV)
 	$(PY) -m pip install --upgrade pip
-	$(PY) -m pip install -r requirements-dev.txt
+	$(PY) -m pip install -r requirements-dev.txt -r requirements-m2.txt
 
 data:
 	$(PY) -m commentguard.runlog wrap --step data -- bash scripts/download_data.sh
@@ -32,7 +32,7 @@ test:
 all-local: data validate train evaluate test
 
 PORT ?= 8080
-# 로컬 서버 (MODEL_URI가 없으면 models/LATEST)
+# 로컬 서버 (MODEL_URI가 없으면 configs/serving.yaml이 가리키는 모델)
 serve:
 	$(VENV)/bin/uvicorn commentguard.api:app --host 127.0.0.1 --port $(PORT)
 

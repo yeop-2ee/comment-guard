@@ -21,6 +21,7 @@ from commentguard.text import normalize
 
 MODELS_DIR = REPO_ROOT / "models"
 LATEST_FILE = MODELS_DIR / "LATEST"
+SERVING_CFG = REPO_ROOT / "configs" / "serving.yaml"
 BIAS_CLASSES = ("none", "others", "gender")
 
 
@@ -89,10 +90,25 @@ def load_any(model_dir: str | Path):
     return load_local(model_dir)
 
 
-def latest_dir() -> Path:
-    if not LATEST_FILE.is_file():
-        raise FileNotFoundError("models/LATEST 없음. 먼저 make train을 실행하세요")
-    return MODELS_DIR / LATEST_FILE.read_text().strip()
+def latest_dir(model_id: str = "m1") -> Path:
+    pointer = LATEST_FILE if model_id == "m1" else MODELS_DIR / f"LATEST_{model_id.upper()}"
+    if not pointer.is_file():
+        raise FileNotFoundError(f"{rel_name(pointer)} 없음. 먼저 해당 모델을 학습하세요")
+    return MODELS_DIR / pointer.read_text().strip()
+
+
+def rel_name(p: Path) -> str:
+    return f"models/{p.name}"
+
+
+def serving_model_id() -> str:
+    import yaml
+    return yaml.safe_load(open(SERVING_CFG, encoding="utf-8"))["model_id"]
+
+
+def serving_dir() -> Path:
+    """configs/serving.yaml이 가리키는 로컬 모델 폴더."""
+    return latest_dir(serving_model_id())
 
 
 class ModelLoadError(RuntimeError):
@@ -100,11 +116,11 @@ class ModelLoadError(RuntimeError):
 
 
 def load_from_uri(uri: str | None) -> CommentModel:
-    """MODEL_URI 해석. 없으면 models/LATEST, 있으면 그 로컬 경로."""
+    """MODEL_URI 해석. 없으면 configs/serving.yaml의 로컬 모델, 있으면 그 로컬 경로."""
     try:
         if not uri:
-            return load_local(latest_dir())
-        return load_local(uri)
+            return load_any(serving_dir())
+        return load_any(uri)
     except ModelLoadError:
         raise
     except Exception as e:
