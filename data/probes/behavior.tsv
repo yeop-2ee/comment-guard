@@ -1,0 +1,43 @@
+category	expected	text
+intensifier_praise	ok	ㅇㅈ 이번 곡 개좋음 👍👍
+intensifier_praise	ok	오늘 예능 개웃겼다 ㅋㅋㅋ 다음 주도 본다
+intensifier_praise	ok	이번 무대 개잘함 진짜 실력 늘었네
+intensifier_praise	ok	강아지랑 나온 장면 개귀엽다 ㅠㅠ
+intensifier_praise	ok	뮤비 색감 개멋있다 감독 누구냐
+intensifier_praise	ok	이번 시즌 개꿀잼이네 정주행 중
+intensifier_insult	toxic	경기 수준 개같네 돈 아깝다
+intensifier_insult	toxic	연기 개못하네 발연기 그만해라
+intensifier_insult	toxic	저런 개념 없는 애를 왜 쓰냐 개노답
+intensifier_insult	toxic	말하는 거 개짜증나 입 좀 다물어라
+intensifier_insult	toxic	노래 개구리네 귀 썩는다
+intensifier_insult	toxic	얼굴도 개못생겼는데 왜 나와
+chosung_praise	ok	ㄹㅇ 이번 앨범 최고다
+chosung_praise	ok	ㅊㅋㅊㅋ 1위 축하해요
+chosung_praise	ok	ㅇㅈ 연기 진짜 잘한다
+chosung_praise	ok	ㄱㅇㄷ 티켓팅 성공함 ㅎㅎ
+chosung_praise	ok	ㅎㅇㅌ 다음 경기도 응원할게
+chosung_praise	ok	ㄷㄷ 고음 미쳤다 소름
+chosung_insult	toxic	ㅅㅂ 이게 노래냐
+chosung_insult	toxic	ㅂㅅ같이 연기하네 진짜
+chosung_insult	toxic	ㅈㄴ 못생겼네 화면 끄고 싶다
+chosung_insult	toxic	ㅁㅊ놈 아니냐 저런 말을 왜 함
+chosung_insult	toxic	ㅄ 같은 판정 심판 바꿔라
+chosung_insult	toxic	ㅗㅗ 꺼져라 진짜
+emoji_praise	ok	👍👍 오늘 경기 최고였어요
+emoji_praise	ok	💜💜 항상 응원합니다
+emoji_praise	ok	ㅋㅋㅋ 너무 웃겨요 😂😂
+emoji_praise	ok	🔥🔥 이번 컴백 대박
+emoji_praise	ok	드라마 마지막 회 보고 울었어요 😭
+emoji_praise	ok	생일 축하해요 🎂🎉
+plain_criticism	ok	이번 앨범은 전작보다 좀 아쉬웠어요
+plain_criticism	ok	기사 내용이 한쪽 입장만 쓴 것 같네요
+plain_criticism	ok	연출이 지루해서 중간에 껐습니다
+plain_criticism	ok	감독 전술 변화가 늦었던 게 패인인 듯
+plain_criticism	ok	가사는 좋은데 편곡이 너무 평범함
+plain_criticism	ok	출연료에 비해 분량이 적은 것 같아요
+plain_insult	toxic	한심하다 진짜 정신 좀 차려라
+plain_insult	toxic	꺼져라 다시는 방송 나오지 마
+plain_insult	toxic	쓰레기 같은 노래 듣다가 토할 뻔
+plain_insult	toxic	머리가 나쁘면 가만히나 있어라
+plain_insult	toxic	저런 인간은 사회에서 퇴출시켜야 함
+plain_insult	toxic	얼굴도 못생긴 게 나대지 마라
