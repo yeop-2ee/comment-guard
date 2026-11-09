@@ -79,6 +79,16 @@ def load_local(model_dir: str | Path) -> CommentModel:
     return CommentModel(obj["vectorizer"], obj["hate_clf"], obj["bias_clf"], card)
 
 
+def load_any(model_dir: str | Path):
+    """model_card.json의 model_id로 M1/M2 로더를 고릅니다. M2는 torch가 필요해서 그때만 import."""
+    model_dir = Path(model_dir)
+    card = json.loads((model_dir / "model_card.json").read_text(encoding="utf-8"))
+    if card.get("model_id") == "m2":
+        from commentguard.m2 import load_m2
+        return load_m2(model_dir)
+    return load_local(model_dir)
+
+
 def latest_dir() -> Path:
     if not LATEST_FILE.is_file():
         raise FileNotFoundError("models/LATEST 없음. 먼저 make train을 실행하세요")

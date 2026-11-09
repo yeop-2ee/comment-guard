@@ -58,15 +58,6 @@ def run_probe(model: Any, df) -> dict[str, Any]:
     }
 
 
-def load_any(model_dir: Path):
-    """model_card.json의 model_id로 M1/M2 로더를 고릅니다."""
-    card = json.loads((model_dir / "model_card.json").read_text(encoding="utf-8"))
-    if card.get("model_id") == "m2":
-        from commentguard.m2 import load_m2  # torch가 필요해서 M2일 때만 import
-        return load_m2(model_dir)
-    return model_store.load_local(model_dir)
-
-
 def main(argv: list[str]) -> int:
     dirs = [Path(a) for a in argv] or [model_store.latest_dir()]
     try:
@@ -76,7 +67,7 @@ def main(argv: list[str]) -> int:
             df = read_tsv(PROBE_PATH)
             results = {}
             for d in dirs:
-                model = load_any(d)
+                model = model_store.load_any(d)
                 results[model.version] = run_probe(model, df)
             out = {"probe_sha256": probe_hash, "rows": len(df), "models": results}
             path = run.dir / "probe_metrics.json"
