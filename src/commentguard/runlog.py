@@ -63,7 +63,8 @@ def git_info() -> dict[str, Any]:
             return None
 
     commit = _git("rev-parse", "HEAD")
-    status = _git("status", "--porcelain")
+    # runs/는 실행 기록 자체라서, 앞 단계가 남긴 기록 때문에 dirty로 잡히지 않게 제외
+    status = _git("status", "--porcelain", "--", ".", ":(exclude)runs")
     return {"git_commit": commit, "git_dirty": bool(status) if status is not None else None}
 
 
@@ -184,6 +185,7 @@ def _wrap(args: argparse.Namespace) -> int:
                 assert proc.stdout is not None
                 for line in proc.stdout:  # 화면과 파일에 동시에 출력
                     sys.stdout.write(line)
+                    sys.stdout.flush()
                     log.write(line)
                 code = proc.wait()
             run.outputs.append(str(log_path.relative_to(REPO_ROOT))

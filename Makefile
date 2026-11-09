@@ -15,10 +15,10 @@ setup:
 	$(PY) -m pip install -r requirements-dev.txt
 
 data:
-	@echo "M1에서 구현 예정" >&2; exit 1
+	$(PY) -m commentguard.runlog wrap --step data -- bash scripts/download_data.sh
 
 validate:
-	@echo "M1에서 구현 예정" >&2; exit 1
+	$(PY) -m commentguard.data
 
 train:
 	@echo "M2에서 구현 예정" >&2; exit 1

@@ -251,13 +251,13 @@ CSV 형식:
 ### 3.2 데이터 구성
 
 - 한국 연예 뉴스 댓글에 사람이 라벨을 붙인 데이터이며, 라벨이 있는 데이터는 총 8,367건입니다.
-- 파일과 컬럼은 아래와 같습니다. **구현 첫 단계에서 실제 파일로 다시 확인하고, 다르면 이 문서를 고칩니다.**
+- 파일과 컬럼은 아래와 같습니다. M1에서 원본 저장소 커밋 `f8d05dce2b22007bb149e5139c0060c68ad8f94b`(2020-07-18)의 파일로 확인했습니다.
 
 | 파일 | 건수 | 용도 |
 |---|---|---|
-| `labeled/train.tsv` | 약 7,896 | 학습 + 검증 분할 |
+| `labeled/train.tsv` | 7,896 | 학습 + 검증 분할 |
 | `labeled/dev.tsv` | 471 | **최종 평가 전용** |
-| `test.no_label.tsv` (이름은 확인 필요) | — | 정답이 없을 가능성이 높음. 클라우드 스모크 테스트 입력으로만 사용 |
+| `test.no_label.tsv` | 974 | 정답 없음(`comments` 컬럼만). 클라우드 스모크 테스트 입력으로만 사용 |
 
 | 컬럼 | 값 | 이 프로젝트에서의 역할 |
 |---|---|---|
@@ -265,6 +265,11 @@ CSV 형식:
 | `hate` | `hate` / `offensive` / `none` | **주 정답** (3클래스 분류) |
 | `bias` | `gender` / `others` / `none` | 보조 정답 (편향 유형) |
 | `contain_gender_bias` | `True` / `False` | 보조 정답 (성별 편향 여부) |
+
+확인한 사실 (M1):
+- 댓글에 큰따옴표가 들어간 행이 있어서 TSV를 **따옴표 처리 없이**(`quoting=QUOTE_NONE`) 읽습니다.
+- `contain_gender_bias == (bias == "gender")`가 train과 dev 모든 행에서 성립합니다. 그래서 성별 편향 여부는 `bias` 예측에서 도출합니다(4.1장). `validate()`가 이 관계를 매번 다시 검사하고, 어긋나는 행 수를 기록합니다.
+- 댓글 길이는 4~137자(평균 약 39자)입니다.
 
 ### 3.3 데이터 한 건의 의미와 단위
 
@@ -283,6 +288,10 @@ CSV 형식:
 | train 안에서 같은 텍스트인데 라벨이 다름 | 제거하고 건수와 예시 개수 기록 |
 | **train과 dev에 같은 텍스트가 있음** | **train에서 제거** (평가 누수 방지) |
 | 유니코드 정규화 | 학습과 서빙 모두 NFC 정규화 + 앞뒤 공백 제거 + 연속 공백 하나로 줄이기. 이모지와 특수문자는 유지 |
+| `contain_gender_bias`와 `bias`가 어긋남 | 제거하고 건수 기록 (현재 0건) |
+
+- 중복과 train/dev 겹침 검사는 **정규화한 텍스트 기준**으로 합니다.
+- 가공 결과는 `data/processed/{train_fit,valid,eval}.tsv`(UTF-8, 따옴표 처리 없음)로 저장합니다. Git에서 차이를 볼 수 있도록 바이너리 형식 대신 TSV를 씁니다.
 
 > **같은 전처리 함수를 학습과 서빙에서 공유해야 합니다** (`src/commentguard/text.py`의 `normalize()`). 학습할 때와 서빙할 때 전처리가 다르면 성능이 조용히 떨어집니다.
 
@@ -320,7 +329,7 @@ CSV 형식:
 |---|---|---|---|
 | `B0` | 최빈값 분류기 (`DummyClassifier(strategy="most_frequent")`) | 단순 기준 | 필수 |
 | `M1` | 글자 n-gram TF-IDF + 로지스틱 회귀 | **주 서비스 모델** | 필수 |
-| `M1-bias` | M1과 같은 특징 + 로지스틱 회귀 2개 (`bias` 3클래스, `contain_gender_bias` 2클래스) | 편향 표시 | 필수 |
+| `M1-bias` | M1과 같은 특징 + 로지스틱 회귀 (`bias` 3클래스). `contain_gender_bias`는 `bias == "gender"`로 도출 (3.2장 확인 사실) | 편향 표시 | 필수 |
 | `M2` | KcELECTRA-base 미세조정 | 사전학습 모델 비교 | **필수** (D2 결정: 본 과제로 승격) |
 
 ### 4.2 M1 상세
@@ -508,7 +517,7 @@ CSV 형식:
   "git_commit": "a1b2c3d4e5...",
   "git_dirty": false,
   "model_version": "m1-20261115-a1b2c3d",
-  "inputs": {"data/processed/train_fit.parquet": "sha256:..."},
+  "inputs": {"data/processed/train_fit.tsv": "sha256:..."},
   "config": {"C": 1.0, "ngram_range": [2, 5]},
   "outputs": ["models/m1-20261115-a1b2c3d/"],
   "error": null,
