@@ -170,3 +170,12 @@ def test_report_rejects_bad_screenshot_hash_and_naive_datetime(client):
     r = client.post("/v1/evidence/report", json={"items": [{"text": "좋아요", "posted_at": "2026-11-01T10:00:00"}]})
     assert r.status_code == 422
 
+
+def test_web_page_served(client):
+    r = client.get("/")
+    assert r.status_code == 200
+    assert r.headers["content-type"].startswith("text/html")
+    assert "댓글가드" in r.text
+    # 화면은 API만 호출하고, 외부 스크립트를 불러오지 않음
+    assert "/v1/filter" in r.text and "/v1/evidence/report" in r.text
+    assert "<script src=" not in r.text

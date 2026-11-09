@@ -18,11 +18,12 @@ import time
 import uuid
 from collections import Counter
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Annotated, Any, Literal
 
 from fastapi import FastAPI, Query, Request
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, Response
 from pydantic import AfterValidator, AwareDatetime, BaseModel, Field, StringConstraints
 
 from commentguard import model_store
@@ -32,6 +33,7 @@ from commentguard.severity import CLASSES, scores_from_probs
 MAX_TEXT_CHARS = 1000
 MAX_BATCH = 100
 MAX_REPORT_ITEMS = 500
+INDEX_HTML = Path(__file__).parent / "static" / "index.html"
 
 log = logging.getLogger("commentguard")
 
@@ -159,6 +161,11 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
 
     def _model(request: Request) -> model_store.CommentModel:
         return request.app.state.model
+
+    @app.get("/", include_in_schema=False)
+    def index():
+        # 웹 화면 (명세서 2.6장). 판정은 화면이 /v1/* 를 호출해서 받음
+        return FileResponse(INDEX_HTML, media_type="text/html; charset=utf-8")
 
     @app.get("/health")
     def health(request: Request):
