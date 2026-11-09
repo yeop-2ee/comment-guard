@@ -41,6 +41,12 @@ def runs_dir() -> Path:
     return Path(os.environ.get("COMMENTGUARD_RUNS_DIR", REPO_ROOT / "runs"))
 
 
+def rel(path: str | Path) -> str:
+    """저장소 기준 상대 경로. 저장소 밖이면(테스트용 임시 폴더 등) 절대 경로."""
+    path = Path(path).resolve()
+    return str(path.relative_to(REPO_ROOT)) if path.is_relative_to(REPO_ROOT) else str(path)
+
+
 def now_kst() -> datetime:
     return datetime.now(KST)
 
@@ -188,8 +194,7 @@ def _wrap(args: argparse.Namespace) -> int:
                     sys.stdout.flush()
                     log.write(line)
                 code = proc.wait()
-            run.outputs.append(str(log_path.relative_to(REPO_ROOT))
-                               if log_path.is_relative_to(REPO_ROOT) else str(log_path))
+            run.outputs.append(rel(log_path))
             run.extra["command"] = args.cmd
             run.extra["exit_code"] = code
             if code != 0:

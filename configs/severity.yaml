@@ -1,5 +1,6 @@
 # 심각도 등급 기준값과 민감도 규칙 (명세서 2.1, 2.3장)
 # 기준값 30/60은 시작값이며, 학습 후 valid로만 조정해서 모델 산출물(model_card.json)에 함께 기록합니다.
+# 서빙은 이 파일이 아니라 model_card.json의 조정된 기준값을 씁니다.
 thresholds:
   caution: 30   # 이 점수 이상이면 주의
   severe: 60    # 이 점수 이상이면 심각
@@ -8,3 +9,9 @@ sensitivity:
   low:    {normal: show, caution: show, severe: hide}
   medium: {normal: show, caution: blur, severe: hide}
   high:   {normal: show, caution: hide, severe: hide}
+
+# 기준값 조정 규칙 (명세서 2.1장). valid로만 계산합니다.
+tuning:
+  max_none_false_block_medium: 0.15   # medium에서 정상 댓글을 가리는 비율 상한 (1순위)
+  min_hate_block_medium: 0.60         # medium에서 혐오 댓글을 숨기는 비율 하한 (2순위)
+  # 둘을 만족하는 조합 중 등급-라벨 macro-F1이 가장 높은 조합을 고름

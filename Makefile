@@ -21,10 +21,10 @@ validate:
 	$(PY) -m commentguard.data
 
 train:
-	@echo "M2에서 구현 예정" >&2; exit 1
+	$(PY) -m commentguard.train
 
 evaluate:
-	@echo "M2에서 구현 예정" >&2; exit 1
+	$(PY) -m commentguard.evaluate
 
 test:
 	$(PY) -m pytest -q

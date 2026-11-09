@@ -18,7 +18,7 @@ import pandas as pd
 import yaml
 from sklearn.model_selection import train_test_split
 
-from commentguard.runlog import REPO_ROOT, run_step, sha256_file
+from commentguard.runlog import REPO_ROOT, rel, run_step, sha256_file
 from commentguard.text import normalize
 
 RAW_DIR = REPO_ROOT / "data" / "raw"
@@ -122,7 +122,7 @@ def validate(raw_dir: Path, out_dir: Path, valid_size: float, seed: int,
     for name, df in splits.items():
         path = out_dir / f"{name}.tsv"
         write_tsv(df, path)
-        outputs[str(path.relative_to(REPO_ROOT))] = sha256_file(path)
+        outputs[rel(path)] = sha256_file(path)
 
     return {
         "train_clean": train_clean,
@@ -145,7 +145,7 @@ def main() -> int:
             report = validate(RAW_DIR, PROCESSED_DIR, **split_cfg)
             report_path = run.dir / "data_report.json"
             report_path.write_text(json.dumps(report, ensure_ascii=False, indent=2), encoding="utf-8")
-            run.outputs += [*report["outputs"], str(report_path.relative_to(REPO_ROOT))]
+            run.outputs += [*report["outputs"], rel(report_path)]
             run.extra["rows"] = {k: v["rows"] for k, v in report["distribution"].items()}
     except Exception as e:
         print(f"[validate] 실패: {e}", file=sys.stderr)

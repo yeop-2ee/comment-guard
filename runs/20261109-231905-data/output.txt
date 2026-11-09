@@ -1,0 +1,7 @@
+있음: train.tsv
+있음: dev.tsv
+있음: test.no_label.tsv
+해시 검사 (MANIFEST.sha256)
+train.tsv: OK
+dev.tsv: OK
+test.no_label.tsv: OK

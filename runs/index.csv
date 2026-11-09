@@ -1,0 +1,3 @@
+run_id,step,status,started_at,finished_at,git_commit,git_dirty,model_version,error
+20261109-231905-data,data,success,2026-11-09T23:19:05+09:00,2026-11-09T23:19:05+09:00,94c99ec9557b137e788e017cb0b49beeb6c9aea5,False,,
+20261109-231906-validate,validate,success,2026-11-09T23:19:06+09:00,2026-11-09T23:19:06+09:00,94c99ec9557b137e788e017cb0b49beeb6c9aea5,False,,
