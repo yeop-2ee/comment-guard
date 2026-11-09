@@ -1,0 +1,34 @@
+{
+  "run_id": "20261110-010553-smoke-local",
+  "step": "smoke",
+  "started_at": "2026-11-10T01:05:53+09:00",
+  "finished_at": "2026-11-10T01:05:54+09:00",
+  "status": "success",
+  "git_commit": "10d2af20d83f638711d8d0c3b3cc955ff3a13ee0",
+  "git_dirty": false,
+  "model_version": "m2-20261110-314b2b2",
+  "inputs": {},
+  "config": {
+    "target": "local",
+    "url": "http://127.0.0.1:8080",
+    "region": null,
+    "revision": null,
+    "model_uri": null
+  },
+  "outputs": [
+    "runs/20261110-010553-smoke-local/local_smoke.json"
+  ],
+  "extra": {
+    "passed": 13,
+    "total": 13,
+    "url": "http://127.0.0.1:8080",
+    "region": null,
+    "revision": null,
+    "model_uri": null
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}
