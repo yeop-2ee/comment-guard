@@ -464,6 +464,9 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 - **학습, 어휘 사전, 하이퍼파라미터, 기준값 조정에 쓰지 않습니다.** 측정에만 씁니다.
 - 지표: 유형별 정답률, `ok` 유형의 오차단율, `toxic` 유형의 놓침률. `python -m commentguard.probe` → `runs/<id>-probe/probe_metrics.json`
 - 한계: 42문장이라 통계적 결론이 아니라 유형별 경향을 보는 용도입니다. 작성자 한 명이 만든 문장이라 표현이 편향될 수 있습니다.
+- **v2 추가 (2026-11-10):** v1에는 "혐오 수준" 문장이 없어서, M2에서 예시 문장이 심각 등급까지 가지 않는 현상을 잴 수 없었습니다. `data/probes/behavior_v2.tsv`(36문장, 해시 `MANIFEST_v2.sha256`)를 v1과 같은 원칙(결과 확인 전 고정, 학습·조정에 쓰지 않음)으로 추가합니다.
+  - 기대값은 **등급**입니다. 데이터셋 라벨링 가이드의 hate 정의(성별·집단을 향한 공격, 사회적 지위를 크게 해치는 모욕, 성희롱)에 해당하는 4유형은 `severe`, offensive 정의(무례, 비꼼)에 해당하는 2유형은 `caution`.
+  - 지표: 등급 일치율, `severe_recall`(심각이어야 할 문장을 심각으로), `severe_shown_rate`(medium에서 그대로 보임), `caution_overcall_rate`(무례 정도를 심각으로). `python -m commentguard.probe --set behavior_v2 <모델 폴더...>`
 
 ### 5.5 측정하지 못한 부분과 한계 (README에 그대로)
 
