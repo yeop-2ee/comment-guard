@@ -371,6 +371,10 @@ API를 직접 호출하지 않아도 쓸 수 있는 화면을 같은 서버에�
 
 - 기반 모델: `beomi/KcELECTRA-base`. 한국어 댓글로 사전학습된 모델이며 MIT 라이선스입니다.
 - **버전 고정:** `from_pretrained(..., revision="<커밋 해시>")`로 고정하고 해시를 모델 카드에 기록합니다.
+  - 고정 리비전: `681201a097b8120e6dd2a2e63a3e13d338736f88` (2024-05-23, main). 저장소 이력상 `5deca41`(2023-04-03)에서 main의 가중치와 토크나이저가 **v2023 + byte-level BPE**로 바뀌었고, 모델 카드 본문은 이전 WordPiece 설명이 그대로 남아 있습니다. 가중치와 `tokenizer.json`은 같은 리비전이라 서로 맞습니다(vocab 30,000).
+  - 이 리비전의 `tokenizer.json`에는 post-processor가 없어 `[CLS]`/`[SEP]`이 자동으로 붙지 않습니다. `m2.encode()`에서 직접 붙입니다(`tests/test_m2.py`).
+- 구조: ELECTRA 인코더 + `[CLS]` 위치에 분류 머리 2개(hate 3클래스, bias 3클래스). loss = CE(hate) + 0.5 × CE(bias), 클래스 가중치는 `train_fit` 기준 balanced. 학습률 {2e-5, 5e-5} × 최대 5에폭, valid hate macro-F1로 조기 종료·선택(`configs/train.yaml`의 `m2`).
+- 산출물: `models/m2-<날짜>-<커밋>/`(가중치 safetensors, 설정, 토크나이저, 모델 카드). 서빙 시 허브에 접속하지 않고 이 폴더만으로 로드합니다.
 - 학습은 로컬(Apple Silicon MPS) 또는 Colab GPU에서 하고, 서빙은 CPU로 합니다.
 - 하이퍼파라미터(학습률, 에폭)와 조기 종료는 `valid`로만 정합니다. 심각도 기준값도 모델별로 `valid`에서 다시 조정합니다.
 - 학습용 의존성(torch, transformers)은 `requirements-m2.txt`로 분리해서 서빙 함수를 작게 유지합니다.

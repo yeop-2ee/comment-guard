@@ -1,0 +1,603 @@
+{
+  "probe_sha256": "8dbcb851765270d04c97810a7739ca3a6d1f8ddebe2961a80a9052fa24a865a3",
+  "rows": 42,
+  "models": {
+    "m1-20261109-591d16d": {
+      "accuracy": 0.9286,
+      "ok_false_block_rate": 0.0417,
+      "toxic_miss_rate": 0.1111,
+      "by_category": {
+        "intensifier_praise": {
+          "expected": "ok",
+          "n": 6,
+          "correct": 5,
+          "accuracy": 0.8333
+        },
+        "intensifier_insult": {
+          "expected": "toxic",
+          "n": 6,
+          "correct": 5,
+          "accuracy": 0.8333
+        },
+        "chosung_praise": {
+          "expected": "ok",
+          "n": 6,
+          "correct": 6,
+          "accuracy": 1.0
+        },
+        "chosung_insult": {
+          "expected": "toxic",
+          "n": 6,
+          "correct": 5,
+          "accuracy": 0.8333
+        },
+        "emoji_praise": {
+          "expected": "ok",
+          "n": 6,
+          "correct": 6,
+          "accuracy": 1.0
+        },
+        "plain_criticism": {
+          "expected": "ok",
+          "n": 6,
+          "correct": 6,
+          "accuracy": 1.0
+        },
+        "plain_insult": {
+          "expected": "toxic",
+          "n": 6,
+          "correct": 6,
+          "accuracy": 1.0
+        }
+      },
+      "rows": [
+        {
+          "category": "intensifier_praise",
+          "expected": "ok",
+          "text": "ㅇㅈ 이번 곡 개좋음 👍👍",
+          "probs": {
+            "none": 0.3267,
+            "offensive": 0.1756,
+            "hate": 0.4978
+          },
+          "severity_score": 59,
+          "action_medium": "hide",
+          "correct": false
+        },
+        {
+          "category": "intensifier_praise",
+          "expected": "ok",
+          "text": "오늘 예능 개웃겼다 ㅋㅋㅋ 다음 주도 본다",
+          "probs": {
+            "none": 0.6657,
+            "offensive": 0.1242,
+            "hate": 0.2101
+          },
+          "severity_score": 27,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "intensifier_praise",
+          "expected": "ok",
+          "text": "이번 무대 개잘함 진짜 실력 늘었네",
+          "probs": {
+            "none": 0.4481,
+            "offensive": 0.2987,
+            "hate": 0.2532
+          },
+          "severity_score": 40,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "intensifier_praise",
+          "expected": "ok",
+          "text": "강아지랑 나온 장면 개귀엽다 ㅠㅠ",
+          "probs": {
+            "none": 0.569,
+            "offensive": 0.1962,
+            "hate": 0.2348
+          },
+          "severity_score": 33,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "intensifier_praise",
+          "expected": "ok",
+          "text": "뮤비 색감 개멋있다 감독 누구냐",
+          "probs": {
+            "none": 0.3361,
+            "offensive": 0.4302,
+            "hate": 0.2337
+          },
+          "severity_score": 45,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "intensifier_praise",
+          "expected": "ok",
+          "text": "이번 시즌 개꿀잼이네 정주행 중",
+          "probs": {
+            "none": 0.3948,
+            "offensive": 0.3226,
+            "hate": 0.2826
+          },
+          "severity_score": 44,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "intensifier_insult",
+          "expected": "toxic",
+          "text": "경기 수준 개같네 돈 아깝다",
+          "probs": {
+            "none": 0.24,
+            "offensive": 0.3035,
+            "hate": 0.4565
+          },
+          "severity_score": 61,
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "intensifier_insult",
+          "expected": "toxic",
+          "text": "연기 개못하네 발연기 그만해라",
+          "probs": {
+            "none": 0.1522,
+            "offensive": 0.4569,
+            "hate": 0.3909
+          },
+          "severity_score": 62,
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "intensifier_insult",
+          "expected": "toxic",
+          "text": "저런 개념 없는 애를 왜 쓰냐 개노답",
+          "probs": {
+            "none": 0.091,
+            "offensive": 0.1645,
+            "hate": 0.7444
+          },
+          "severity_score": 83,
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "intensifier_insult",
+          "expected": "toxic",
+          "text": "말하는 거 개짜증나 입 좀 다물어라",
+          "probs": {
+            "none": 0.1629,
+            "offensive": 0.4927,
+            "hate": 0.3444
+          },
+          "severity_score": 59,
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "intensifier_insult",
+          "expected": "toxic",
+          "text": "노래 개구리네 귀 썩는다",
+          "probs": {
+            "none": 0.3226,
+            "offensive": 0.2945,
+            "hate": 0.3828
+          },
+          "severity_score": 53,
+          "action_medium": "blur",
+          "correct": true
+        },
+        {
+          "category": "intensifier_insult",
+          "expected": "toxic",
+          "text": "얼굴도 개못생겼는데 왜 나와",
+          "probs": {
+            "none": 0.4465,
+            "offensive": 0.3431,
+            "hate": 0.2105
+          },
+          "severity_score": 38,
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "chosung_praise",
+          "expected": "ok",
+          "text": "ㄹㅇ 이번 앨범 최고다",
+          "probs": {
+            "none": 0.4938,
+            "offensive": 0.2828,
+            "hate": 0.2234
+          },
+          "severity_score": 36,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "chosung_praise",
+          "expected": "ok",
+          "text": "ㅊㅋㅊㅋ 1위 축하해요",
+          "probs": {
+            "none": 0.7411,
+            "offensive": 0.1823,
+            "hate": 0.0766
+          },
+          "severity_score": 17,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "chosung_praise",
+          "expected": "ok",
+          "text": "ㅇㅈ 연기 진짜 잘한다",
+          "probs": {
+            "none": 0.6427,
+            "offensive": 0.1686,
+            "hate": 0.1887
+          },
+          "severity_score": 27,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "chosung_praise",
+          "expected": "ok",
+          "text": "ㄱㅇㄷ 티켓팅 성공함 ㅎㅎ",
+          "probs": {
+            "none": 0.4155,
+            "offensive": 0.3347,
+            "hate": 0.2497
+          },
+          "severity_score": 42,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "chosung_praise",
+          "expected": "ok",
+          "text": "ㅎㅇㅌ 다음 경기도 응원할게",
+          "probs": {
+            "none": 0.6791,
+            "offensive": 0.2028,
+            "hate": 0.1181
+          },
+          "severity_score": 22,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "chosung_praise",
+          "expected": "ok",
+          "text": "ㄷㄷ 고음 미쳤다 소름",
+          "probs": {
+            "none": 0.4107,
+            "offensive": 0.3574,
+            "hate": 0.2319
+          },
+          "severity_score": 41,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "chosung_insult",
+          "expected": "toxic",
+          "text": "ㅅㅂ 이게 노래냐",
+          "probs": {
+            "none": 0.2352,
+            "offensive": 0.4223,
+            "hate": 0.3425
+          },
+          "severity_score": 55,
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "chosung_insult",
+          "expected": "toxic",
+          "text": "ㅂㅅ같이 연기하네 진짜",
+          "probs": {
+            "none": 0.3227,
+            "offensive": 0.2713,
+            "hate": 0.406
+          },
+          "severity_score": 54,
+          "action_medium": "blur",
+          "correct": true
+        },
+        {
+          "category": "chosung_insult",
+          "expected": "toxic",
+          "text": "ㅈㄴ 못생겼네 화면 끄고 싶다",
+          "probs": {
+            "none": 0.1279,
+            "offensive": 0.2565,
+            "hate": 0.6156
+          },
+          "severity_score": 74,
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "chosung_insult",
+          "expected": "toxic",
+          "text": "ㅁㅊ놈 아니냐 저런 말을 왜 함",
+          "probs": {
+            "none": 0.1932,
+            "offensive": 0.3682,
+            "hate": 0.4385
+          },
+          "severity_score": 62,
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "chosung_insult",
+          "expected": "toxic",
+          "text": "ㅄ 같은 판정 심판 바꿔라",
+          "probs": {
+            "none": 0.4362,
+            "offensive": 0.3531,
+            "hate": 0.2106
+          },
+          "severity_score": 39,
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "chosung_insult",
+          "expected": "toxic",
+          "text": "ㅗㅗ 꺼져라 진짜",
+          "probs": {
+            "none": 0.3152,
+            "offensive": 0.2743,
+            "hate": 0.4105
+          },
+          "severity_score": 55,
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "emoji_praise",
+          "expected": "ok",
+          "text": "👍👍 오늘 경기 최고였어요",
+          "probs": {
+            "none": 0.8702,
+            "offensive": 0.068,
+            "hate": 0.0619
+          },
+          "severity_score": 10,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "emoji_praise",
+          "expected": "ok",
+          "text": "💜💜 항상 응원합니다",
+          "probs": {
+            "none": 0.8739,
+            "offensive": 0.0747,
+            "hate": 0.0514
+          },
+          "severity_score": 9,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "emoji_praise",
+          "expected": "ok",
+          "text": "ㅋㅋㅋ 너무 웃겨요 😂😂",
+          "probs": {
+            "none": 0.4929,
+            "offensive": 0.3326,
+            "hate": 0.1745
+          },
+          "severity_score": 34,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "emoji_praise",
+          "expected": "ok",
+          "text": "🔥🔥 이번 컴백 대박",
+          "probs": {
+            "none": 0.5951,
+            "offensive": 0.2282,
+            "hate": 0.1767
+          },
+          "severity_score": 29,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "emoji_praise",
+          "expected": "ok",
+          "text": "드라마 마지막 회 보고 울었어요 😭",
+          "probs": {
+            "none": 0.6937,
+            "offensive": 0.2197,
+            "hate": 0.0866
+          },
+          "severity_score": 20,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "emoji_praise",
+          "expected": "ok",
+          "text": "생일 축하해요 🎂🎉",
+          "probs": {
+            "none": 0.791,
+            "offensive": 0.1553,
+            "hate": 0.0537
+          },
+          "severity_score": 13,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "plain_criticism",
+          "expected": "ok",
+          "text": "이번 앨범은 전작보다 좀 아쉬웠어요",
+          "probs": {
+            "none": 0.6555,
+            "offensive": 0.1981,
+            "hate": 0.1463
+          },
+          "severity_score": 25,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "plain_criticism",
+          "expected": "ok",
+          "text": "기사 내용이 한쪽 입장만 쓴 것 같네요",
+          "probs": {
+            "none": 0.6985,
+            "offensive": 0.1958,
+            "hate": 0.1057
+          },
+          "severity_score": 20,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "plain_criticism",
+          "expected": "ok",
+          "text": "연출이 지루해서 중간에 껐습니다",
+          "probs": {
+            "none": 0.5608,
+            "offensive": 0.2735,
+            "hate": 0.1657
+          },
+          "severity_score": 30,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "plain_criticism",
+          "expected": "ok",
+          "text": "감독 전술 변화가 늦었던 게 패인인 듯",
+          "probs": {
+            "none": 0.3549,
+            "offensive": 0.2927,
+            "hate": 0.3525
+          },
+          "severity_score": 50,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "plain_criticism",
+          "expected": "ok",
+          "text": "가사는 좋은데 편곡이 너무 평범함",
+          "probs": {
+            "none": 0.5282,
+            "offensive": 0.4078,
+            "hate": 0.064
+          },
+          "severity_score": 27,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "plain_criticism",
+          "expected": "ok",
+          "text": "출연료에 비해 분량이 적은 것 같아요",
+          "probs": {
+            "none": 0.5409,
+            "offensive": 0.2969,
+            "hate": 0.1622
+          },
+          "severity_score": 31,
+          "action_medium": "show",
+          "correct": true
+        },
+        {
+          "category": "plain_insult",
+          "expected": "toxic",
+          "text": "한심하다 진짜 정신 좀 차려라",
+          "probs": {
+            "none": 0.2026,
+            "offensive": 0.4092,
+            "hate": 0.3882
+          },
+          "severity_score": 59,
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "plain_insult",
+          "expected": "toxic",
+          "text": "꺼져라 다시는 방송 나오지 마",
+          "probs": {
+            "none": 0.2447,
+            "offensive": 0.254,
+            "hate": 0.5012
+          },
+          "severity_score": 63,
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "plain_insult",
+          "expected": "toxic",
+          "text": "쓰레기 같은 노래 듣다가 토할 뻔",
+          "probs": {
+            "none": 0.0697,
+            "offensive": 0.178,
+            "hate": 0.7524
+          },
+          "severity_score": 84,
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "plain_insult",
+          "expected": "toxic",
+          "text": "머리가 나쁘면 가만히나 있어라",
+          "probs": {
+            "none": 0.2709,
+            "offensive": 0.4385,
+            "hate": 0.2906
+          },
+          "severity_score": 51,
+          "action_medium": "blur",
+          "correct": true
+        },
+        {
+          "category": "plain_insult",
+          "expected": "toxic",
+          "text": "저런 인간은 사회에서 퇴출시켜야 함",
+          "probs": {
+            "none": 0.1796,
+            "offensive": 0.3712,
+            "hate": 0.4492
+          },
+          "severity_score": 63,
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "plain_insult",
+          "expected": "toxic",
+          "text": "얼굴도 못생긴 게 나대지 마라",
+          "probs": {
+            "none": 0.1498,
+            "offensive": 0.3952,
+            "hate": 0.455
+          },
+          "severity_score": 65,
+          "action_medium": "hide",
+          "correct": true
+        }
+      ]
+    }
+  }
+}

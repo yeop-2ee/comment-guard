@@ -1,0 +1,36 @@
+{
+  "run_id": "20261110-003059-probe",
+  "step": "probe",
+  "started_at": "2026-11-10T00:30:59+09:00",
+  "finished_at": "2026-11-10T00:30:59+09:00",
+  "status": "success",
+  "git_commit": "63b6f5ed46164f85a84df7867ceaaf27aa9780e5",
+  "git_dirty": false,
+  "model_version": "m1-20261109-591d16d",
+  "inputs": {
+    "/Users/sangyeop/Projects/comment-guard/data/probes/behavior.tsv": "sha256:8dbcb851765270d04c97810a7739ca3a6d1f8ddebe2961a80a9052fa24a865a3",
+    "/Users/sangyeop/Projects/comment-guard/models/m1-20261109-591d16d/model_card.json": "sha256:e2b8e6283ba31376bc33cc072c0a3af4d5cd28a481524cc936b13cf636048ceb"
+  },
+  "config": {
+    "models": [
+      "models/m1-20261109-591d16d"
+    ]
+  },
+  "outputs": [
+    "runs/20261110-003059-probe/probe_metrics.json"
+  ],
+  "extra": {
+    "summary": {
+      "m1-20261109-591d16d": {
+        "accuracy": 0.9286,
+        "ok_false_block_rate": 0.0417,
+        "toxic_miss_rate": 0.1111
+      }
+    }
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

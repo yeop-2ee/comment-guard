@@ -19,3 +19,17 @@ m1:
 evaluation:
   bootstrap_iters: 1000
   bootstrap_seed: 42
+
+# M2: KcELECTRA 미세조정. 조정은 valid만 사용
+m2:
+  base_model: beomi/KcELECTRA-base
+  revision: 681201a097b8120e6dd2a2e63a3e13d338736f88   # main = v2023 가중치 + byte-level BPE 토크나이저 (5deca41에서 교체)
+  max_length: 80          # train_fit 토큰 길이 최대 74 + [CLS]/[SEP]
+  batch_size: 32
+  lr_grid: [2.0e-5, 5.0e-5]
+  max_epochs: 5
+  patience: 1             # valid hate macro-F1이 1에폭 동안 안 오르면 중단
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  dropout: 0.1
+  bias_loss_weight: 0.5   # loss = CE(hate) + 0.5 × CE(bias), 클래스 가중치는 train_fit 기준 balanced
