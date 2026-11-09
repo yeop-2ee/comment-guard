@@ -21,3 +21,19 @@ def test_wilson_ci_contains_rate_and_stays_in_range():
     lo, hi = wilson_ci(0.598, 122)
     assert lo < 0.598 < hi
     assert wilson_ci(0.0, 10)[0] == 0.0 and wilson_ci(1.0, 10)[1] <= 1.0
+
+
+def test_probe_scoring_counts_service_actions(tiny_model):
+    import pandas as pd
+    from commentguard.probe import run_probe
+    df = pd.DataFrame({"category": ["a", "a", "b"], "expected": ["ok", "ok", "toxic"],
+                       "text": ["오늘 무대 정말 좋았어요", "응원합니다 힘내세요", "여자들은 다 똑같아 멍청해"]})
+    r = run_probe(tiny_model, df)
+    assert set(r["by_category"]) == {"a", "b"}
+    assert 0 <= r["accuracy"] <= 1 and len(r["rows"]) == 3
+    assert r["by_category"]["a"]["n"] == 2
+
+
+def test_probe_manifest_matches():
+    from commentguard.probe import check_manifest
+    assert len(check_manifest()) == 64
