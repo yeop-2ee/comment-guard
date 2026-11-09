@@ -1,5 +1,5 @@
 # 런타임 의존성 (학습·서빙 공용). Python 3.11 기준 pip freeze로 고정.
-# 직접 쓰는 패키지: fastapi uvicorn pydantic scikit-learn numpy scipy pandas joblib pyyaml
+# 직접 쓰는 패키지: fastapi uvicorn pydantic scikit-learn numpy scipy pandas joblib pyyaml requests
 annotated-doc==0.0.5
 annotated-types==0.8.0
 anyio==4.16.0

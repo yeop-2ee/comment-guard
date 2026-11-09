@@ -1,0 +1,66 @@
+{
+  "run_id": "20261109-232656-train",
+  "step": "train",
+  "started_at": "2026-11-09T23:26:56+09:00",
+  "finished_at": "2026-11-09T23:27:14+09:00",
+  "status": "success",
+  "git_commit": "591d16d78b26e58b601156a85159299580823aa8",
+  "git_dirty": false,
+  "model_version": "m1-20261109-591d16d",
+  "inputs": {
+    "/Users/sangyeop/Projects/comment-guard/data/processed/train_fit.tsv": "sha256:b6a752ef7bfc84b56d0228c1df0d327a35a146c516ef65c2f49fc1ea0485a6a8",
+    "/Users/sangyeop/Projects/comment-guard/data/processed/valid.tsv": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80",
+    "/Users/sangyeop/Projects/comment-guard/configs/train.yaml": "sha256:883f7e3e6c38e81b851017a46a48a927ef79ad4e124b7bbaa8c7eb95cbbb2148",
+    "/Users/sangyeop/Projects/comment-guard/configs/severity.yaml": "sha256:efcc4bbf7af7d7ac11900f112a8cd7f6cfee080c39a0988230e3cb02e847d28e"
+  },
+  "config": {
+    "m1": {
+      "tfidf": {
+        "analyzer": "char_wb",
+        "ngram_range": [
+          2,
+          5
+        ],
+        "min_df": 2,
+        "sublinear_tf": true,
+        "max_features": 200000
+      },
+      "logreg": {
+        "class_weight": "balanced",
+        "max_iter": 2000
+      },
+      "C_grid": [
+        0.25,
+        0.5,
+        1,
+        2,
+        4
+      ]
+    },
+    "seed": 42,
+    "severity_tuning": {
+      "max_none_false_block_medium": 0.15,
+      "min_hate_block_medium": 0.6
+    }
+  },
+  "outputs": [
+    "models/m1-20261109-591d16d/",
+    "runs/20261109-232656-train/model_card.json"
+  ],
+  "extra": {
+    "valid_metrics": {
+      "b0_hate_macro_f1": 0.2043,
+      "m1_hate_macro_f1": 0.5797,
+      "m1_bias_macro_f1": 0.6398
+    },
+    "severity": {
+      "caution": 51,
+      "severe": 55
+    }
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

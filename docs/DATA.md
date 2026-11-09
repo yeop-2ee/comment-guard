@@ -56,8 +56,8 @@
 
 - [x] 입력은 `comments` 하나뿐 (`data.py`가 다른 컬럼을 입력으로 내보내지 않음)
 - [x] train과 dev의 중복 텍스트 제거 (`validate()`가 분할 후 겹침이 남아 있으면 중단)
-- [ ] eval을 학습, 어휘 사전 구축, 기준값 조정에 쓰지 않음 → M2 학습 코드에서 확인
-- [ ] 클래스 가중치를 `train_fit` 기준으로 계산 → M2 학습 코드에서 확인
+- [x] eval을 학습, 어휘 사전 구축, 기준값 조정에 쓰지 않음 (`train.py`는 `train_fit`·`valid`만 읽고, eval은 `evaluate.py`만 읽음)
+- [x] 클래스 가중치를 `train_fit` 기준으로 계산 (`class_weight="balanced"`는 학습에 쓰인 `train_fit` 라벨로 계산됨)
 
 ## 6. 다시 확보하는 방법
 

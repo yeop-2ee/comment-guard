@@ -7,7 +7,7 @@ VENV := .venv
 PY := $(VENV)/bin/python
 export PYTHONPATH := $(CURDIR)/src
 
-.PHONY: setup data validate train evaluate test all-local upload-model deploy smoke cleanup
+.PHONY: setup data validate train evaluate test all-local serve smoke-local upload-model deploy smoke cleanup
 
 setup:
 	$(PYTHON_BIN) -m venv $(VENV)
@@ -30,6 +30,15 @@ test:
 	$(PY) -m pytest -q
 
 all-local: data validate train evaluate test
+
+PORT ?= 8080
+# 로컬 서버 (MODEL_URI가 없으면 models/LATEST)
+serve:
+	$(VENV)/bin/uvicorn commentguard.api:app --host 127.0.0.1 --port $(PORT)
+
+# 다른 터미널에서 make serve 를 띄운 뒤 실행
+smoke-local:
+	$(PY) scripts/smoke_cloud.py --url http://127.0.0.1:$(PORT) --target local
 
 upload-model:
 	@echo "M4에서 구현 예정" >&2; exit 1

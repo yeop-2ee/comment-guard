@@ -174,6 +174,17 @@ def main() -> int:
                 "fitness_criteria": fitness,
                 "valid_metrics_from_card": model.card.get("valid_metrics"),
             }
+            # /v1/meta에서 보여줄 eval 요약을 모델 카드에 덧붙임 (저장소에 같이 올라감)
+            model.card["eval_metrics"] = {
+                "evaluate_run_id": run.run_id, "rows": len(df),
+                "b0_hate_macro_f1": b0_metrics["macro_f1"], "m1_hate_macro_f1": m1_metrics["macro_f1"],
+                "m1_hate_macro_f1_ci95": m1_metrics["bootstrap"]["ci95"],
+                "bias_macro_f1": bias_metrics["macro_f1"],
+                "medium_filter": {k: medium[k] for k in ("hate_block_rate", "none_false_block_rate")},
+                "fitness_criteria": fitness,
+            }
+            model_store.write_card(model_dir, model.card)
+            run.outputs.append(rel(model_dir / "model_card.json"))
             (run.dir / "metrics.json").write_text(json.dumps(metrics, ensure_ascii=False, indent=2),
                                                   encoding="utf-8")
             save_confusion_png(m1_metrics["confusion_matrix"]["rows_true_cols_pred"], CLASSES,

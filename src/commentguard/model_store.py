@@ -83,3 +83,19 @@ def latest_dir() -> Path:
     if not LATEST_FILE.is_file():
         raise FileNotFoundError("models/LATEST 없음. 먼저 make train을 실행하세요")
     return MODELS_DIR / LATEST_FILE.read_text().strip()
+
+
+class ModelLoadError(RuntimeError):
+    pass
+
+
+def load_from_uri(uri: str | None) -> CommentModel:
+    """MODEL_URI 해석. 없으면 models/LATEST, 있으면 그 로컬 경로."""
+    try:
+        if not uri:
+            return load_local(latest_dir())
+        return load_local(uri)
+    except ModelLoadError:
+        raise
+    except Exception as e:
+        raise ModelLoadError(f"모델 로드 실패 (MODEL_URI={uri!r}): {type(e).__name__}: {e}") from e
