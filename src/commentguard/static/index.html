@@ -39,6 +39,9 @@
   .cmt, .an, .items tbody tr, .entry, .summary div, .report-stats div { animation: rise .45s var(--ease) both; animation-delay: calc(var(--i, 0) * 45ms); }
   .pill { animation: pop .35s var(--ease) both; animation-delay: calc(var(--i, 0) * 45ms + 200ms); }
   .empty { animation: rise .4s var(--ease) both; }
+  /* 연결 상태 점이 은은하게 숨 쉼 */
+  @keyframes breathe { 0%, 100% { box-shadow: 0 0 0 0 rgba(43,154,95,.35); } 50% { box-shadow: 0 0 0 4px rgba(43,154,95,0); } }
+  .health.ok i { animation: breathe 2.4s ease-in-out infinite; }
   @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
 
   /* 상단 바 */
@@ -46,10 +49,15 @@
   .topbar-in { max-width: 1240px; margin: 0 auto; height: 58px; display: flex; align-items: center; gap: 20px; }
   .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 16px; white-space: nowrap; }
   .brand svg { flex: none; }
-  .tabs { display: flex; gap: 2px; background: var(--subtle); padding: 4px; border-radius: 10px; }
+  .tabs { position: relative; display: flex; gap: 2px; background: var(--subtle); padding: 4px; border-radius: 10px; }
   .tabs button { border: 0; background: none; padding: 6px 14px; border-radius: 7px; cursor: pointer; color: var(--fg-3); font-weight: 600; white-space: nowrap; transition: color .2s, background .2s, box-shadow .2s; }
   .tabs button:hover { color: var(--fg); }
-  .tabs button[aria-selected="true"] { background: var(--surface); color: var(--fg); box-shadow: var(--shadow-sm); }
+  .tabs button[aria-selected="true"] { color: var(--fg); }
+  /* 선택 표시: 흰 배경 하나가 선택한 버튼 아래로 미끄러져 이동 */
+  .tabs button, .seg button { position: relative; z-index: 1; }
+  .slider { position: absolute; left: 0; top: 0; z-index: 0; border-radius: 7px; background: var(--surface); box-shadow: var(--shadow-sm);
+            transition: transform .32s var(--ease), width .32s var(--ease); pointer-events: none; }
+  .slider.instant { transition: none; }
   .spacer { flex: 1; }
   .health { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--fg-3); white-space: nowrap; }
   .health i { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); }
@@ -93,10 +101,10 @@
   .input:focus { outline: 0; border-color: var(--focus); box-shadow: 0 0 0 3px var(--tint); }
   textarea.input { resize: vertical; min-height: 58px; line-height: 1.5; }
 
-  .seg { display: grid; grid-template-columns: repeat(3, 1fr); background: var(--subtle); padding: 4px; border-radius: 10px; gap: 2px; }
+  .seg { position: relative; display: grid; grid-template-columns: repeat(3, 1fr); background: var(--subtle); padding: 4px; border-radius: 10px; gap: 2px; }
   .seg button { border: 0; background: none; border-radius: 7px; padding: 7px 4px; cursor: pointer; font-weight: 600; color: var(--fg-3); transition: color .2s, background .2s, box-shadow .2s; }
   .seg button:hover { color: var(--fg); }
-  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--primary); box-shadow: var(--shadow-sm); }
+  .seg button[aria-pressed="true"] { color: var(--primary); }
   .rules { display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; margin-top: 10px; font-size: 12.5px; align-items: center; }
   .rules dt { display: flex; align-items: center; } .rules dd { margin: 0; color: var(--fg-2); }
 
@@ -462,6 +470,22 @@ function empty(title, text, presets) {
   return h("div", { class: "empty" }, h("b", { text: title }), text, presets || null);
 }
 
+// 묶음 버튼(탭, 민감도)의 선택 표시를 선택한 버튼 위치로 미끄러지게 옮김
+function slider(group, isActive) {
+  const bar = h("span", { class: "slider instant", "aria-hidden": "true" });
+  group.prepend(bar);
+  const move = () => {
+    const b = [...group.querySelectorAll("button")].find(isActive); if (!b) return;
+    bar.style.width = `${b.offsetWidth}px`; bar.style.height = `${b.offsetHeight}px`;
+    bar.style.transform = `translate(${b.offsetLeft}px, ${b.offsetTop}px)`;
+  };
+  move(); requestAnimationFrame(() => bar.classList.remove("instant"));  // 처음 위치는 애니메이션 없이
+  new ResizeObserver(() => { bar.classList.add("instant"); move(); requestAnimationFrame(() => bar.classList.remove("instant")); }).observe(group);
+  return move;
+}
+const moveTab = slider(document.querySelector(".tabs"), (b) => b.getAttribute("aria-selected") === "true");
+const moveSens = slider($("f-sens"), (b) => b.getAttribute("aria-pressed") === "true");
+
 // ── 상태, 탭 ──
 async function loadStatus() {
   const box = $("health");
@@ -475,6 +499,7 @@ async function loadStatus() {
 }
 document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => {
   document.querySelectorAll(".tabs button").forEach((x) => x.setAttribute("aria-selected", x === b));
+  moveTab();
   document.querySelectorAll("[data-panel]").forEach((p) => (p.hidden = p.dataset.panel !== b.dataset.tab));
 }));
 
@@ -501,6 +526,7 @@ $("f-sens").addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
   sensitivity = b.dataset.v;
   $("f-sens").querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", x === b));
+  moveSens();
   renderRules();
   if (readLines($("f-input").value).length) $("f-run").click();
 });
