@@ -41,6 +41,13 @@ def runs_dir() -> Path:
     return Path(os.environ.get("COMMENTGUARD_RUNS_DIR", REPO_ROOT / "runs"))
 
 
+def mask(text: str) -> str:
+    """COMMENTGUARD_MASK(쉼표 구분)에 든 문자열(예: Blob 저장소 ID)을 기록에서 가림."""
+    for secret in filter(None, (x.strip() for x in os.environ.get("COMMENTGUARD_MASK", "").split(","))):
+        text = text.replace(secret, "*" * len(secret))
+    return text
+
+
 def rel(path: str | Path) -> str:
     """저장소 기준 상대 경로. 저장소 밖이면(테스트용 임시 폴더 등) 절대 경로."""
     path = Path(path).resolve()
@@ -132,7 +139,7 @@ def _new_run_id(step: str, suffix: str | None) -> str:
 def _write(record: RunRecord) -> None:
     record.dir.mkdir(parents=True, exist_ok=True)
     with open(record.dir / "run.json", "w", encoding="utf-8") as f:
-        json.dump(record.to_dict(), f, ensure_ascii=False, indent=2)
+        f.write(mask(json.dumps(record.to_dict(), ensure_ascii=False, indent=2)))
 
 
 def _append_index(record: RunRecord) -> None:
@@ -140,7 +147,7 @@ def _append_index(record: RunRecord) -> None:
     new = not index.exists()
     row = {k: record.to_dict()[k] for k in INDEX_FIELDS}
     if row["error"]:
-        row["error"] = row["error"].splitlines()[0][:200]
+        row["error"] = mask(row["error"].splitlines()[0][:200])
     with open(index, "a", encoding="utf-8", newline="") as f:
         w = csv.DictWriter(f, fieldnames=INDEX_FIELDS)
         if new:
@@ -189,10 +196,10 @@ def _wrap(args: argparse.Namespace) -> int:
                 proc = subprocess.Popen(args.cmd, stdout=subprocess.PIPE,
                                         stderr=subprocess.STDOUT, text=True)
                 assert proc.stdout is not None
-                for line in proc.stdout:  # 화면과 파일에 동시에 출력
+                for line in proc.stdout:  # 화면과 파일에 동시에 출력 (파일에는 가린 값)
                     sys.stdout.write(line)
                     sys.stdout.flush()
-                    log.write(line)
+                    log.write(mask(line))
                 code = proc.wait()
             run.outputs.append(rel(log_path))
             run.extra["command"] = args.cmd

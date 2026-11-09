@@ -26,7 +26,7 @@ import requests
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 from commentguard.data import read_tsv  # noqa: E402
-from commentguard.runlog import rel, run_step  # noqa: E402
+from commentguard.runlog import mask, rel, run_step  # noqa: E402
 
 
 def public_comments(n: int) -> list[str]:
@@ -170,7 +170,7 @@ def main() -> int:
                       "run_id": run.run_id, "git_commit": run.git_commit, "started_at": run.started_at,
                       "passed": passed, "total": len(s.cases), "cases": s.cases}
             out = run.dir / f"{args.target}_smoke.json"
-            out.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
+            out.write_text(mask(json.dumps(result, ensure_ascii=False, indent=2)), encoding="utf-8")
             run.outputs.append(rel(out))
             run.extra.update(passed=passed, total=len(s.cases), **deploy)
             if passed != len(s.cases):

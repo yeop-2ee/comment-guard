@@ -52,3 +52,11 @@ def test_model_version_format():
     v = runlog.make_model_version("M1")
     model_id, date, commit = v.split("-")
     assert model_id == "m1" and len(date) == 8 and len(commit) in (7, 8)
+
+
+def test_mask_hides_secrets_in_records(tmp_runs, monkeypatch):
+    monkeypatch.setenv("COMMENTGUARD_MASK", "AbCdEf123456")
+    with runlog.run_step("demo", config={"model_uri": "blob://store_AbCdEf123456/models/x/"}) as run:
+        pass
+    text = (run.dir / "run.json").read_text(encoding="utf-8")
+    assert "AbCdEf123456" not in text and "************" in text

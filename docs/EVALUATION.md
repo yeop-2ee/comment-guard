@@ -119,8 +119,30 @@ eval에서 놓친 혐오(정답 hate, 예측 none)는 15건입니다. 그중 P(n
 
 ## 6. 정상 동작 검사
 
-모델 품질과 별개인 서비스 동작 검사(T1~T11)는 M3에서 `tests/test_api.py`로 작성하고 결과를 여기에 추가합니다.
-현재 `make test`로 검사하는 것: 전처리(`test_text.py`), 데이터 검증(`test_data.py`), 심각도·기준값 조정(`test_severity.py`), 부트스트랩·Wilson 구간(`test_evaluate.py`), 실행 기록(`test_runlog.py`). 모두 25개이며 전부 통과합니다.
+모델 품질과 별개로, 서비스가 정상 입력과 잘못된 입력을 제대로 처리하는지 두 가지 방법으로 검사합니다.
+
+**① pytest (`make test`, 51개 전부 통과).** API 테스트는 직접 만든 가짜 예시로 학습한 작은 모델(`tests/conftest.py`)을 씁니다. 그래서 학습된 모델이 없어도 돌아갑니다.
+
+| # | 케이스 | 기대 | 테스트 |
+|---|---|---|---|
+| T1 | 정상 댓글 1건 | 200, 필드 전부, 확률 합 ≈ 1 | `test_t1_single_normal_comment` |
+| T2 | 100건 배치 | 200, 100건, 순서 유지 (단건 결과와 위치별 점수 일치) | `test_t2_batch_100_keeps_order` |
+| T3 | 이모지·영어·초성 | 200 | `test_t3_emoji_english_chosung` |
+| T4 | 빈 문자열·공백·누락 | 422, 문제 항목 index | `test_t4_*` |
+| T5 | 1,001자 (1,000자는 200) | 422, index 0 | `test_t5_too_long_text` |
+| T6 | 101건 | 422 | `test_t6_batch_101_rejected` |
+| T7 | 민감도 `extreme` | 422 | `test_t7_invalid_sensitivity` |
+| T8 | 리포트 text만 | 200, `missing_fields`·경고·고지 | `test_t8_*` |
+| T9 | 리포트 2회 | `text_sha256`, `report_sha256` 동일, `report_id`는 다름 | `test_t9_report_is_reproducible` |
+| T10 | 리포트 CSV | BOM, 한글, 행 수 일치 | `test_t10_report_csv` |
+| T11 | `/health` | 200, `model_version` 일치 | `test_t11_health` |
+| — | 잘못된 `MODEL_URI` | 시작 실패 (빈 모델로 뜨지 않음) | `test_startup_fails_on_bad_model_uri` |
+| — | 로그에 원문·작성자명 없음 (422 포함), 422 응답에 입력값을 되돌려주지 않음 | — | `test_no_text_in_logs.py` |
+
+**② 실제 HTTP 스모크 (`scripts/smoke_cloud.py`, M4에서 클라우드에도 같은 스크립트 사용).**
+- 로컬 `uvicorn`에 실제 모델(`m1-20261109-591d16d`)을 올리고 공개 데이터(`test.no_label.tsv`) 댓글로 **13/13 통과**했습니다. 기록은 `runs/20261109-233855-smoke-local/local_smoke.json`에 있습니다.
+- 같은 실행의 서버 로그(`runs/20261109-233855-smoke-local/server_log.txt`)를 확인한 결과, 요청에 쓴 원문 121건 중 로그에 나온 것은 **0건**이었습니다.
+- 잘못된 경로(`MODEL_URI=models/m1-20261115-WRONG`)로 서버를 띄우면 `model_load_failed` 오류 로그를 남기고 **종료 코드 3**으로 끝나는 것을 직접 확인했습니다.
 
 ## 7. 측정하지 못한 부분과 한계
 

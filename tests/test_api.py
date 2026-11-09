@@ -169,3 +169,4 @@ def test_report_rejects_bad_screenshot_hash_and_naive_datetime(client):
     assert r.status_code == 422
     r = client.post("/v1/evidence/report", json={"items": [{"text": "좋아요", "posted_at": "2026-11-01T10:00:00"}]})
     assert r.status_code == 422
+

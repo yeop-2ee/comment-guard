@@ -358,7 +358,7 @@ CSV 형식:
 - 하이퍼파라미터(학습률, 에폭)와 조기 종료는 `valid`로만 정합니다. 심각도 기준값도 모델별로 `valid`에서 다시 조정합니다.
 - 학습용 의존성(torch, transformers)은 `requirements-m2.txt`로 분리해서 서빙 함수를 작게 유지합니다.
 - **서빙 모델 선택:** M1과 M2를 같은 eval로 비교하고(macro-F1, 신뢰구간, 필터 지표, CPU 지연시간, 메모리, 모델 파일 크기), 그 결과를 근거로 Vercel에 올릴 모델을 정해 `EVALUATION.md`에 이유를 적습니다. 선택 전까지 배포 기준 모델은 M1입니다.
-- 고려사항: 가중치가 약 500MB라 함수가 새로 시작할 때 모델을 받는 시간(cold start)이 길어집니다. 이 차이를 비교 결과로 기록하면 클라우드 구성 선택 이유가 됩니다.
+- 고려사항: 가중치가 약 500MB라 함수가 새로 시작할 때 모델을 받는 시간(cold start)이 길어지고, PyTorch는 Vercel 함수 크기 한도(500MB)를 넘습니다. 서빙은 ONNX로 변환해 실행하는 방안을 비교합니다. 이 차이를 비교 결과로 기록하면 클라우드 구성 선택 이유가 됩니다.
 
 ### 4.4 모델 버전 규칙
 
@@ -439,7 +439,7 @@ CSV 형식:
 
 ## 6. 시스템 구성과 클라우드
 
-### 6.1 구성도
+### 6.1 구성도 (D1 결정: Vercel, 2026-11-09)
 
 ```
 [브라우저 / curl / 스모크 스크립트]  ── HTTPS JSON
@@ -453,7 +453,7 @@ CSV 형식:
         └─ 모든 단계 기록 ──▶ runs/<run_id>/run.json (저장소에 커밋)
 ```
 
-### 6.2 권장 구성 (기본안: Vercel)
+### 6.2 구성과 선택 이유 (Vercel)
 
 | 항목 | 선택 | 이유 |
 |---|---|---|
@@ -685,6 +685,7 @@ comment-guard/
 │   └── runlog.py                # 실행 기록 공통 함수
 ├── scripts/
 │   ├── download_data.sh
+│   ├── vercel_setup.sh          # 프로젝트 연결·Blob 저장소 1회 준비
 │   ├── deploy_vercel.sh         # 배포, /health 확인 후 프로덕션 승격 (M5에서 MODEL_URI 사전 검사 추가)
 │   ├── smoke_cloud.py
 │   └── cleanup.sh
@@ -739,7 +740,7 @@ comment-guard/
 
 ### M4. 클라우드 배포 (Vercel)
 - [ ] Vercel 진입점(`app.py`)과 함수 설정(`vercel.json`)
-- [ ] Vercel 프로젝트 연결, Blob 저장소 생성, 모델 업로드
+- [ ] Vercel 프로젝트 연결·Blob 저장소 준비(`vercel_setup.sh`), 모델 업로드
 - [ ] `deploy_vercel.sh`(배포 전 MODEL_URI 검사는 **M5 이후에 추가**, 오류 재현을 위해 처음에는 넣지 않음)
 - [ ] `smoke_cloud.py` 실행, `cloud_smoke.json` 기록
 - **완료 조건:** 클라우드에서 T1~T11 통과 기록, `docs/CLOUD_RUNS.md` 작성(서비스, 리전, 설정, 데이터·결과 위치, 선택 이유)
@@ -808,7 +809,7 @@ comment-guard/
 
 | # | 질문 | 기본안 | 결정 시점 |
 |---|---|---|---|
-| D1 | 클라우드 환경 | Vercel (Python 함수 + Blob 저장소, 서울 리전 `icn1`) | M4 전 |
+| D1 | 클라우드 환경 | **결정: Vercel** (Python 함수 + Blob 저장소, 서울 리전 `icn1`, 2026-11-09) | M4 전 |
 | D2 | M2(KcELECTRA) 진행 여부 | **결정: 필수로 진행** (M5 후, 2026-11-09) | M5 후 |
 | D3 | 원본/가공 데이터를 저장소에 포함할지 | **결정: 포함** (CC BY-SA 4.0 고지와 함께, 2026-11-09) | M1 |
 | D4 | 리포트 형식에 PDF 추가 여부 | **결정: JSON + CSV만** (2026-11-09) | M3 |

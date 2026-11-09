@@ -1,0 +1,35 @@
+INFO:     Started server process [5848]
+INFO:     Waiting for application startup.
+{"severity": "INFO", "event": "model_loaded", "model_uri": null, "model_version": "m1-20261109-591d16d"}
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://127.0.0.1:8080 (Press CTRL+C to quit)
+{"severity": "INFO", "event": "request", "request_id": "8f3b3b3333a343eeae4beac35acea2a3", "method": "GET", "path": "/health", "status": 200, "latency_ms": 1.2, "model_version": "m1-20261109-591d16d"}
+INFO:     127.0.0.1:53386 - "GET /health HTTP/1.1" 200 OK
+{"severity": "INFO", "event": "request", "request_id": "8d64b204f0ef406dac31662811652cc3", "method": "GET", "path": "/health", "status": 200, "latency_ms": 0.5, "model_version": "m1-20261109-591d16d"}
+INFO:     127.0.0.1:53388 - "GET /health HTTP/1.1" 200 OK
+{"severity": "INFO", "event": "request", "request_id": "5fb5998da5ac4842947231fdd29a5c52", "method": "POST", "path": "/v1/classify", "status": 200, "latency_ms": 3.4, "model_version": "m1-20261109-591d16d", "n_items": 1, "grade_counts": {"normal": 1}}
+INFO:     127.0.0.1:53389 - "POST /v1/classify HTTP/1.1" 200 OK
+{"severity": "INFO", "event": "request", "request_id": "af9ad7626bfe4b5b9694d5666ab33d88", "method": "POST", "path": "/v1/classify", "status": 200, "latency_ms": 7.1, "model_version": "m1-20261109-591d16d", "n_items": 100, "grade_counts": {"normal": 55, "severe": 37, "caution": 8}}
+INFO:     127.0.0.1:53390 - "POST /v1/classify HTTP/1.1" 200 OK
+{"severity": "INFO", "event": "request", "request_id": "10881e2d17f64cc7987a66b0ab2d641a", "method": "POST", "path": "/v1/classify", "status": 200, "latency_ms": 1.1, "model_version": "m1-20261109-591d16d", "n_items": 1, "grade_counts": {"normal": 1}}
+INFO:     127.0.0.1:53391 - "POST /v1/classify HTTP/1.1" 200 OK
+{"severity": "INFO", "event": "request", "request_id": "d401433ac54245efb8188e77d426e135", "method": "POST", "path": "/v1/classify", "status": 422, "latency_ms": 0.4, "model_version": "m1-20261109-591d16d", "validation_errors": 1}
+INFO:     127.0.0.1:53392 - "POST /v1/classify HTTP/1.1" 422 Unprocessable Entity
+{"severity": "INFO", "event": "request", "request_id": "7d06d8770e46492aa87bdc3a41fcc728", "method": "POST", "path": "/v1/classify", "status": 422, "latency_ms": 0.3, "model_version": "m1-20261109-591d16d", "validation_errors": 1}
+INFO:     127.0.0.1:53393 - "POST /v1/classify HTTP/1.1" 422 Unprocessable Entity
+{"severity": "INFO", "event": "request", "request_id": "af17053fbc8949389a8a5af508d4d321", "method": "POST", "path": "/v1/classify", "status": 422, "latency_ms": 0.4, "model_version": "m1-20261109-591d16d", "validation_errors": 1}
+INFO:     127.0.0.1:53394 - "POST /v1/classify HTTP/1.1" 422 Unprocessable Entity
+{"severity": "INFO", "event": "request", "request_id": "cb99890fa4e344cda20af09707adca88", "method": "POST", "path": "/v1/filter", "status": 422, "latency_ms": 0.6, "model_version": "m1-20261109-591d16d", "validation_errors": 1}
+INFO:     127.0.0.1:53395 - "POST /v1/filter HTTP/1.1" 422 Unprocessable Entity
+{"severity": "INFO", "event": "request", "request_id": "d53aa8f075e946608d059deba6a64cf1", "method": "POST", "path": "/v1/filter", "status": 200, "latency_ms": 1.2, "model_version": "m1-20261109-591d16d", "n_items": 3, "sensitivity": "medium", "actions": {"show": 3, "blur": 0, "hide": 0}}
+INFO:     127.0.0.1:53396 - "POST /v1/filter HTTP/1.1" 200 OK
+{"severity": "INFO", "event": "request", "request_id": "8202c3d70e6842278d38c4c5493789f3", "method": "POST", "path": "/v1/evidence/report", "status": 200, "latency_ms": 1.7, "model_version": "m1-20261109-591d16d", "n_items": 3, "grade_counts": {"severe": 1, "caution": 0, "normal": 2}, "report_sha256": "560996ac49829149e58d8be14c8b44b1bb99d45182dfc2fd892acf6d3f651593", "format": "json"}
+INFO:     127.0.0.1:53397 - "POST /v1/evidence/report HTTP/1.1" 200 OK
+{"severity": "INFO", "event": "request", "request_id": "a53f84aba4df4d4aac7a16a710bb23a7", "method": "POST", "path": "/v1/evidence/report", "status": 200, "latency_ms": 1.4, "model_version": "m1-20261109-591d16d", "n_items": 3, "grade_counts": {"severe": 1, "caution": 0, "normal": 2}, "report_sha256": "560996ac49829149e58d8be14c8b44b1bb99d45182dfc2fd892acf6d3f651593", "format": "json"}
+INFO:     127.0.0.1:53398 - "POST /v1/evidence/report HTTP/1.1" 200 OK
+{"severity": "INFO", "event": "request", "request_id": "29a32b08c03c4a2c862e90e2c131d431", "method": "POST", "path": "/v1/evidence/report", "status": 200, "latency_ms": 1.3, "model_version": "m1-20261109-591d16d", "n_items": 3, "grade_counts": {"severe": 1, "caution": 0, "normal": 2}, "report_sha256": "560996ac49829149e58d8be14c8b44b1bb99d45182dfc2fd892acf6d3f651593", "format": "csv"}
+INFO:     127.0.0.1:53399 - "POST /v1/evidence/report?format=csv HTTP/1.1" 200 OK
+{"severity": "INFO", "event": "request", "request_id": "db333019e66c42459ce900ad3f5f610c", "method": "GET", "path": "/v1/meta", "status": 200, "latency_ms": 0.6, "model_version": "m1-20261109-591d16d"}
+INFO:     127.0.0.1:53400 - "GET /v1/meta HTTP/1.1" 200 OK
+{"severity": "INFO", "event": "request", "request_id": "b179ebc353404e11bd9cf939a4ee6ead", "method": "POST", "path": "/v1/filter", "status": 200, "latency_ms": 1.2, "model_version": "m1-20261109-591d16d", "n_items": 1, "sensitivity": "high", "actions": {"show": 1, "blur": 0, "hide": 0}}
+INFO:     127.0.0.1:53401 - "POST /v1/filter HTTP/1.1" 200 OK
