@@ -1,0 +1,48 @@
+{
+  "run_id": "20261110-010956-probe-behavior_v2",
+  "step": "probe",
+  "started_at": "2026-11-10T01:09:56+09:00",
+  "finished_at": "2026-11-10T01:10:00+09:00",
+  "status": "success",
+  "git_commit": "961f7303c3364a19c1441da7250824423cd5edc9",
+  "git_dirty": false,
+  "model_version": "m1-20261109-591d16d,m2-20261110-314b2b2",
+  "inputs": {
+    "/Users/sangyeop/Projects/comment-guard/data/probes/behavior_v2.tsv": "sha256:8bf72824e634f4a865e6d4b5de023f84f1958c55fd94cd2213391d256a125bfc",
+    "models/m1-20261109-591d16d/model_card.json": "sha256:e2b8e6283ba31376bc33cc072c0a3af4d5cd28a481524cc936b13cf636048ceb",
+    "models/m2-20261110-314b2b2/model_card.json": "sha256:2ef95955f7bfa1bc893d9447530dae0e104d928ba67915c92e09754ded298867"
+  },
+  "config": {
+    "set": "behavior_v2",
+    "models": [
+      "models/m1-20261109-591d16d",
+      "models/m2-20261110-314b2b2"
+    ]
+  },
+  "outputs": [
+    "runs/20261110-010956-probe-behavior_v2/probe_metrics.json"
+  ],
+  "extra": {
+    "summary": {
+      "m1-20261109-591d16d": {
+        "accuracy": 0.4722,
+        "severe_recall": 0.6667,
+        "severe_shown_rate": 0.1667,
+        "severe_mean_score": 62.6,
+        "caution_overcall_rate": 0.1667
+      },
+      "m2-20261110-314b2b2": {
+        "accuracy": 0.5278,
+        "severe_recall": 0.6667,
+        "severe_shown_rate": 0.125,
+        "severe_mean_score": 74.5,
+        "caution_overcall_rate": 0.0
+      }
+    }
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

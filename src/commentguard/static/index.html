@@ -269,7 +269,8 @@
           <div class="fieldlabel"><span>한 줄에 댓글 하나</span></div>
           <div class="editor"><div class="ln" id="f-ln">1</div><textarea id="f-input" spellcheck="false" aria-label="댓글 입력" placeholder="댓글을 붙여넣으세요"></textarea></div>
           <div class="samples"><span>예시</span>
-            <button class="chipbtn" data-preset="ent">연예 기사</button><button class="chipbtn" data-preset="sports">스포츠</button><button class="chipbtn" data-preset="slang">신조어·이모지</button></div>
+            <button class="chipbtn" data-preset="ent">연예 기사</button><button class="chipbtn" data-preset="sports">스포츠</button><button class="chipbtn" data-preset="hate">혐오·차별</button><button class="chipbtn" data-preset="slang">신조어·초성</button><button class="chipbtn" data-preset="hard">놓치기 쉬운 사례</button></div>
+          <p class="note" id="f-note" hidden></p>
           <div class="fieldlabel" style="margin-top:18px"><span>민감도</span></div>
           <div class="seg" id="f-sens" role="group" aria-label="민감도">
             <button id="sens-low" data-v="low" aria-pressed="false">낮음</button>
@@ -331,7 +332,7 @@
           <div class="fieldlabel"><span>한 줄에 댓글 하나</span></div>
           <div class="editor"><div class="ln" id="a-ln">1</div><textarea id="a-input" spellcheck="false" aria-label="판정할 댓글" placeholder="판정을 볼 댓글을 붙여넣으세요"></textarea></div>
           <div class="samples"><span>예시</span>
-            <button class="chipbtn" data-apreset="edge">기준선 근처</button><button class="chipbtn" data-apreset="slang">신조어·이모지</button><button class="chipbtn" data-apreset="bias">편향 표현</button></div>
+            <button class="chipbtn" data-apreset="edge">기준선 근처</button><button class="chipbtn" data-apreset="slang">신조어·초성</button><button class="chipbtn" data-apreset="bias">편향 표현</button><button class="chipbtn" data-apreset="hard">놓치기 쉬운 사례</button></div>
           <div class="actions"><button class="btn primary" id="a-run">판정 보기</button></div>
           <div id="a-error"></div>
         </div>
@@ -361,25 +362,42 @@ const IDS = ["haru", "dal3", "sky7", "bom0", "jin2", "moon", "star", "neo9", "su
 // 모두 직접 만든 가짜 예시 (실제 인물·공개 데이터 원문 아님)
 const PRESETS = {
   ent: ["오늘 무대 진짜 좋았어요 다음 앨범도 기대합니다", "이번 드라마 결말은 좀 아쉬웠어요 그래도 배우들 연기는 좋았음",
-        "실력도 없으면서 왜 자꾸 나와", "너무 귀엽다 ㅠㅠ 행복하자", "나이 먹고 아직도 아이돌 하냐",
-        "노래는 별론데 춤은 괜찮다", "얼굴만 믿고 나대는 거 꼴보기 싫다", "연기 많이 늘었네요 응원해요", "그냥 은퇴해라 보기 싫으니까"],
-  sports: ["골 넣은 선수 칭찬합니다 최고", "오늘 경기 수비 진짜 답답했다", "ㄹㅇ 수준 떨어지네", "감독 경질하자 이게 축구냐",
-           "심판 눈 감고 보냐? 오심 미쳤네", "여자가 무슨 축구 해설을 한다고", "다음 경기는 이기자 화이팅"],
-  slang: ["ㅇㅈ 이번 곡 개좋음 👍👍", "Good job!! 다음 공연도 꼭 갈게요 💜", "ㅋㅋㅋㅋ 이게 노래냐 ㅉㅉ", "기사 제목이 너무 자극적인 듯",
-          "댓글 수준 보소 ㅋㅋ", "다들 너무 예민한 듯 그냥 넘어가요"],
+        "실력도 없으면서 왜 자꾸 나와", "너무 귀엽다 ㅠㅠ 행복하자", "성형 괴물이 무슨 연기를 한다고", "나이 먹고 아직도 아이돌 하냐",
+        "노래는 별론데 춤은 괜찮다", "얼굴만 믿고 나대는 거 꼴보기 싫다", "이번 컴백 무대 의상 예쁘다", "여자 아이돌은 얼굴 빼면 시체지",
+        "또 열애설이야? 관심 없다", "그냥 은퇴해라 보기 싫으니까", "연기 많이 늘었네요 응원해요", "니 부모가 불쌍하다 이런 걸 낳고"],
+  sports: ["골 넣은 선수 칭찬합니다 최고", "오늘 경기 수비 진짜 답답했다", "ㄹㅇ 수준 떨어지네", "병신같이 공 차네 진짜",
+           "부상 빨리 회복하길 바랍니다", "감독 경질하자 이게 축구냐", "심판 눈 감고 보냐? 오심 미쳤네", "외국인 용병들은 돈만 밝히는 쓰레기들",
+           "패스 미스가 너무 많았음", "여자가 무슨 축구 해설을 한다고", "저런 놈은 국대에서 영구 퇴출시켜라", "다음 경기는 이기자 화이팅"],
+  hate: ["조선족들은 다 추방해야 함", "노래 진짜 못하네 귀 아프다", "틀딱들은 투표권을 없애야 한다", "김치녀들은 다 저 모양이지",
+         "외국인 노동자들 다 내보내야 함", "전라도 사람은 원래 믿으면 안 된다", "장애인들은 방송에 나오지 마라", "죽어버려라 진짜 살 가치가 없다",
+         "한남충들 수준 보소 ㅋㅋ", "동성애자들은 방송에 나오면 안 됨", "정신병자 새끼 병원이나 가라"],
+  slang: ["ㅇㅈ 이번 곡 개좋음 👍👍", "ㅈㄴ 못생겼네 화면 끄고 싶다", "Good job!! 다음 공연도 꼭 갈게요 💜", "ㅋㅋㅋㅋ 이게 노래냐 ㅉㅉ",
+          "개웃겼다 ㅋㅋㅋ 다음 주도 본다", "ㅂㅅ같이 연기하네 진짜", "ㄱㅇㄷ 티켓팅 성공함 ㅎㅎ", "ㅅㅂ 이게 노래냐",
+          "기사 제목이 너무 자극적인 듯", "🔥🔥 이번 컴백 대박", "ㅁㅊ놈 아니냐 저런 말을 왜 함", "다들 너무 예민한 듯 그냥 넘어가요"],
+  hard: ["기자님 소설 잘 쓰시네요", "와 연기 정말 대단하시네요^^ 발로 해도 이것보단 낫겠다", "가슴만 보이네 ㅋㅋㅋ", "축하합니다 꼴찌 ㅋㅋ",
+         "다리 보려고 이 방송 본다 ㅎㅎ", "참 잘~ 한다 잘해", "몸매 보니까 밤에 생각나네 ㅎㅎ"],
+};
+// 예시를 불러올 때 함께 보여줄 안내 (평가 결과에서 확인한 한계)
+const PRESET_NOTE = {
+  hard: "비꼼과 노골적인 단어 없는 성적 대상화는 모델이 놓치기 쉬운 유형입니다. 이 예시들은 대부분 그대로 보입니다.",
+  hate: "성별·국적·지역·나이·장애 등 집단을 향한 공격은 심각으로, 단순한 무례는 주의 이하로 판정되는지 비교해 보세요.",
 };
 const APRESETS = {
-  edge: ["솔직히 이번엔 좀 실망이다", "진짜 바보 같네 생각 좀 하고 말해라", "실력도 없으면서 왜 자꾸 나와", "이런 기사 좀 그만 올려라 짜증나니까"],
-  slang: ["ㅇㅈ 이번 곡 개좋음 👍👍", "ㄹㅇ 수준 떨어지네", "ㅋㅋㅋㅋ 이게 노래냐 ㅉㅉ", "너무 귀엽다 ㅠㅠ 행복하자"],
-  bias: ["여자가 무슨 축구 해설을 한다고", "남자들은 다 똑같아 믿을 놈 하나 없음", "시골 사람들은 원래 저래", "외국인 노동자들 다 내보내야 함"],
+  edge: ["솔직히 이번엔 좀 실망이다", "노래 진짜 못하네 귀 아프다", "진짜 바보 같네 생각 좀 하고 말해라", "실력도 없으면서 왜 자꾸 나와", "여자가 무슨 축구 해설을 한다고", "외국인 용병들은 돈만 밝히는 쓰레기들"],
+  slang: ["ㅇㅈ 이번 곡 개좋음 👍👍", "개웃겼다 ㅋㅋㅋ 다음 주도 본다", "ㄹㅇ 수준 떨어지네", "ㅅㅂ 이게 노래냐", "ㅂㅅ같이 연기하네 진짜"],
+  bias: ["여자 아이돌은 얼굴 빼면 시체지", "남자들은 다 똑같아 믿을 놈 하나 없음", "시골 사람들은 원래 저래", "전라도 사람은 원래 믿으면 안 된다", "틀딱들은 투표권을 없애야 한다"],
+  hard: ["기자님 소설 잘 쓰시네요", "가슴만 보이네 ㅋㅋㅋ", "축하합니다 꼴찌 ㅋㅋ", "몸매 보니까 밤에 생각나네 ㅎㅎ"],
 };
 const REPORT_SAMPLE = [
   { text: "얼굴만 믿고 나대는 거 꼴보기 싫다", url: "https://news.example.com/ent/1042#c-88", posted_at: "2026-11-01T21:14", author_handle: "익명의팬99" },
+  { text: "성형 괴물이 무슨 연기를 한다고", url: "https://news.example.com/ent/1042#c-90", posted_at: "2026-11-01T21:40", author_handle: "익명의팬99" },
   { text: "그냥 은퇴해라 보기 싫으니까", url: "https://news.example.com/ent/1042#c-91", posted_at: "2026-11-01T22:03", author_handle: "익명의팬99" },
   { text: "나이 먹고 아직도 아이돌 하냐", url: "https://news.example.com/ent/1057#c-12", posted_at: "2026-11-03T08:40", author_handle: "지나가는사람" },
+  { text: "니 부모가 불쌍하다 이런 걸 낳고", url: "https://news.example.com/ent/1057#c-19", posted_at: "2026-11-03T08:55", author_handle: "지나가는사람" },
   { text: "실력도 없으면서 왜 자꾸 나와", url: "https://news.example.com/ent/1057#c-30", posted_at: "2026-11-03T09:02", author_handle: "익명의팬99" },
+  { text: "여자 아이돌은 얼굴 빼면 시체지", posted_at: "2026-11-05T23:10", author_handle: "익명의팬99" },
   { text: "이번 무대 의상 좀 별로였음", posted_at: "2026-11-04T19:30", author_handle: "솔직한리뷰" },
-  { text: "너 같은 애들 때문에 나라가 이 모양이지", author_handle: "지나가는사람" },
+  { text: "가슴만 보이네 ㅋㅋㅋ", url: "https://news.example.com/ent/1063#c-7", author_handle: "지나가는사람" },
 ];
 let TH = { caution: 30, severe: 60 };  // /v1/meta 값으로 교체됨
 
@@ -518,10 +536,14 @@ function renderRules() {
 }
 function filterEmpty() {
   $("f-result").replaceChildren(empty("필터 결과가 여기에 나옵니다", "댓글을 붙여넣거나 예시를 골라 보세요.",
-    presetChips("data-preset", [["ent", "연예 기사"], ["sports", "스포츠"], ["slang", "신조어·이모지"]])));
+    presetChips("data-preset", [["ent", "연예 기사"], ["sports", "스포츠"], ["hate", "혐오·차별"], ["slang", "신조어·초성"], ["hard", "놓치기 쉬운 사례"]])));
 }
 filterEmpty();
-document.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => { fSet(PRESETS[b.dataset.preset].join("\n")); $("f-run").click(); }));
+document.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => {
+  fSet(PRESETS[b.dataset.preset].join("\n"));
+  const note = PRESET_NOTE[b.dataset.preset]; $("f-note").hidden = !note; $("f-note").textContent = note || "";
+  $("f-run").click();
+}));
 $("f-sens").addEventListener("click", (e) => {
   const b = e.target.closest("button"); if (!b) return;
   sensitivity = b.dataset.v;
@@ -530,7 +552,7 @@ $("f-sens").addEventListener("click", (e) => {
   renderRules();
   if (readLines($("f-input").value).length) $("f-run").click();
 });
-$("f-clear").onclick = () => { fSet(""); $("f-error").replaceChildren(); filterEmpty(); };
+$("f-clear").onclick = () => { fSet(""); $("f-error").replaceChildren(); $("f-note").hidden = true; filterEmpty(); };
 $("f-run").onclick = (e) => busy(e.currentTarget, async () => {
   $("f-error").replaceChildren();
   const rows = readLines($("f-input").value);
@@ -721,7 +743,7 @@ function renderReport(r) {
 const aSet = editor("a-input", "a-ln", "a-count", 100);
 function analyzeEmpty() {
   $("a-result").replaceChildren(empty("판정 결과가 여기에 나옵니다", "기준선 근처 예시를 보면 등급이 어떻게 갈리는지 알 수 있어요.",
-    presetChips("data-apreset", [["edge", "기준선 근처"], ["slang", "신조어·이모지"], ["bias", "편향 표현"]])));
+    presetChips("data-apreset", [["edge", "기준선 근처"], ["slang", "신조어·초성"], ["bias", "편향 표현"], ["hard", "놓치기 쉬운 사례"]])));
 }
 analyzeEmpty();
 document.querySelectorAll("[data-apreset]").forEach((b) => b.addEventListener("click", () => { aSet(APRESETS[b.dataset.apreset].join("\n")); $("a-run").click(); }));

@@ -1,0 +1,1109 @@
+{
+  "set": "behavior_v2",
+  "probe_sha256": "8bf72824e634f4a865e6d4b5de023f84f1958c55fd94cd2213391d256a125bfc",
+  "rows": 36,
+  "models": {
+    "m1-20261109-591d16d": {
+      "accuracy": 0.4722,
+      "by_category": {
+        "group_hate_gender": {
+          "expected": "severe",
+          "n": 6,
+          "correct": 6,
+          "accuracy": 1.0
+        },
+        "group_hate_other": {
+          "expected": "severe",
+          "n": 6,
+          "correct": 3,
+          "accuracy": 0.5
+        },
+        "strong_insult": {
+          "expected": "severe",
+          "n": 6,
+          "correct": 5,
+          "accuracy": 0.8333
+        },
+        "sexual_harassment": {
+          "expected": "severe",
+          "n": 6,
+          "correct": 2,
+          "accuracy": 0.3333
+        },
+        "rude_only": {
+          "expected": "caution",
+          "n": 6,
+          "correct": 1,
+          "accuracy": 0.1667
+        },
+        "sarcasm": {
+          "expected": "caution",
+          "n": 6,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "rows": [
+        {
+          "category": "group_hate_gender",
+          "expected": "severe",
+          "text": "여자는 집에서 애나 봐라 무슨 방송이냐",
+          "probs": {
+            "none": 0.0535,
+            "offensive": 0.225,
+            "hate": 0.7215
+          },
+          "severity_score": 83,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_gender",
+          "expected": "severe",
+          "text": "김치녀들은 다 저 모양이지",
+          "probs": {
+            "none": 0.1285,
+            "offensive": 0.0931,
+            "hate": 0.7784
+          },
+          "severity_score": 82,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_gender",
+          "expected": "severe",
+          "text": "한남충들 수준 보소 ㅋㅋ",
+          "probs": {
+            "none": 0.0266,
+            "offensive": 0.0847,
+            "hate": 0.8887
+          },
+          "severity_score": 93,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_gender",
+          "expected": "severe",
+          "text": "여자 감독 영화는 믿고 거른다",
+          "probs": {
+            "none": 0.1863,
+            "offensive": 0.2296,
+            "hate": 0.584
+          },
+          "severity_score": 70,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_gender",
+          "expected": "severe",
+          "text": "남자가 화장하는 거 보니 역겹다",
+          "probs": {
+            "none": 0.1003,
+            "offensive": 0.2369,
+            "hate": 0.6628
+          },
+          "severity_score": 78,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_gender",
+          "expected": "severe",
+          "text": "동성애자들은 방송에 나오면 안 됨",
+          "probs": {
+            "none": 0.1468,
+            "offensive": 0.5456,
+            "hate": 0.3077
+          },
+          "severity_score": 58,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_other",
+          "expected": "severe",
+          "text": "조선족들은 다 추방해야 함",
+          "probs": {
+            "none": 0.3247,
+            "offensive": 0.2874,
+            "hate": 0.3879
+          },
+          "severity_score": 53,
+          "grade": "caution",
+          "action_medium": "blur",
+          "correct": false
+        },
+        {
+          "category": "group_hate_other",
+          "expected": "severe",
+          "text": "전라도 사람은 원래 믿으면 안 된다",
+          "probs": {
+            "none": 0.2995,
+            "offensive": 0.3911,
+            "hate": 0.3094
+          },
+          "severity_score": 50,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "group_hate_other",
+          "expected": "severe",
+          "text": "틀딱들은 투표권을 없애야 한다",
+          "probs": {
+            "none": 0.2096,
+            "offensive": 0.1747,
+            "hate": 0.6157
+          },
+          "severity_score": 70,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_other",
+          "expected": "severe",
+          "text": "장애인들은 방송에 나오지 마라",
+          "probs": {
+            "none": 0.2333,
+            "offensive": 0.2677,
+            "hate": 0.499
+          },
+          "severity_score": 63,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_other",
+          "expected": "severe",
+          "text": "동남아 사람들 수준이 다 그렇지",
+          "probs": {
+            "none": 0.1964,
+            "offensive": 0.5968,
+            "hate": 0.2068
+          },
+          "severity_score": 51,
+          "grade": "caution",
+          "action_medium": "blur",
+          "correct": false
+        },
+        {
+          "category": "group_hate_other",
+          "expected": "severe",
+          "text": "흑형들은 다 범죄자 같음",
+          "probs": {
+            "none": 0.2931,
+            "offensive": 0.2358,
+            "hate": 0.4711
+          },
+          "severity_score": 59,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "strong_insult",
+          "expected": "severe",
+          "text": "죽어버려라 진짜 살 가치가 없다",
+          "probs": {
+            "none": 0.2142,
+            "offensive": 0.282,
+            "hate": 0.5039
+          },
+          "severity_score": 64,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "strong_insult",
+          "expected": "severe",
+          "text": "니 부모가 불쌍하다 이런 걸 낳고",
+          "probs": {
+            "none": 0.2796,
+            "offensive": 0.519,
+            "hate": 0.2015
+          },
+          "severity_score": 46,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "strong_insult",
+          "expected": "severe",
+          "text": "인간 쓰레기는 사회에서 격리해야 함",
+          "probs": {
+            "none": 0.1278,
+            "offensive": 0.4561,
+            "hate": 0.4162
+          },
+          "severity_score": 64,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "strong_insult",
+          "expected": "severe",
+          "text": "정신병자 새끼 병원이나 가라",
+          "probs": {
+            "none": 0.0562,
+            "offensive": 0.0741,
+            "hate": 0.8696
+          },
+          "severity_score": 91,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "strong_insult",
+          "expected": "severe",
+          "text": "얼굴 보면 토 나온다 성형괴물",
+          "probs": {
+            "none": 0.1829,
+            "offensive": 0.2115,
+            "hate": 0.6056
+          },
+          "severity_score": 71,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "strong_insult",
+          "expected": "severe",
+          "text": "저런 건 그냥 없어져야 세상이 깨끗해짐",
+          "probs": {
+            "none": 0.2349,
+            "offensive": 0.3818,
+            "hate": 0.3833
+          },
+          "severity_score": 57,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "sexual_harassment",
+          "expected": "severe",
+          "text": "몸매 보니까 밤에 생각나네 ㅎㅎ",
+          "probs": {
+            "none": 0.3631,
+            "offensive": 0.2196,
+            "hate": 0.4172
+          },
+          "severity_score": 53,
+          "grade": "caution",
+          "action_medium": "blur",
+          "correct": false
+        },
+        {
+          "category": "sexual_harassment",
+          "expected": "severe",
+          "text": "옷 저렇게 입는 건 만져달라는 거지",
+          "probs": {
+            "none": 0.2954,
+            "offensive": 0.3495,
+            "hate": 0.3551
+          },
+          "severity_score": 53,
+          "grade": "caution",
+          "action_medium": "blur",
+          "correct": false
+        },
+        {
+          "category": "sexual_harassment",
+          "expected": "severe",
+          "text": "가슴만 보이네 ㅋㅋㅋ",
+          "probs": {
+            "none": 0.1604,
+            "offensive": 0.4253,
+            "hate": 0.4143
+          },
+          "severity_score": 63,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "sexual_harassment",
+          "expected": "severe",
+          "text": "저 몸매면 스폰서 있겠지",
+          "probs": {
+            "none": 0.3218,
+            "offensive": 0.2255,
+            "hate": 0.4527
+          },
+          "severity_score": 57,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "sexual_harassment",
+          "expected": "severe",
+          "text": "벗으면 더 잘 팔릴 듯",
+          "probs": {
+            "none": 0.462,
+            "offensive": 0.3569,
+            "hate": 0.1811
+          },
+          "severity_score": 36,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sexual_harassment",
+          "expected": "severe",
+          "text": "다리 보려고 이 방송 본다 ㅎㅎ",
+          "probs": {
+            "none": 0.4343,
+            "offensive": 0.3664,
+            "hate": 0.1993
+          },
+          "severity_score": 38,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "rude_only",
+          "expected": "caution",
+          "text": "노래 진짜 못하네 귀 아프다",
+          "probs": {
+            "none": 0.3697,
+            "offensive": 0.3954,
+            "hate": 0.2349
+          },
+          "severity_score": 43,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "rude_only",
+          "expected": "caution",
+          "text": "발연기 좀 그만해라",
+          "probs": {
+            "none": 0.1618,
+            "offensive": 0.6011,
+            "hate": 0.2371
+          },
+          "severity_score": 54,
+          "grade": "caution",
+          "action_medium": "blur",
+          "correct": true
+        },
+        {
+          "category": "rude_only",
+          "expected": "caution",
+          "text": "이게 예능이냐 노잼이다",
+          "probs": {
+            "none": 0.1661,
+            "offensive": 0.6878,
+            "hate": 0.1461
+          },
+          "severity_score": 49,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "rude_only",
+          "expected": "caution",
+          "text": "기자 수준 하고는",
+          "probs": {
+            "none": 0.1866,
+            "offensive": 0.4102,
+            "hate": 0.4031
+          },
+          "severity_score": 61,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": false
+        },
+        {
+          "category": "rude_only",
+          "expected": "caution",
+          "text": "또 저 얼굴이냐 지겹다",
+          "probs": {
+            "none": 0.0978,
+            "offensive": 0.2426,
+            "hate": 0.6596
+          },
+          "severity_score": 78,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": false
+        },
+        {
+          "category": "rude_only",
+          "expected": "caution",
+          "text": "말 진짜 많네 좀 조용히 해",
+          "probs": {
+            "none": 0.2214,
+            "offensive": 0.6276,
+            "hate": 0.151
+          },
+          "severity_score": 46,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sarcasm",
+          "expected": "caution",
+          "text": "와 연기 정말 대단하시네요^^ 발로 해도 이것보단 낫겠다",
+          "probs": {
+            "none": 0.8235,
+            "offensive": 0.0938,
+            "hate": 0.0827
+          },
+          "severity_score": 13,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sarcasm",
+          "expected": "caution",
+          "text": "역시 실력 하나는 끝내주네 ㅋ 다른 의미로",
+          "probs": {
+            "none": 0.4389,
+            "offensive": 0.3856,
+            "hate": 0.1755
+          },
+          "severity_score": 37,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sarcasm",
+          "expected": "caution",
+          "text": "이 정도면 상 줘야지 최악상",
+          "probs": {
+            "none": 0.3988,
+            "offensive": 0.2343,
+            "hate": 0.3669
+          },
+          "severity_score": 48,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sarcasm",
+          "expected": "caution",
+          "text": "기자님 소설 잘 쓰시네요",
+          "probs": {
+            "none": 0.7057,
+            "offensive": 0.1475,
+            "hate": 0.1468
+          },
+          "severity_score": 22,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sarcasm",
+          "expected": "caution",
+          "text": "참 잘~ 한다 잘해",
+          "probs": {
+            "none": 0.5972,
+            "offensive": 0.1729,
+            "hate": 0.2298
+          },
+          "severity_score": 32,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sarcasm",
+          "expected": "caution",
+          "text": "축하합니다 꼴찌 ㅋㅋ",
+          "probs": {
+            "none": 0.5948,
+            "offensive": 0.2227,
+            "hate": 0.1825
+          },
+          "severity_score": 29,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        }
+      ],
+      "severe_recall": 0.6667,
+      "severe_shown_rate": 0.1667,
+      "severe_mean_score": 62.6,
+      "caution_overcall_rate": 0.1667
+    },
+    "m2-20261110-314b2b2": {
+      "accuracy": 0.5278,
+      "by_category": {
+        "group_hate_gender": {
+          "expected": "severe",
+          "n": 6,
+          "correct": 6,
+          "accuracy": 1.0
+        },
+        "group_hate_other": {
+          "expected": "severe",
+          "n": 6,
+          "correct": 5,
+          "accuracy": 0.8333
+        },
+        "strong_insult": {
+          "expected": "severe",
+          "n": 6,
+          "correct": 4,
+          "accuracy": 0.6667
+        },
+        "sexual_harassment": {
+          "expected": "severe",
+          "n": 6,
+          "correct": 1,
+          "accuracy": 0.1667
+        },
+        "rude_only": {
+          "expected": "caution",
+          "n": 6,
+          "correct": 3,
+          "accuracy": 0.5
+        },
+        "sarcasm": {
+          "expected": "caution",
+          "n": 6,
+          "correct": 0,
+          "accuracy": 0.0
+        }
+      },
+      "rows": [
+        {
+          "category": "group_hate_gender",
+          "expected": "severe",
+          "text": "여자는 집에서 애나 봐라 무슨 방송이냐",
+          "probs": {
+            "none": 0.02019999921321869,
+            "offensive": 0.1354999989271164,
+            "hate": 0.8443999886512756
+          },
+          "severity_score": 91,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_gender",
+          "expected": "severe",
+          "text": "김치녀들은 다 저 모양이지",
+          "probs": {
+            "none": 0.007699999958276749,
+            "offensive": 0.03370000049471855,
+            "hate": 0.9585999846458435
+          },
+          "severity_score": 98,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_gender",
+          "expected": "severe",
+          "text": "한남충들 수준 보소 ㅋㅋ",
+          "probs": {
+            "none": 0.007400000002235174,
+            "offensive": 0.028999999165534973,
+            "hate": 0.9635999798774719
+          },
+          "severity_score": 98,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_gender",
+          "expected": "severe",
+          "text": "여자 감독 영화는 믿고 거른다",
+          "probs": {
+            "none": 0.006500000134110451,
+            "offensive": 0.12919999659061432,
+            "hate": 0.864300012588501
+          },
+          "severity_score": 93,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_gender",
+          "expected": "severe",
+          "text": "남자가 화장하는 거 보니 역겹다",
+          "probs": {
+            "none": 0.026200000196695328,
+            "offensive": 0.21940000355243683,
+            "hate": 0.7542999982833862
+          },
+          "severity_score": 86,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_gender",
+          "expected": "severe",
+          "text": "동성애자들은 방송에 나오면 안 됨",
+          "probs": {
+            "none": 0.015399999916553497,
+            "offensive": 0.42410001158714294,
+            "hate": 0.5605000257492065
+          },
+          "severity_score": 77,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_other",
+          "expected": "severe",
+          "text": "조선족들은 다 추방해야 함",
+          "probs": {
+            "none": 0.013399999588727951,
+            "offensive": 0.1589999943971634,
+            "hate": 0.8276000022888184
+          },
+          "severity_score": 91,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_other",
+          "expected": "severe",
+          "text": "전라도 사람은 원래 믿으면 안 된다",
+          "probs": {
+            "none": 0.01140000019222498,
+            "offensive": 0.1761000007390976,
+            "hate": 0.8125
+          },
+          "severity_score": 90,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_other",
+          "expected": "severe",
+          "text": "틀딱들은 투표권을 없애야 한다",
+          "probs": {
+            "none": 0.0031999999191612005,
+            "offensive": 0.029100000858306885,
+            "hate": 0.9677000045776367
+          },
+          "severity_score": 98,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_other",
+          "expected": "severe",
+          "text": "장애인들은 방송에 나오지 마라",
+          "probs": {
+            "none": 0.012799999676644802,
+            "offensive": 0.4772999882698059,
+            "hate": 0.5098999738693237
+          },
+          "severity_score": 75,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "group_hate_other",
+          "expected": "severe",
+          "text": "동남아 사람들 수준이 다 그렇지",
+          "probs": {
+            "none": 0.023800000548362732,
+            "offensive": 0.6126000285148621,
+            "hate": 0.3635999858379364
+          },
+          "severity_score": 67,
+          "grade": "caution",
+          "action_medium": "blur",
+          "correct": false
+        },
+        {
+          "category": "group_hate_other",
+          "expected": "severe",
+          "text": "흑형들은 다 범죄자 같음",
+          "probs": {
+            "none": 0.004999999888241291,
+            "offensive": 0.2037000060081482,
+            "hate": 0.7912999987602234
+          },
+          "severity_score": 89,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "strong_insult",
+          "expected": "severe",
+          "text": "죽어버려라 진짜 살 가치가 없다",
+          "probs": {
+            "none": 0.00559999980032444,
+            "offensive": 0.0763000026345253,
+            "hate": 0.9180999994277954
+          },
+          "severity_score": 96,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "strong_insult",
+          "expected": "severe",
+          "text": "니 부모가 불쌍하다 이런 걸 낳고",
+          "probs": {
+            "none": 0.009499999694526196,
+            "offensive": 0.22540000081062317,
+            "hate": 0.7651000022888184
+          },
+          "severity_score": 88,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "strong_insult",
+          "expected": "severe",
+          "text": "인간 쓰레기는 사회에서 격리해야 함",
+          "probs": {
+            "none": 0.07479999959468842,
+            "offensive": 0.47510001063346863,
+            "hate": 0.45010000467300415
+          },
+          "severity_score": 69,
+          "grade": "caution",
+          "action_medium": "blur",
+          "correct": false
+        },
+        {
+          "category": "strong_insult",
+          "expected": "severe",
+          "text": "정신병자 새끼 병원이나 가라",
+          "probs": {
+            "none": 0.004800000227987766,
+            "offensive": 0.05079999938607216,
+            "hate": 0.9445000290870667
+          },
+          "severity_score": 97,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "strong_insult",
+          "expected": "severe",
+          "text": "얼굴 보면 토 나온다 성형괴물",
+          "probs": {
+            "none": 0.003599999938160181,
+            "offensive": 0.032999999821186066,
+            "hate": 0.9634000062942505
+          },
+          "severity_score": 98,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "strong_insult",
+          "expected": "severe",
+          "text": "저런 건 그냥 없어져야 세상이 깨끗해짐",
+          "probs": {
+            "none": 0.06849999725818634,
+            "offensive": 0.838100016117096,
+            "hate": 0.0934000015258789
+          },
+          "severity_score": 51,
+          "grade": "caution",
+          "action_medium": "blur",
+          "correct": false
+        },
+        {
+          "category": "sexual_harassment",
+          "expected": "severe",
+          "text": "몸매 보니까 밤에 생각나네 ㅎㅎ",
+          "probs": {
+            "none": 0.7958999872207642,
+            "offensive": 0.14489999413490295,
+            "hate": 0.05909999832510948
+          },
+          "severity_score": 13,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sexual_harassment",
+          "expected": "severe",
+          "text": "옷 저렇게 입는 건 만져달라는 거지",
+          "probs": {
+            "none": 0.02160000056028366,
+            "offensive": 0.6180999875068665,
+            "hate": 0.3603000044822693
+          },
+          "severity_score": 67,
+          "grade": "caution",
+          "action_medium": "blur",
+          "correct": false
+        },
+        {
+          "category": "sexual_harassment",
+          "expected": "severe",
+          "text": "가슴만 보이네 ㅋㅋㅋ",
+          "probs": {
+            "none": 0.9736999869346619,
+            "offensive": 0.02290000021457672,
+            "hate": 0.0034000000450760126
+          },
+          "severity_score": 1,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sexual_harassment",
+          "expected": "severe",
+          "text": "저 몸매면 스폰서 있겠지",
+          "probs": {
+            "none": 0.0560000017285347,
+            "offensive": 0.7919999957084656,
+            "hate": 0.15189999341964722
+          },
+          "severity_score": 55,
+          "grade": "caution",
+          "action_medium": "blur",
+          "correct": false
+        },
+        {
+          "category": "sexual_harassment",
+          "expected": "severe",
+          "text": "벗으면 더 잘 팔릴 듯",
+          "probs": {
+            "none": 0.00419999985024333,
+            "offensive": 0.056299999356269836,
+            "hate": 0.9394999742507935
+          },
+          "severity_score": 97,
+          "grade": "severe",
+          "action_medium": "hide",
+          "correct": true
+        },
+        {
+          "category": "sexual_harassment",
+          "expected": "severe",
+          "text": "다리 보려고 이 방송 본다 ㅎㅎ",
+          "probs": {
+            "none": 0.9728999733924866,
+            "offensive": 0.024299999698996544,
+            "hate": 0.002899999963119626
+          },
+          "severity_score": 2,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "rude_only",
+          "expected": "caution",
+          "text": "노래 진짜 못하네 귀 아프다",
+          "probs": {
+            "none": 0.42179998755455017,
+            "offensive": 0.5587000250816345,
+            "hate": 0.019500000402331352
+          },
+          "severity_score": 30,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "rude_only",
+          "expected": "caution",
+          "text": "발연기 좀 그만해라",
+          "probs": {
+            "none": 0.0272000003606081,
+            "offensive": 0.8903999924659729,
+            "hate": 0.08250000327825546
+          },
+          "severity_score": 53,
+          "grade": "caution",
+          "action_medium": "blur",
+          "correct": true
+        },
+        {
+          "category": "rude_only",
+          "expected": "caution",
+          "text": "이게 예능이냐 노잼이다",
+          "probs": {
+            "none": 0.2502000033855438,
+            "offensive": 0.7297999858856201,
+            "hate": 0.019999999552965164
+          },
+          "severity_score": 38,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "rude_only",
+          "expected": "caution",
+          "text": "기자 수준 하고는",
+          "probs": {
+            "none": 0.08550000190734863,
+            "offensive": 0.85589998960495,
+            "hate": 0.05860000103712082
+          },
+          "severity_score": 49,
+          "grade": "caution",
+          "action_medium": "blur",
+          "correct": true
+        },
+        {
+          "category": "rude_only",
+          "expected": "caution",
+          "text": "또 저 얼굴이냐 지겹다",
+          "probs": {
+            "none": 0.0860000029206276,
+            "offensive": 0.8748000264167786,
+            "hate": 0.03929999843239784
+          },
+          "severity_score": 48,
+          "grade": "caution",
+          "action_medium": "blur",
+          "correct": true
+        },
+        {
+          "category": "rude_only",
+          "expected": "caution",
+          "text": "말 진짜 많네 좀 조용히 해",
+          "probs": {
+            "none": 0.44530001282691956,
+            "offensive": 0.5331000089645386,
+            "hate": 0.02160000056028366
+          },
+          "severity_score": 29,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sarcasm",
+          "expected": "caution",
+          "text": "와 연기 정말 대단하시네요^^ 발로 해도 이것보단 낫겠다",
+          "probs": {
+            "none": 0.8033000230789185,
+            "offensive": 0.18529999256134033,
+            "hate": 0.01140000019222498
+          },
+          "severity_score": 10,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sarcasm",
+          "expected": "caution",
+          "text": "역시 실력 하나는 끝내주네 ㅋ 다른 의미로",
+          "probs": {
+            "none": 0.9842000007629395,
+            "offensive": 0.013299999758601189,
+            "hate": 0.0024999999441206455
+          },
+          "severity_score": 1,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sarcasm",
+          "expected": "caution",
+          "text": "이 정도면 상 줘야지 최악상",
+          "probs": {
+            "none": 0.6086000204086304,
+            "offensive": 0.37619999051094055,
+            "hate": 0.015200000256299973
+          },
+          "severity_score": 20,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sarcasm",
+          "expected": "caution",
+          "text": "기자님 소설 잘 쓰시네요",
+          "probs": {
+            "none": 0.9020000100135803,
+            "offensive": 0.09220000356435776,
+            "hate": 0.005799999926239252
+          },
+          "severity_score": 5,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sarcasm",
+          "expected": "caution",
+          "text": "참 잘~ 한다 잘해",
+          "probs": {
+            "none": 0.7197999954223633,
+            "offensive": 0.2669000029563904,
+            "hate": 0.013299999758601189
+          },
+          "severity_score": 15,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        },
+        {
+          "category": "sarcasm",
+          "expected": "caution",
+          "text": "축하합니다 꼴찌 ㅋㅋ",
+          "probs": {
+            "none": 0.7379999756813049,
+            "offensive": 0.24860000610351562,
+            "hate": 0.013500000350177288
+          },
+          "severity_score": 14,
+          "grade": "normal",
+          "action_medium": "show",
+          "correct": false
+        }
+      ],
+      "severe_recall": 0.6667,
+      "severe_shown_rate": 0.125,
+      "severe_mean_score": 74.5,
+      "caution_overcall_rate": 0.0
+    }
+  }
+}
