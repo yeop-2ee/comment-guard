@@ -1,0 +1,27 @@
+# 가상환경, 캐시
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.DS_Store
+
+# 모델 가중치 (model_card.json은 runs/에 복사해서 커밋)
+models/*
+!models/.gitkeep
+
+# 실제 배포 설정 (프로젝트 이름, Blob 저장소 이름). 예시 파일만 커밋
+configs/deploy.env
+
+# 인증 키는 만들지 않지만, 실수로 생겨도 커밋되지 않게
+*-key.json
+*credentials*.json
+service-account*.json
+
+# 임시 파일
+*.tmp
+*.log
+tmp/
+
+# 과제 안내문 (수업 자료, 공개 저장소에 올리지 않음)
+*.pdf

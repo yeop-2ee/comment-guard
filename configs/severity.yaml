@@ -1,0 +1,10 @@
+# 심각도 등급 기준값과 민감도 규칙 (명세서 2.1, 2.3장)
+# 기준값 30/60은 시작값이며, 학습 후 valid로만 조정해서 모델 산출물(model_card.json)에 함께 기록합니다.
+thresholds:
+  caution: 30   # 이 점수 이상이면 주의
+  severe: 60    # 이 점수 이상이면 심각
+
+sensitivity:
+  low:    {normal: show, caution: show, severe: hide}
+  medium: {normal: show, caution: blur, severe: hide}
+  high:   {normal: show, caution: hide, severe: hide}
