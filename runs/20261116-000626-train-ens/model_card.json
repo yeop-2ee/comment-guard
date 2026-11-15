@@ -1,0 +1,83 @@
+{
+  "model_version": "ens-20261116-59b8e09",
+  "model_id": "ens",
+  "created_at": "2026-11-16T00:07:13+09:00",
+  "git_commit": "59b8e090baa33bab5969a937291741d21beaff26",
+  "git_dirty": false,
+  "method": "구성 모델의 hate·bias 클래스 확률을 같은 가중치로 평균",
+  "members": [
+    {
+      "model_id": "m2",
+      "model_version": "m2-20261110-314b2b2",
+      "git_dirty": false,
+      "valid_hate_macro_f1": 0.7132,
+      "artifact_bytes": 436653239
+    },
+    {
+      "model_id": "m3",
+      "model_version": "m3-20261115-5b32863",
+      "git_dirty": false,
+      "valid_hate_macro_f1": 0.696,
+      "artifact_bytes": 510103486
+    },
+    {
+      "model_id": "m4",
+      "model_version": "m4-20261115-e1be820",
+      "git_dirty": false,
+      "valid_hate_macro_f1": 0.667,
+      "artifact_bytes": 1347456130
+    }
+  ],
+  "data": {
+    "train_fit": "sha256:b6a752ef7bfc84b56d0228c1df0d327a35a146c516ef65c2f49fc1ea0485a6a8",
+    "valid": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80"
+  },
+  "severity": {
+    "thresholds": {
+      "caution": 38,
+      "severe": 70
+    },
+    "sensitivity": {
+      "low": {
+        "normal": "show",
+        "caution": "show",
+        "severe": "hide"
+      },
+      "medium": {
+        "normal": "show",
+        "caution": "blur",
+        "severe": "hide"
+      },
+      "high": {
+        "normal": "show",
+        "caution": "hide",
+        "severe": "hide"
+      }
+    }
+  },
+  "severity_tuning": {
+    "selected": {
+      "caution": 38,
+      "severe": 70,
+      "grade_macro_f1": 0.6927810928597383,
+      "hate_block_rate": 0.6020942408376964,
+      "none_false_block_rate": 0.14326647564469913,
+      "false_block_target_met": true,
+      "hate_block_target_met": true,
+      "max_false_block": 0.15,
+      "min_hate_block": 0.6
+    },
+    "start_30_60": {
+      "caution": 30,
+      "severe": 60,
+      "grade_macro_f1": 0.6914459535936616,
+      "hate_block_rate": 0.7225130890052356,
+      "none_false_block_rate": 0.20057306590257878
+    }
+  },
+  "valid_metrics": {
+    "ens_hate_macro_f1": 0.7042,
+    "ens_bias_macro_f1": 0.7548
+  },
+  "artifact_bytes": 2294212855
+}

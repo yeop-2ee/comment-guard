@@ -1,0 +1,53 @@
+{
+  "run_id": "20261116-000626-train-ens",
+  "step": "train",
+  "started_at": "2026-11-16T00:06:26+09:00",
+  "finished_at": "2026-11-16T00:07:13+09:00",
+  "status": "success",
+  "git_commit": "59b8e090baa33bab5969a937291741d21beaff26",
+  "git_dirty": false,
+  "model_version": "ens-20261116-59b8e09",
+  "inputs": {
+    "/Users/sangyeop/Projects/comment-guard/data/processed/valid.tsv": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80",
+    "/Users/sangyeop/Projects/comment-guard/configs/severity.yaml": "sha256:efcc4bbf7af7d7ac11900f112a8cd7f6cfee080c39a0988230e3cb02e847d28e",
+    "/Users/sangyeop/Projects/comment-guard/models/m2-20261110-314b2b2/model_card.json": "sha256:2ef95955f7bfa1bc893d9447530dae0e104d928ba67915c92e09754ded298867",
+    "/Users/sangyeop/Projects/comment-guard/models/m3-20261115-5b32863/model_card.json": "sha256:dfc1a4136b849b868677d2cd71acb113aeac3c49fe5f0e1f3f092980e90c9d4f",
+    "/Users/sangyeop/Projects/comment-guard/models/m4-20261115-e1be820/model_card.json": "sha256:1108af94863b0047deff101437cf2a97d12be8a5e2e5a137e22390dfbd8e434e"
+  },
+  "config": {
+    "members": [
+      "models/m2-20261110-314b2b2",
+      "models/m3-20261115-5b32863",
+      "models/m4-20261115-e1be820"
+    ],
+    "weights": "equal",
+    "severity_tuning": {
+      "max_none_false_block_medium": 0.15,
+      "min_hate_block_medium": 0.6
+    }
+  },
+  "outputs": [
+    "models/ens-20261116-59b8e09/",
+    "runs/20261116-000626-train-ens/model_card.json"
+  ],
+  "extra": {
+    "valid_metrics": {
+      "ens_hate_macro_f1": 0.7042,
+      "ens_bias_macro_f1": 0.7548
+    },
+    "members": [
+      "m2-20261110-314b2b2",
+      "m3-20261115-5b32863",
+      "m4-20261115-e1be820"
+    ],
+    "severity": {
+      "caution": 38,
+      "severe": 70
+    }
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

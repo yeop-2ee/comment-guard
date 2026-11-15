@@ -1,0 +1,75 @@
+{
+  "run_id": "20261116-001003-probe-behavior_v2",
+  "step": "probe",
+  "started_at": "2026-11-16T00:10:03+09:00",
+  "finished_at": "2026-11-16T00:10:15+09:00",
+  "status": "success",
+  "git_commit": "59b8e090baa33bab5969a937291741d21beaff26",
+  "git_dirty": false,
+  "model_version": "m1-20261109-591d16d,m2-20261110-314b2b2,m3-20261115-5b32863,m4-20261115-e1be820,ens-20261116-59b8e09",
+  "inputs": {
+    "/Users/sangyeop/Projects/comment-guard/data/probes/behavior_v2.tsv": "sha256:8bf72824e634f4a865e6d4b5de023f84f1958c55fd94cd2213391d256a125bfc",
+    "models/m1-20261109-591d16d/model_card.json": "sha256:e2b8e6283ba31376bc33cc072c0a3af4d5cd28a481524cc936b13cf636048ceb",
+    "models/m2-20261110-314b2b2/model_card.json": "sha256:2ef95955f7bfa1bc893d9447530dae0e104d928ba67915c92e09754ded298867",
+    "models/m3-20261115-5b32863/model_card.json": "sha256:06a7369ea1a592d4458690fb1b7d52369ba3cf513e587f9b6d9110e87e890477",
+    "models/m4-20261115-e1be820/model_card.json": "sha256:c63b9818c297ff1b13919221697350299b6568181633a03fb15c11f0dd52a647",
+    "models/ens-20261116-59b8e09/model_card.json": "sha256:563f85d636fb67c5202e75d64c2d95652a064d968fedb112fd92380aed75c942"
+  },
+  "config": {
+    "set": "behavior_v2",
+    "models": [
+      "models/m1-20261109-591d16d",
+      "models/m2-20261110-314b2b2",
+      "models/m3-20261115-5b32863",
+      "models/m4-20261115-e1be820",
+      "models/ens-20261116-59b8e09"
+    ]
+  },
+  "outputs": [
+    "runs/20261116-001003-probe-behavior_v2/probe_metrics.json"
+  ],
+  "extra": {
+    "summary": {
+      "m1-20261109-591d16d": {
+        "accuracy": 0.4722,
+        "severe_recall": 0.6667,
+        "severe_shown_rate": 0.1667,
+        "severe_mean_score": 62.6,
+        "caution_overcall_rate": 0.1667
+      },
+      "m2-20261110-314b2b2": {
+        "accuracy": 0.5278,
+        "severe_recall": 0.6667,
+        "severe_shown_rate": 0.125,
+        "severe_mean_score": 74.5,
+        "caution_overcall_rate": 0.0
+      },
+      "m3-20261115-5b32863": {
+        "accuracy": 0.6389,
+        "severe_recall": 0.7917,
+        "severe_shown_rate": 0.0417,
+        "severe_mean_score": 81.9,
+        "caution_overcall_rate": 0.0
+      },
+      "m4-20261115-e1be820": {
+        "accuracy": 0.4722,
+        "severe_recall": 0.5833,
+        "severe_shown_rate": 0.1667,
+        "severe_mean_score": 68.3,
+        "caution_overcall_rate": 0.0
+      },
+      "ens-20261116-59b8e09": {
+        "accuracy": 0.5,
+        "severe_recall": 0.6667,
+        "severe_shown_rate": 0.0833,
+        "severe_mean_score": 74.8,
+        "caution_overcall_rate": 0.0
+      }
+    }
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

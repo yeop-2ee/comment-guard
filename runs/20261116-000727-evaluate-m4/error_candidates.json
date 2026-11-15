@@ -1,0 +1,44 @@
+{
+  "missed_hate_total": 3,
+  "candidates": [
+    {
+      "eval_row": 133,
+      "true": "hate",
+      "pred": "none",
+      "probs": {
+        "none": 0.9682000279426575,
+        "offensive": 0.02630000002682209,
+        "hate": 0.005499999970197678
+      },
+      "severity_score": 2,
+      "bias_true": "none",
+      "top_ngrams": null
+    },
+    {
+      "eval_row": 440,
+      "true": "hate",
+      "pred": "none",
+      "probs": {
+        "none": 0.7020999789237976,
+        "offensive": 0.29670000076293945,
+        "hate": 0.0012000000569969416
+      },
+      "severity_score": 15,
+      "bias_true": "none",
+      "top_ngrams": null
+    },
+    {
+      "eval_row": 212,
+      "true": "hate",
+      "pred": "none",
+      "probs": {
+        "none": 0.6373000144958496,
+        "offensive": 0.3386000096797943,
+        "hate": 0.02410000003874302
+      },
+      "severity_score": 19,
+      "bias_true": "others",
+      "top_ngrams": null
+    }
+  ]
+}

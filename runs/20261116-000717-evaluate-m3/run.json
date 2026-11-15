@@ -1,0 +1,47 @@
+{
+  "run_id": "20261116-000717-evaluate-m3",
+  "step": "evaluate",
+  "started_at": "2026-11-16T00:07:17+09:00",
+  "finished_at": "2026-11-16T00:07:22+09:00",
+  "status": "success",
+  "git_commit": "59b8e090baa33bab5969a937291741d21beaff26",
+  "git_dirty": false,
+  "model_version": "m3-20261115-5b32863",
+  "inputs": {
+    "/Users/sangyeop/Projects/comment-guard/data/processed/eval.tsv": "sha256:6904b087a99ed155b7922d98448cd6c5bbe7a9f63ad6f5bf1b9377cb31434ff6",
+    "models/m3-20261115-5b32863/model_card.json": "sha256:dfc1a4136b849b868677d2cd71acb113aeac3c49fe5f0e1f3f092980e90c9d4f"
+  },
+  "config": {
+    "bootstrap": {
+      "bootstrap_iters": 1000,
+      "bootstrap_seed": 42
+    },
+    "model_dir": "models/m3-20261115-5b32863"
+  },
+  "outputs": [
+    "models/m3-20261115-5b32863/model_card.json",
+    "runs/20261116-000717-evaluate-m3/metrics.json",
+    "runs/20261116-000717-evaluate-m3/confusion_matrix_m3.png",
+    "runs/20261116-000717-evaluate-m3/error_candidates.json"
+  ],
+  "extra": {
+    "summary": {
+      "b0_macro_f1": 0.169,
+      "m3_macro_f1": 0.7231,
+      "m3_ci95": [
+        0.6819,
+        0.761
+      ],
+      "fitness": {
+        "m3_ci_above_b0_ci": true,
+        "medium_none_false_block_le_15pct": true,
+        "medium_hate_block_ge_60pct": true
+      }
+    }
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}
