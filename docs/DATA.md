@@ -1,5 +1,7 @@
 # 데이터
 
+근거 파일: `runs/20261109-231905-data/run.json`, `runs/20261109-231906-validate/data_report.json`. 이 문서의 건수와 분포는 2026-11-15에 이 기록과 원본 파일로 다시 확인했습니다.
+
 ## 1. 출처와 사용 조건
 
 | 항목 | 내용 |
@@ -42,13 +44,14 @@
 
 ## 4. 분할 기준
 
-| 분할 | 출처 | 건수 | none / offensive / hate | 용도 |
-|---|---|---|---|---|
-| `train_fit` | train.tsv 90% | 7,106 | 3,137 / 2,249 / 1,720 | 학습 |
-| `valid` | train.tsv 10% | 790 | 349 / 250 / 191 | 하이퍼파라미터, 심각도 기준값 조정 |
-| `eval` | dev.tsv 전체 | 471 | 160 / 189 / 122 | **최종 평가만** |
+| 분할 | 출처 | 건수 | `hate`: none / offensive / hate | `bias`: none / others / gender | 용도 |
+|---|---|---|---|---|---|
+| `train_fit` | train.tsv 90% | 7,106 | 3,137 / 2,249 / 1,720 | 4,631 / 1,378 / 1,097 | 학습 |
+| `valid` | train.tsv 10% | 790 | 349 / 250 / 191 | 517 / 138 / 135 | 하이퍼파라미터, 심각도 기준값 조정 |
+| `eval` | dev.tsv 전체 | 471 | 160 / 189 / 122 | 342 / 62 / 67 | **최종 평가만** |
 
-- `train_fit`/`valid`는 `hate` 라벨 비율을 유지하는 층화 분할이고 `random_state=42`입니다(`configs/train.yaml`).
+- `train_fit`/`valid`는 `hate` 라벨 비율을 유지하는 층화 분할이고 `random_state=42`입니다(`configs/train.yaml`). `bias`는 층화 기준이 아닙니다.
+- 모델은 `train_fit`으로 학습한 것을 그대로 씁니다. 기준값을 `valid` 확률로 조정했기 때문에 `train_fit + valid`로 다시 학습하지 않습니다(명세서 4.2장).
 - `eval`은 데이터 제작자가 나눈 공식 분할을 그대로 씁니다. train과 비교하면 `none` 비율이 낮고(34% vs 44%) `offensive` 비율이 높습니다(40% vs 32%). 이 차이는 평가 결과를 해석할 때 고려합니다.
 - `test.no_label.tsv`(974건)는 정답이 없어서 평가에 쓰지 않고, 클라우드 스모크 테스트 입력으로만 씁니다.
 
@@ -57,9 +60,23 @@
 - [x] 입력은 `comments` 하나뿐 (`data.py`가 다른 컬럼을 입력으로 내보내지 않음)
 - [x] train과 dev의 중복 텍스트 제거 (`validate()`가 분할 후 겹침이 남아 있으면 중단)
 - [x] eval을 학습, 어휘 사전 구축, 기준값 조정에 쓰지 않음 (`train.py`는 `train_fit`·`valid`만 읽고, eval은 `evaluate.py`만 읽음)
-- [x] 클래스 가중치를 `train_fit` 기준으로 계산 (`class_weight="balanced"`는 학습에 쓰인 `train_fit` 라벨로 계산됨)
+- [x] 클래스 가중치를 `train_fit` 기준으로 계산 (M1의 `class_weight="balanced"`와 M2의 loss 가중치 모두 `train_fit` 라벨로 계산됨)
+- [x] M2도 같은 규칙을 따름 (`m2.py`는 `train_fit`·`valid`만 읽고, 학습률·에폭·기준값을 `valid`로 선택)
+- [x] 서빙 모델을 eval로 고르지 않음 (valid 지표와 운영 지표만 사용, `EVALUATION.md` 8.6장)
 
-## 6. 다시 확보하는 방법
+## 6. 행동 검사 세트 (`data/probes/`)
+
+공개 데이터가 아니라 직접 만든 가짜 예시입니다. 학습, 어휘 사전, 하이퍼파라미터, 기준값 조정에 쓰지 않고 측정에만 씁니다(명세서 5.6장).
+
+| 파일 | 문장 수 | 기대값 | 해시 고정 |
+|---|---|---|---|
+| `behavior.tsv` (v1) | 42 (7유형 × 6) | `ok` / `toxic` (medium에서 보임 / 가림) | `MANIFEST.sha256` |
+| `behavior_v2.tsv` (v2) | 36 (6유형 × 6) | 등급 `severe` / `caution` | `MANIFEST_v2.sha256` |
+
+- 두 세트 모두 모델 결과를 보기 전에 문장을 작성하고 해시를 고정했습니다. 결과를 본 뒤 문장을 바꾸지 않습니다.
+- 결과는 `EVALUATION.md` 8.4장, 8.4.1장에 있습니다.
+
+## 7. 다시 확보하는 방법
 
 ```bash
 make data       # 없는 파일만 고정 커밋에서 받고 MANIFEST.sha256과 대조. 다르면 중단

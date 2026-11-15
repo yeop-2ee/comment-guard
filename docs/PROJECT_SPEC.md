@@ -5,8 +5,9 @@
 > 구현 중 결정이 바뀌면 이 문서를 먼저 수정한 뒤 코드를 바꿉니다.
 
 - 작성일: 2026-11-09
-- 상태: v1.1 (D2·D3·D6 결정 반영, 2026-11-09)
-- 관련 문서: `README.md`(제출용, 구현하면서 작성)
+- 상태: v1.2 (2026-11-15 정리). D1~D6 모두 결정됨. M0~M3과 M6(로컬 범위)까지 실행했고, M4(클라우드 배포)부터는 아직 실행하지 않았습니다. 단계별 진행 상태는 13장에 있습니다.
+- 서빙 모델: M2 `m2-20261110-314b2b2` (4.3장, 근거는 `docs/EVALUATION.md` 8장)
+- 관련 문서: `docs/DATA.md`(데이터), `docs/EVALUATION.md`(평가 결과), `README.md`(제출용, M7에서 작성)
 
 ---
 
@@ -81,13 +82,14 @@
 severity_score = round(100 × (P(hate) + 0.5 × P(offensive)))   # 0~100 정수
 ```
 
-| 등급 | 점수 범위 (기본값) | 의미 |
+| 등급 | 점수 범위 (시작값) | 의미 |
 |---|---|---|
 | `일반` (normal) | 0 ~ 29 | 문제 표현이 거의 없음 |
 | `주의` (caution) | 30 ~ 59 | 공격적·무례한 표현 가능성 |
 | `심각` (severe) | 60 ~ 100 | 혐오 표현 가능성이 높음 |
 
 - **기준값을 정하는 방법:** 30/60은 시작값입니다. 최종 기준값은 **학습 데이터 안에서 떼어낸 검증 데이터(valid)** 로만 조정하고, 최종 평가 데이터(dev)는 절대 쓰지 않습니다(평가 데이터로 기준을 정하면 누수).
+- **조정된 기준값 (모델별, valid로 결정):** M1은 주의 51점 / 심각 55점, M2(서빙 모델)는 주의 39점 / 심각 70점입니다. 서빙은 `model_card.json`에 기록된 조정값을 씁니다.
 - **조정 규칙 (M2에서 확정, 2026-11-09):** `caution < severe`인 정수 조합(5~95)을 모두 시험해서 아래 순서로 비교합니다.
   1. medium 정상 오차단율 ≤ 15% (5.2장 목표)
   2. medium 혐오 차단율 ≥ 60% (5.2장 목표)
@@ -95,8 +97,8 @@ severity_score = round(100 × (P(hate) + 0.5 × P(offensive)))   # 0~100 정수
   4. medium 혐오 차단율이 가장 높음
   - medium에서 정상 오차단율은 `caution` 기준값만, 혐오 차단율은 `severe` 기준값만으로 정해집니다. 그래서 혐오 차단율만 최대로 하면 `severe = caution + 1`이 되어 주의 등급이 사라집니다. 3번 조건은 이 퇴화를 막기 위한 것입니다.
   - 1번을 만족하는 조합이 없으면 정상 오차단율이 가장 낮은 조합을 고르고, 목표 미달을 기록합니다.
-  - 시작값 30/60은 valid에서 정상 댓글의 약 65%를 가려서 쓸 수 없었습니다. 공식에 `0.5 × P(offensive)`가 들어가서 정상 댓글의 점수도 30을 쉽게 넘기 때문입니다.
-- 기준값은 `configs/severity.yaml`에 저장하고, 모델 버전과 함께 기록합니다.
+  - 시작값 30/60은 M1 기준 valid에서 정상 댓글의 약 65%를 가려서 쓸 수 없었습니다. 공식에 `0.5 × P(offensive)`가 들어가서 정상 댓글의 점수도 30을 쉽게 넘기 때문입니다.
+- 시작값과 조정 규칙은 `configs/severity.yaml`에 두고, 조정된 기준값은 모델 버전과 함께 `model_card.json`에 기록합니다.
 
 ### 2.2 기능 F1 — 분류 API
 
@@ -247,13 +249,20 @@ API를 직접 호출하지 않아도 쓸 수 있는 화면을 같은 서버에�
 | 댓글 필터 | 사용자 A | 댓글을 한 줄에 하나씩 붙여넣고 민감도를 고르면, 실제 댓글 목록처럼 보이기 / 흐리게 / 숨기기로 보여줌. 숨긴 댓글은 눌러서 펼칠 수 있음(삭제가 아니라 숨김) |
 | 증거 리포트 | 사용자 B | 댓글과 선택 메타데이터(URL, 작성 시각, 작성자 표시명)를 입력하면 심각도 순 리포트, 요약, 경고, 체크리스트, 고지 문구를 보여주고 JSON·CSV로 내려받음 |
 | 판정 상세 | 개발자·공통 | 클래스별 확률, 심각도 점수와 등급 기준선의 위치, 편향 표시, 확률과 등급이 엇갈리는 이유를 보여줌 |
+| 모델 성능 (2026-11-15 추가) | 개발자·평가자 | `EVALUATION.md`의 핵심 결과를 한 화면에 보여줌: 목적 적합 기준 통과 여부, B0·M1·M2 비교, 클래스별 지표와 혼동행렬, 민감도별 필터 지표, 등급 분포, 행동 검사, 운영 지표, 한계 |
 
 - 화면은 API(`/v1/*`)만 호출합니다. 판정 로직이나 기준값을 화면에 따로 두지 않습니다.
 - 밝은 테마로 고정합니다(OS 다크 모드와 무관). 색은 판정 등급(일반·주의·심각)에만 씁니다.
 - 입력은 브라우저 밖으로는 이 서버에만 전송되고 저장되지 않습니다(D5). 화면에도 이 사실을 표시합니다.
 - 작성 시각 입력은 한국 시간(+09:00)으로 보냅니다. API는 시간대가 있는 값만 받기 때문입니다.
 - 배포하면 화면도 Vercel 프로덕션 도메인에서 그대로 열립니다. 화면과 API가 같은 주소라서 따로 설정할 것이 없습니다.
+- **예시 댓글 (2026-11-15 변경):** 예시 버튼의 문장은 공개 데이터셋의 **실제 뉴스 댓글**입니다. `data/raw/test.no_label.tsv`(BEEP!, CC BY-SA 4.0)에서 실명이 없는 댓글을 골랐고, 화면에 출처와 라이선스를 표시합니다. 제출물에 싣기 부적절한 댓글(성적인 표현, 지나치게 험한 욕설·비하)은 고르지 않습니다. 이 파일은 정답 라벨이 없어 학습·조정·평가 어디에도 쓰이지 않으므로 예시로 써도 누수가 없습니다.
+  - 유튜브·블로그·기사 댓글란에서 직접 가져오지는 않습니다. 크롤링과 개인 댓글 수집을 하지 않는다는 원칙(1.3장, 11장) 때문이고, 재배포 조건이 분명한 공개 데이터셋만 씁니다.
+  - "놓치기 쉬운 유형" 예시만 직접 만든 문장입니다(행동 검사 v2의 비꼼 유형). 암시적 성희롱 유형은 선정적이라 화면 예시에서는 빼고, 평가 결과로만 보고합니다. 라벨 없는 공개 댓글에서는 모델이 놓친 사례를 골라낼 수 없기 때문이며, 화면에 직접 만든 예시라고 표시합니다.
+  - 증거 리포트 예시의 댓글은 같은 공개 데이터의 실제 댓글이고, URL·작성자·시각은 지어낸 값입니다.
+- **모델 성능 탭의 수치:** 평가 기록(`runs/`)에서 옮긴 고정 스냅샷이며, 대상 모델 버전과 근거 파일을 화면에 표시합니다. 서버가 서빙 중인 모델 버전(`/v1/meta`)이 스냅샷의 버전과 다르면 화면에 경고를 띄웁니다. 평가를 다시 하면 이 스냅샷도 함께 고칩니다.
 - 과제 평가 기준상 화면 디자인은 배점이 없습니다. 서비스 목적(필터링, 증거 정리)을 실제로 써볼 수 있게 하는 용도입니다.
+
 ---
 
 ## 3. 데이터
@@ -295,6 +304,7 @@ API를 직접 호출하지 않아도 쓸 수 있는 화면을 같은 서버에�
 - 댓글에 큰따옴표가 들어간 행이 있어서 TSV를 **따옴표 처리 없이**(`quoting=QUOTE_NONE`) 읽습니다.
 - `contain_gender_bias == (bias == "gender")`가 train과 dev 모든 행에서 성립합니다. 그래서 성별 편향 여부는 `bias` 예측에서 도출합니다(4.1장). `validate()`가 이 관계를 매번 다시 검사하고, 어긋나는 행 수를 기록합니다.
 - 댓글 길이는 4~137자(평균 약 39자)입니다.
+- 이 버전의 원본에서는 3.4장 검사의 제거 건수가 모두 0건이었습니다(`docs/DATA.md` 3장).
 
 ### 3.3 데이터 한 건의 의미와 단위
 
@@ -328,10 +338,13 @@ API를 직접 호출하지 않아도 쓸 수 있는 화면을 같은 서버에�
 | `valid` | train.tsv의 10% | 하이퍼파라미터, 심각도 기준값 조정 | 위와 같음 |
 | `eval` | dev.tsv 전체 | **최종 평가만** | 데이터 제작자가 나눈 공식 분할을 그대로 사용 |
 
-- 전처리 기준(TF-IDF 어휘 사전, 기준값 등)은 `train_fit`(필요하면 `valid`)으로만 정합니다.
-- 최종 모델은 하이퍼파라미터를 정한 뒤 `train_fit + valid`로 다시 학습할 수 있습니다. 이 경우에도 `eval`은 쓰지 않습니다.
+- 어휘 사전과 클래스 가중치는 `train_fit`으로만, 하이퍼파라미터와 심각도 기준값은 `valid`로만 정합니다.
+- 최종 모델은 `train_fit`으로 학습한 모델을 그대로 씁니다. `train_fit + valid`로 다시 학습하지 않습니다(이유는 4.2장). `eval`은 어느 경우에도 쓰지 않습니다.
+- 분할별 건수와 라벨 분포는 `docs/DATA.md` 4장에 있습니다.
 
 ### 3.6 누수 방지 체크리스트
+
+구현 후 확인한 결과(항목별 근거 코드)는 `docs/DATA.md` 5장에 있습니다.
 
 - [ ] 입력은 `comments` 하나뿐인지 (편향 라벨을 입력에 넣지 않았는지)
 - [ ] `eval`이 학습, 어휘 사전 구축, 기준값 조정 어디에도 쓰이지 않았는지
@@ -353,9 +366,9 @@ API를 직접 호출하지 않아도 쓸 수 있는 화면을 같은 서버에�
 | ID | 모델 | 역할 | 필수 여부 |
 |---|---|---|---|
 | `B0` | 최빈값 분류기 (`DummyClassifier(strategy="most_frequent")`) | 단순 기준 | 필수 |
-| `M1` | 글자 n-gram TF-IDF + 로지스틱 회귀 | **주 서비스 모델** | 필수 |
-| `M1-bias` | M1과 같은 특징 + 로지스틱 회귀 (`bias` 3클래스). `contain_gender_bias`는 `bias == "gender"`로 도출 (3.2장 확인 사실) | 편향 표시 | 필수 |
-| `M2` | KcELECTRA-base 미세조정 | 사전학습 모델 비교 | **필수** (D2 결정: 본 과제로 승격) |
+| `M1` | 글자 n-gram TF-IDF + 로지스틱 회귀 | 처음 계획한 서비스 모델. 지금은 비교 기준이자 대체 모델 | 필수 |
+| `M1-bias` | M1과 같은 특징 + 로지스틱 회귀 (`bias` 3클래스). `contain_gender_bias`는 `bias == "gender"`로 도출 (3.2장 확인 사실) | M1의 편향 표시 | 필수 |
+| `M2` | KcELECTRA-base 미세조정 (hate·bias 분류 머리 2개) | **서빙 모델** (2026-11-10 결정, 4.3장) | **필수** (D2 결정: 본 과제로 승격) |
 
 ### 4.2 M1 상세
 
@@ -363,7 +376,7 @@ API를 직접 호출하지 않아도 쓸 수 있는 화면을 같은 서버에�
   - 한국어 댓글은 띄어쓰기가 불규칙하고 변형 욕설이 많아서, 형태소보다 **글자 n-gram**이 유리하고 외부 의존성도 없습니다.
 - 분류기: `LogisticRegression(class_weight="balanced", max_iter=2000)`
 - 조정할 하이퍼파라미터: `C ∈ {0.25, 0.5, 1, 2, 4}`. `valid`의 macro-F1로 선택합니다.
-- 저장: `joblib`으로 저장하고, 산출물 크기를 기록합니다(수 MB~수십 MB 예상).
+- 저장: `joblib`으로 저장하고, 산출물 크기를 기록합니다(실제 3.1MB).
 - 최종 모델은 `train_fit`으로 학습한 모델을 그대로 씁니다(`train_fit + valid`로 다시 학습하지 않음). 기준값을 valid 확률로 조정했기 때문에, 다시 학습하면 확률 분포가 바뀌어 기준값과 맞지 않게 됩니다.
 - B0(`hate`, `bias` 각각의 최빈값 분류기)도 `train_fit`으로 학습해서 `models/<version>/b0.joblib`에 함께 저장합니다.
 
@@ -377,7 +390,7 @@ API를 직접 호출하지 않아도 쓸 수 있는 화면을 같은 서버에�
 - 산출물: `models/m2-<날짜>-<커밋>/`(가중치 safetensors, 설정, 토크나이저, 모델 카드). 서빙 시 허브에 접속하지 않고 이 폴더만으로 로드합니다.
 - 학습은 로컬(Apple Silicon MPS) 또는 Colab GPU에서 하고, 서빙은 CPU로 합니다.
 - 하이퍼파라미터(학습률, 에폭)와 조기 종료는 `valid`로만 정합니다. 심각도 기준값도 모델별로 `valid`에서 다시 조정합니다.
-- 학습용 의존성(torch, transformers)은 `requirements-m2.txt`로 분리해서 서빙 함수를 작게 유지합니다.
+- torch와 transformers는 학습·평가용 `requirements-m2.txt`로 분리합니다. 서빙 함수(Vercel)에는 설치하지 않습니다.
 - **서빙 모델 선택 규칙 (M2 결과를 보기 전, 2026-11-10 확정):** eval로 모델을 고르면 eval이 선택용 자료가 되어 최종 평가의 의미가 약해지므로, **valid 지표와 운영 지표로만** 고릅니다. eval·행동 검사 결과는 함께 보고하되 선택에는 쓰지 않습니다.
   - M2를 서빙 모델로 고르는 조건 (모두 만족): ① valid hate macro-F1이 M1보다 0.02 이상 높음, ② CPU 단일 스레드 단건 지연 p50 ≤ 500ms, ③ 최대 메모리 ≤ 1,500MB (Vercel 함수 최대 2GB에서 여유 확보)
   - 하나라도 못 맞추면 M1을 유지합니다. 비교 결과와 판단은 `EVALUATION.md`에 적습니다.
@@ -385,7 +398,7 @@ API를 직접 호출하지 않아도 쓸 수 있는 화면을 같은 서버에�
 - **결정 (2026-11-10): 서빙 모델 M2** (`m2-20261110-314b2b2`). 세 조건 모두 통과(valid +0.134, 단건 p50 13.6ms, 메모리 1,266MB). 근거는 `EVALUATION.md` 8장.
   - 서빙할 모델은 `configs/serving.yaml`의 `model_id`로 정합니다(`m1`이면 `models/LATEST`, `m2`면 `models/LATEST_M2`). 업로드·배포·로컬 서버가 모두 이 값을 따릅니다.
   - M1은 대체 모델로 유지합니다. `MODEL_URI`만 바꾸면 같은 API로 되돌릴 수 있습니다.
-- 고려사항: 가중치가 약 500MB라 함수가 새로 시작할 때 모델을 받는 시간(cold start)이 길어지고, PyTorch는 Vercel 함수 크기 한도(500MB)를 넘습니다. 서빙은 ONNX로 변환해 실행하는 방안을 비교합니다. 이 차이를 비교 결과로 기록하면 클라우드 구성 선택 이유가 됩니다.
+- 고려사항: 가중치가 437MB라 함수가 새로 시작할 때 모델을 받는 시간(cold start)이 길어집니다. Vercel 함수는 vCPU 1개라서 클라우드 지연은 로컬 측정값과 다릅니다. cold start와 클라우드 지연은 아직 재지 않았고 M4에서 실측해 기록합니다.
 
 ### 4.4 모델 버전 규칙
 
@@ -395,8 +408,10 @@ API를 직접 호출하지 않아도 쓸 수 있는 화면을 같은 서버에�
 ```
 
 모델 산출물 폴더 `models/<model_version>/`에 아래 파일을 둡니다.
-- `model.joblib`(또는 M2 가중치)
-- `model_card.json`: 모델 버전, git 커밋, 학습 데이터 해시, 하이퍼파라미터, 심각도 기준값, valid/eval 지표, 라이브러리 버전, 학습 시각
+- 모델 파일: M1은 `model.joblib`과 `b0.joblib`, M2는 `model.safetensors`, 설정, 토크나이저
+- `model_card.json`: 모델 버전, git 커밋, dirty 여부, 학습 데이터 해시, 하이퍼파라미터, 심각도 기준값, valid/eval 지표, 라이브러리 버전, 학습 시각
+
+`models/`는 Git에 올리지 않습니다. 대신 `model_card.json`을 `runs/<run_id>/`에 복사해서 커밋합니다. `models/LATEST`(M1)와 `models/LATEST_M2`(M2)가 가장 최근에 학습한 버전을 가리킵니다.
 
 클라우드에서는 같은 구조로 Blob 저장소 `models/<model_version>/`에 올리고, 서비스는 환경변수 `MODEL_URI`로 어떤 버전을 쓸지 지정합니다.
 
@@ -411,8 +426,8 @@ API를 직접 호출하지 않아도 쓸 수 있는 화면을 같은 서버에�
 | 평가 데이터 | `eval` (dev.tsv, 471건). 학습과 조정에 쓰지 않은 공식 분할 |
 | 주 지표 | **macro-F1** (3클래스). 클래스 불균형 때문에 정확도는 보조로만 사용 |
 | 보조 지표 | 클래스별 정밀도·재현율·F1, 정확도, 혼동행렬 |
-| 비교 대상 | B0(최빈값) vs M1 (vs M2). 같은 eval 데이터, 같은 계산 코드 |
-| 불확실성 | 평가 건수가 적어서, macro-F1에 **부트스트랩 95% 신뢰구간**(1,000회 재표본, seed 고정)을 함께 보고. 같은 재표본으로 M1−B0 차이의 구간도 계산. 차단율 같은 비율 지표는 Wilson 95% 구간 |
+| 비교 대상 | B0(최빈값) vs M1 vs M2. 같은 eval 데이터, 같은 계산 코드 |
+| 불확실성 | 평가 건수가 적어서, macro-F1에 **부트스트랩 95% 신뢰구간**(1,000회 재표본, seed 고정)을 함께 보고. 같은 재표본으로 모델 간 차이(M1−B0, M2−M1)의 구간도 계산. 차단율 같은 비율 지표는 Wilson 95% 구간 |
 | 편향 모델 | `bias` macro-F1, `contain_gender_bias` F1을 따로 보고 |
 
 ### 5.2 서비스 목적 기준 평가 (심각도와 필터)
@@ -429,6 +444,7 @@ API를 직접 호출하지 않아도 쓸 수 있는 화면을 같은 서버에�
 - M1의 macro-F1이 B0보다 확실히 높을 것 (신뢰구간이 겹치지 않음)
 - `medium` 민감도에서 정상 오차단율 ≤ 15%, 혐오 차단율 ≥ 60%
 - 기준을 못 맞추면 그대로 보고하고 원인을 분석합니다. **성능 자체는 배점이 없으므로 숫자를 억지로 맞추지 않습니다.**
+- M2에도 같은 기준을 그대로 적용합니다. 결과: M1은 혐오 차단율이 59.8%로 1건 모자랐고, M2는 세 기준을 모두 통과했습니다(`EVALUATION.md` 1장, 8.3장).
 
 ### 5.3 정상 동작 검사 (모델 품질과 별개)
 
@@ -448,10 +464,26 @@ API를 직접 호출하지 않아도 쓸 수 있는 화면을 같은 서버에�
 | T10 | 리포트 CSV | UTF-8 BOM, 한글 정상, 행 수 일치 |
 | T11 | `/health` | 200, `model_version` 일치 |
 
+- 스모크 스크립트는 T1~T11에 필터 정상 요청(F)과 `/v1/meta`(META)를 더해 13개 케이스를 보냅니다.
+- pytest는 이 밖에 잘못된 `MODEL_URI`로 시작이 실패하는지, 로그와 422 응답에 원문이 남지 않는지도 검사합니다(`EVALUATION.md` 6장).
+
 ### 5.4 잘못된 결과 1건 분석
 
 - eval에서 **틀린 예측 1건**을 골라 분석합니다. 놓친 혐오(hate인데 none으로 예측)를 우선 고릅니다.
 - 분석 항목: 원문(욕설이나 실명은 일부 `*` 처리), 정답, 예측, 확률, 영향을 많이 준 n-gram(로지스틱 회귀 계수 상위), 원인 추정(반어법, 맥락 의존, 변형 표기, 라벨 애매함 등), 개선 아이디어
+- 분석은 M1 기준으로 했습니다(`EVALUATION.md` 5장). n-gram 기여도는 선형 모델이라 계산할 수 있는 값이고, M2에는 같은 방식의 설명이 없습니다.
+
+### 5.5 측정하지 못한 부분과 한계 (README에 그대로)
+
+- 연예 뉴스 댓글에 한정되어 있어서, 게임·정치·SNS 등 다른 영역에서의 성능은 측정하지 않았습니다.
+- 데이터 수집 시점 이후의 신조어나 변형 욕설에는 약할 수 있습니다.
+- 혐오와 공격적 표현의 경계는 라벨링한 사람마다 다를 수 있습니다(라벨 자체의 불확실성).
+- eval이 471건이라 클래스별 지표의 변동이 큽니다.
+- 확률 보정(calibration)은 측정하지 않았습니다.
+- 서빙 모델(M2)은 노골적인 단어가 없는 성희롱과 비꼼을 자주 놓칩니다(행동 검사 v2, 5.6장).
+- 리포트의 법적 유용성(수사기관에서 참고 자료로 받아주는지)은 검증하지 않았습니다.
+- 실제 사용자 만족도, 필터 민감도의 적절성은 측정하지 않았습니다.
+- 측정 결과에 근거한 전체 목록은 `EVALUATION.md` 7장에 있고, README에는 그 목록을 옮깁니다.
 
 ### 5.6 행동 검사 세트 (2026-11-10 추가)
 
@@ -467,15 +499,7 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 - **v2 추가 (2026-11-10):** v1에는 "혐오 수준" 문장이 없어서, M2에서 예시 문장이 심각 등급까지 가지 않는 현상을 잴 수 없었습니다. `data/probes/behavior_v2.tsv`(36문장, 해시 `MANIFEST_v2.sha256`)를 v1과 같은 원칙(결과 확인 전 고정, 학습·조정에 쓰지 않음)으로 추가합니다.
   - 기대값은 **등급**입니다. 데이터셋 라벨링 가이드의 hate 정의(성별·집단을 향한 공격, 사회적 지위를 크게 해치는 모욕, 성희롱)에 해당하는 4유형은 `severe`, offensive 정의(무례, 비꼼)에 해당하는 2유형은 `caution`.
   - 지표: 등급 일치율, `severe_recall`(심각이어야 할 문장을 심각으로), `severe_shown_rate`(medium에서 그대로 보임), `caution_overcall_rate`(무례 정도를 심각으로). `python -m commentguard.probe --set behavior_v2 <모델 폴더...>`
-
-### 5.5 측정하지 못한 부분과 한계 (README에 그대로)
-
-- 연예 뉴스 댓글에 한정되어 있어서, 게임·정치·SNS 등 다른 영역에서의 성능은 측정하지 않았습니다.
-- 데이터 수집 시점 이후의 신조어나 변형 욕설에는 약할 수 있습니다.
-- 혐오와 공격적 표현의 경계는 라벨링한 사람마다 다를 수 있습니다(라벨 자체의 불확실성).
-- eval이 471건이라 클래스별 지표의 변동이 큽니다.
-- 리포트의 법적 유용성(수사기관에서 참고 자료로 받아주는지)은 검증하지 않았습니다.
-- 실제 사용자 만족도, 필터 민감도의 적절성은 측정하지 않았습니다.
+- 결과는 `EVALUATION.md` 8.4장(v1: M1 39/42, M2 42/42)과 8.4.1장(v2: 등급 일치율 M1 47%, M2 53%)에 있습니다. v2 결과를 보고 기준값이나 공식을 바꾸지 않았습니다.
 
 ---
 
@@ -512,7 +536,7 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 
 ### 6.3 서비스 시작 동작
 
-1. 환경변수 `MODEL_URI`(예: `blob://models/m1-20261109-591d16d/`)를 읽습니다. 배포할 때 `vercel deploy --env MODEL_URI=...`로 배포마다 지정합니다.
+1. 환경변수 `MODEL_URI`(예: `blob://models/m2-20261110-314b2b2/`)를 읽습니다. 배포할 때 `vercel deploy --env MODEL_URI=...`로 배포마다 지정합니다.
 2. 그 경로의 파일을 `/tmp`에 내려받아 로드합니다(M1: `model.joblib`, M2: `model.onnx`·토크나이저). `model_card.json`의 `model_id`로 M1/M2 로더를 고릅니다. 허브에는 접속하지 않습니다.
 3. 실패하면 **명확한 오류 메시지를 로그에 남기고 시작을 중단합니다.** 조용히 빈 모델로 뜨지 않게 합니다. Vercel에서는 함수 시작이 실패해 요청이 500으로 끝납니다.
    - `MODEL_URI`가 없으면 `configs/serving.yaml`이 가리키는 로컬 모델을 씁니다(로컬 개발용). `blob://`로 시작하면 Blob 저장소에서, 아니면 로컬 경로에서 읽습니다.
@@ -539,17 +563,34 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 
 | 순서 | 명령 | 하는 일 | 산출물 |
 |---|---|---|---|
-| 1 | `make setup` | 가상환경 생성, `requirements.txt` 설치 | `.venv/` (Git 제외) |
+| 1 | `make setup` | 가상환경 생성, `requirements-dev.txt`와 `requirements-m2.txt` 설치(둘 다 `requirements.txt`를 포함) | `.venv/` (Git 제외) |
 | 2 | `make data` | 다운로드 + 해시 검증 | `data/raw/` |
 | 3 | `make validate` | 3.4장 검사 + 분할 | `data/processed/`, `data_report.json` |
-| 4 | `make train` | B0, M1, M1-bias 학습 | `models/<version>/` |
-| 5 | `make evaluate` | 5.1~5.2장 평가 | `runs/<id>/metrics.json`, 혼동행렬 이미지 |
+| 4 | `make train` | B0, M1, M1-bias 학습 | `models/<version>/`, `models/LATEST` |
+| 5 | `make evaluate` | M1의 5.1~5.2장 평가 | `runs/<id>/metrics.json`, 혼동행렬 이미지, `error_candidates.json` |
 | 6 | `make test` | pytest (5.3장) | 테스트 결과 |
-| 7 | `make upload-model` | 모델을 Blob 저장소에 업로드 | `blob://models/<version>/` |
-| 8 | `make deploy` | Vercel 배포, `/health` 확인 후 프로덕션 승격 | 배포 ID |
-| 9 | `make smoke` | 클라우드 스모크 테스트 | `cloud_smoke.json` |
-| 10 | `make cleanup` | 자원 정리 + 상태 재조회 | `cleanup_status.txt` |
+| 7 | `make vercel-setup` | Vercel 프로젝트 연결·Blob 저장소 1회 준비 | 프로젝트, Blob 저장소 |
+| 8 | `make upload-model` | 서빙 모델을 Blob 저장소에 업로드 | `blob://models/<version>/` |
+| 9 | `make deploy` | `make test` 통과 후 Vercel 배포, 새 배포의 `/health` 확인 후 프로덕션 승격 | 배포 ID |
+| 10 | `make smoke` | 클라우드 스모크 테스트 | `cloud_smoke.json` |
+| 11 | `make cleanup` | 자원 정리 + 상태 재조회 (M8에서 구현 예정, 지금은 오류로 끝남) | `cleanup_status.txt` |
 | — | `make all-local` | 2~6 순서대로 | — |
+
+M2와 비교 단계는 Make 타깃이 없어서 모듈을 직접 실행합니다. 모두 `runlog`로 기록을 남깁니다.
+
+| 명령 | 하는 일 | 산출물 |
+|---|---|---|
+| `python -m commentguard.m2` | M2 학습, valid로 학습률·에폭·기준값 선택 | `models/m2-<날짜>-<커밋>/`, `models/LATEST_M2` |
+| `python -m commentguard.evaluate <모델 폴더>` | 지정한 모델(M2 포함)을 eval로 평가 | `runs/<id>/metrics.json` |
+| `python -m commentguard.compare <M1 폴더> <M2 폴더>` | 품질·운영 지표 비교, 서빙 모델 선택 규칙 적용 | `runs/<id>/comparison.json` |
+| `python -m commentguard.probe [--set behavior_v2] <모델 폴더...>` | 행동 검사 (5.6장) | `runs/<id>/probe_metrics.json` |
+
+로컬 서버 확인용 타깃:
+
+| 명령 | 하는 일 |
+|---|---|
+| `make serve` | 로컬 `uvicorn` 실행. `MODEL_URI`가 없으면 `configs/serving.yaml`이 가리키는 모델 |
+| `make smoke-local` | 다른 터미널의 로컬 서버에 스모크 13개 케이스 실행 → `local_smoke.json` |
 
 ### 7.2 실패 처리 규칙
 
@@ -592,7 +633,7 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 
 | 항목 | 내용 |
 |---|---|
-| 재현 방법 | 배포할 때 `MODEL_URI`를 존재하지 않는 버전 경로로 지정 (예: `blob://models/m1-20261109-WRONG/`) |
+| 재현 방법 | 배포할 때 `MODEL_URI`를 존재하지 않는 버전 경로로 지정 (예: `blob://models/m2-20261110-WRONG/`) |
 | 예상 증상 | 새 배포의 함수가 시작할 때 모델 경로를 찾지 못해 로드 실패 → 함수 시작 실패(500). 배포 스크립트의 새 배포 `/health` 확인이 실패해서 배포 명령이 0이 아닌 코드로 끝남. 승격하지 않아 프로덕션 도메인은 이전 정상 배포를 계속 서비스함 |
 | 기록할 것 | 실패한 배포 명령, 오류 메시지 원문(저장소 ID 등 가림), 런타임 로그의 `model_load_failed`, 실패 시각, 영향(새 배포 미반영, 기존 서비스 영향 여부를 스모크로 확인) |
 | 원인 조사 | `vercel logs`로 시작 로그 확인 → `vercel blob list`로 해당 경로가 없음을 확인 |
@@ -603,7 +644,7 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 ### 8.2 보조 시나리오 (시간이 남으면)
 
 - **입력 검증 누락:** 빈 문자열이 들어오면 500이 나는 버전을 재현 → 422로 고친 뒤 T4 재실행
-- **M2 사용 시 의존 서비스 연결 실패:** 함수 시작 시 HuggingFace Hub에서 다운로드 실패 → 모델을 Blob 저장소에 미리 올려두는 방식으로 변경
+- **M2 의존 서비스 연결 실패:** 함수가 시작할 때 HuggingFace Hub에서 받도록 하면 허브 장애나 네트워크 문제로 시작이 실패할 수 있습니다. 현재 설계는 이 문제를 미리 피합니다(모델을 Blob 저장소에 올려두고 허브에 접속하지 않음, 6.3장). 재현한다면 허브에서 받는 버전으로 합니다.
 
 ### 8.3 `docs/INCIDENT.md` 양식
 
@@ -656,7 +697,7 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 
 ### 10.3 자원 정리
 
-`scripts/cleanup.sh`:
+`scripts/cleanup.sh` (M8에서 작성 예정):
 1. Blob 저장소의 모델 삭제 후 저장소 삭제 (보관한다면 이유와 삭제 예정일 기록)
 2. Vercel 프로젝트 삭제 (배포, 프로덕션 도메인 포함)
 3. **정리 후 상태 재조회** 결과를 `runs/<id>-cleanup/cleanup_status.txt`에 저장
@@ -675,7 +716,7 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 - 비밀번호, API 키, 토큰(Vercel 토큰 포함), 결제 정보
 - 사용자가 리포트 기능에 입력한 실제 댓글이나 작성자 정보 (테스트에는 공개 데이터와 직접 만든 가짜 예시만 사용)
 - 클라우드 로그의 댓글 원문 (로깅 미들웨어에서 본문을 기록하지 않도록 구현하고 테스트로 확인)
-- `.venv/`, `__pycache__/`, 임시 파일, 대용량 모델 가중치(M2)
+- `.venv/`, `__pycache__/`, 임시 파일, 모델 파일(`models/`), 배포 상태 파일(`.state/`, 배포 ID와 저장소 ID가 들어 있음)
 
 ### 11.2 데이터 자체의 민감성
 
@@ -696,46 +737,62 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 
 ## 12. 저장소 구조
 
+`(예정)` 표시가 있는 파일은 아직 없고, 괄호 안의 마일스톤에서 만듭니다.
+
 ```
 comment-guard/
-├── README.md                    # 제출용 메인 문서 (14장 목차)
-├── LICENSE                      # 코드 라이선스
-├── Makefile
-├── vercel.json
-├── requirements.txt             # 버전 고정 (pip freeze 기반)
-├── requirements-dev.txt         # pytest 등
-├── requirements-m2.txt          # torch, transformers (M2 학습·평가용)
+├── README.md                    # (예정, M7) 제출용 메인 문서 (14장 목차)
+├── LICENSE                      # 코드 라이선스 (MIT)
+├── Makefile                     # 파이프라인 진입점 (7.1장)
+├── vercel.json                  # Vercel 함수 설정 (리전, 메모리, 최대 실행 시간)
+├── pyproject.toml               # 패키지 정보, pytest 설정
+├── requirements.txt             # 런타임 의존성, 버전 고정 (pip freeze 기반)
+├── requirements-dev.txt         # pytest, matplotlib 등
+├── requirements-m2.txt          # torch, transformers (M2 학습·평가, 서빙에는 설치하지 않음)
 ├── .gitignore
 ├── configs/
-│   ├── train.yaml               # 하이퍼파라미터, seed, 분할 비율
-│   ├── severity.yaml            # 등급 기준값, 민감도 규칙
+│   ├── train.yaml               # 하이퍼파라미터, seed, 분할 비율 (M1, M2)
+│   ├── severity.yaml            # 등급 시작값, 민감도 규칙, 기준값 조정 규칙
+│   ├── serving.yaml             # 서빙할 모델 (m1 또는 m2)
 │   └── deploy.env.example       # 프로젝트, 리전, Blob 저장소 이름 (실제 값은 deploy.env, Git 제외)
 ├── data/
-│   ├── README.md                # 확보 방법
+│   ├── README.md                # 파일 설명과 확보 방법
 │   ├── LICENSE-DATA.md          # CC BY-SA 4.0 고지와 출처
-│   ├── raw/MANIFEST.sha256
-│   └── processed/               # 커밋함 (D3)
+│   ├── raw/                     # 원본 3개 파일과 MANIFEST.sha256 (커밋함, D3)
+│   ├── processed/               # train_fit, valid, eval (커밋함, D3)
+│   └── probes/                  # 행동 검사 세트 v1·v2와 해시 (5.6장)
 ├── src/commentguard/
 │   ├── __init__.py
 │   ├── text.py                  # normalize() — 학습/서빙 공용
-│   ├── data.py                  # 다운로드 검증, validate(), 분할
-│   ├── train.py
-│   ├── evaluate.py              # 지표, 부트스트랩, 혼동행렬, 필터 지표
-│   ├── severity.py              # 점수, 등급, 민감도 규칙
+│   ├── data.py                  # validate(), 분할
+│   ├── train.py                 # B0, M1, M1-bias
+│   ├── m2.py                    # KcELECTRA 미세조정과 M2 로더
+│   ├── evaluate.py              # 지표, 부트스트랩, 혼동행렬, 필터 지표 (eval을 읽는 유일한 모듈)
+│   ├── compare.py               # M1·M2 비교, 서빙 모델 선택 규칙
+│   ├── probe.py                 # 행동 검사 세트 평가
+│   ├── severity.py              # 점수, 등급, 민감도 규칙, 기준값 조정
 │   ├── report.py                # 증거 리포트 생성 (JSON/CSV, 해시)
-│   ├── model_store.py           # 로컬/GCS 모델 로드, MODEL_URI 처리
+│   ├── model_store.py           # 로컬/Blob 모델 로드, MODEL_URI 처리
 │   ├── api.py                   # FastAPI 앱
-│   └── runlog.py                # 실행 기록 공통 함수
+│   ├── runlog.py                # 실행 기록 공통 함수
+│   └── static/index.html        # 웹 화면 (2.6장)
 ├── scripts/
 │   ├── download_data.sh
+│   ├── vercel_env.sh            # deploy.env 읽기, 공통 변수
 │   ├── vercel_setup.sh          # 프로젝트 연결·Blob 저장소 1회 준비
+│   ├── upload_model.sh          # 서빙 모델을 Blob 저장소에 업로드 (dirty 모델은 거부)
 │   ├── deploy_vercel.sh         # 배포, /health 확인 후 프로덕션 승격 (M5에서 MODEL_URI 사전 검사 추가)
-│   ├── smoke_cloud.py
-│   └── cleanup.sh
+│   ├── smoke_cloud.py           # 로컬·클라우드 공용 스모크 테스트
+│   └── cleanup.sh               # (예정, M8)
 ├── tests/
+│   ├── conftest.py              # 가짜 예시로 학습한 작은 모델
 │   ├── test_text.py
+│   ├── test_data.py
 │   ├── test_severity.py
+│   ├── test_evaluate.py
 │   ├── test_report.py
+│   ├── test_runlog.py
+│   ├── test_m2.py               # 토크나이저 [CLS]/[SEP] 부착 등
 │   ├── test_api.py              # 5.3장 T1~T11
 │   └── test_no_text_in_logs.py  # 로그에 원문이 안 남는지
 ├── models/                      # 로컬 모델 (Git 제외, model_card.json만 runs/에 복사)
@@ -745,10 +802,10 @@ comment-guard/
     ├── PROJECT_SPEC.md          # 이 문서
     ├── DATA.md
     ├── EVALUATION.md
-    ├── CLOUD_RUNS.md
-    ├── INCIDENT.md
-    ├── RERUN.md
-    └── COST_AND_CLEANUP.md
+    ├── CLOUD_RUNS.md            # (예정, M4)
+    ├── INCIDENT.md              # (예정, M5)
+    ├── RERUN.md                 # (예정, M7)
+    └── COST_AND_CLEANUP.md      # (예정, M8)
 ```
 
 ---
@@ -757,35 +814,51 @@ comment-guard/
 
 아래 순서로 진행하고, 각 단계의 **완료 조건**을 만족해야 다음 단계로 넘어갑니다. 각 단계가 끝나면 커밋합니다.
 
+진행 상태 (2026-11-15 기준, `runs/index.csv`와 커밋 이력으로 확인):
+
+| 단계 | 상태 | 근거 |
+|---|---|---|
+| M0 저장소 뼈대 | 완료 | 커밋 `22dd165` |
+| M1 데이터 | 완료 | `runs/20261109-231905-data`, `runs/20261109-231906-validate` |
+| M2 모델 학습과 평가 | 완료 | `runs/20261109-232656-train`, `runs/20261109-232715-evaluate` |
+| M3 API (로컬) | 완료 | `runs/20261109-233855-smoke-local` (13/13) |
+| M4 클라우드 배포 (Vercel) | 구성만 결정. **배포 스크립트 작성과 클라우드 실행은 아직 안 함** | — |
+| M5 오류 재현과 복구 | 시작 전 (M4 뒤) | — |
+| M6 M2 사전학습 모델 | 로컬 범위 완료. cold start 측정과 클라우드 스모크는 M4에서 | `runs/20261110-003741-train-m2`, `-010215-evaluate-m2`, `-010228-compare`, `-010553-smoke-local`, 행동 검사 2건 |
+| M7 README와 재실행 | 시작 전 | — |
+| M8 자원 정리와 최종 점검 | 시작 전 | — |
+
 ### M0. 저장소 뼈대
-- [ ] 12장 구조 생성, `.gitignore`(`.venv`, `models/`, `configs/deploy.env`, `data/raw/*` 중 원본 등), `requirements.txt` 초안
-- [ ] `Makefile` 타깃 껍데기, `runlog.py`
+- [x] 12장 구조 생성, `.gitignore`(`.venv`, `models/`, `configs/deploy.env` 등), `requirements.txt` 초안
+- [x] `Makefile` 타깃 껍데기, `runlog.py`
 - **완료 조건:** `make setup` 성공, 빈 `make test` 통과
 
 ### M1. 데이터
-- [ ] `download_data.sh` + 해시 매니페스트
-- [ ] 실제 파일 구조와 컬럼을 확인해서 **3.2장과 다르면 이 문서 먼저 수정**
-- [ ] `validate()`와 분할, `data_report.json`(제거 건수, 라벨 분포, train/dev 중복 수)
+- [x] `download_data.sh` + 해시 매니페스트
+- [x] 실제 파일 구조와 컬럼을 확인해서 **3.2장과 다르면 이 문서 먼저 수정**
+- [x] `validate()`와 분할, `data_report.json`(제거 건수, 라벨 분포, train/dev 중복 수)
 - **완료 조건:** `make data validate`가 성공하고 기록이 남음. 누수 체크리스트(3.6장) 확인
 
 ### M2. 모델 학습과 평가
-- [ ] `text.normalize()` + 테스트
-- [ ] B0, M1, M1-bias 학습, valid로 C 선택, 심각도 기준값 조정
-- [ ] eval 평가: macro-F1 + 부트스트랩 CI, 클래스별 지표, 혼동행렬, 필터 지표(5.2장)
-- [ ] 오류 1건 분석 초안
+- [x] `text.normalize()` + 테스트
+- [x] B0, M1, M1-bias 학습, valid로 C 선택, 심각도 기준값 조정
+- [x] eval 평가: macro-F1 + 부트스트랩 CI, 클래스별 지표, 혼동행렬, 필터 지표(5.2장)
+- [x] 오류 1건 분석
 - **완료 조건:** `runs/*/metrics.json`에 B0와 M1 비교가 있고, `docs/EVALUATION.md` 초안 작성
 
 ### M3. API (로컬)
-- [ ] `/health`, `/v1/meta`, `/v1/classify`, `/v1/filter`, `/v1/evidence/report`
-- [ ] 입력 검증(2.2장 표), 리포트 해시와 CSV
-- [ ] 로그에 원문을 남기지 않는 미들웨어 + 테스트
-- **완료 조건:** `make test`에서 T1~T11 모두 통과, 로컬 `uvicorn`으로 curl 시연 기록
+- [x] `/health`, `/v1/meta`, `/v1/classify`, `/v1/filter`, `/v1/evidence/report`
+- [x] 입력 검증(2.2장 표), 리포트 해시와 CSV
+- [x] 로그에 원문을 남기지 않는 미들웨어 + 테스트
+- [x] 웹 화면 (2.6장, 2026-11-09 추가)
+- **완료 조건:** `make test`에서 T1~T11 모두 통과, 로컬 `uvicorn`에 실제 HTTP 요청을 보낸 기록(`make smoke-local`)
 
 ### M4. 클라우드 배포 (Vercel)
 - [ ] Vercel 진입점(`app.py`)과 함수 설정(`vercel.json`)
 - [ ] Vercel 프로젝트 연결·Blob 저장소 준비(`vercel_setup.sh`), 모델 업로드
 - [ ] `deploy_vercel.sh`(배포 전 MODEL_URI 검사는 **M5 이후에 추가**, 오류 재현을 위해 처음에는 넣지 않음)
 - [ ] `smoke_cloud.py` 실행, `cloud_smoke.json` 기록
+- [ ] M2 서빙 기준 cold start, 클라우드 지연 실측 (M6에서 넘어온 항목)
 - **완료 조건:** 클라우드에서 T1~T11 통과 기록, `docs/CLOUD_RUNS.md` 작성(서비스, 리전, 설정, 데이터·결과 위치, 선택 이유)
 
 ### M5. 오류 재현과 복구
@@ -793,11 +866,11 @@ comment-guard/
 - **완료 조건:** `docs/INCIDENT.md` 완성, 실패 기록과 정상 기록이 `runs/`에서 구분됨
 
 ### M6. M2 사전학습 모델 (필수, D2)
-- **순서 변경 (2026-11-10, 사용자 결정):** 신조어 오판 문제(EVALUATION.md 5.1)를 검증하기 위해 M4보다 먼저 진행합니다. M4·M5는 Vercel 준비가 끝나면 이어서 진행합니다.
-- [ ] 행동 검사 세트(5.6장)로 M1과 M2를 함께 비교
-- [ ] KcELECTRA 미세조정(리비전 해시 고정), valid로 조정, 같은 eval로 비교
-- [ ] CPU 지연시간, 메모리, 모델 파일 크기, cold start 비교
-- [ ] 비교 결과로 서빙 모델 결정. M2로 바꾸면 재배포 후 스모크 테스트 재실행
+- **순서 변경 (2026-11-10, 사용자 결정):** 신조어 오판 문제(EVALUATION.md 5.1)를 검증하기 위해 M4보다 먼저 진행했습니다. M4·M5는 Vercel 준비가 끝나면 이어서 진행합니다.
+- [x] 행동 검사 세트(5.6장)로 M1과 M2를 함께 비교 (v1, v2)
+- [x] KcELECTRA 미세조정(리비전 해시 고정), valid로 조정, 같은 eval로 비교
+- [x] CPU 지연시간, 메모리 비교 (로컬). cold start는 M4에서 실측
+- [x] 비교 결과로 서빙 모델 결정(M2), 로컬 스모크 재실행(13/13). 클라우드 스모크는 M4에서 M2로 실행
 - **완료 조건:** `EVALUATION.md`에 M1 vs M2 비교와 서빙 모델 선택 이유 추가
 
 ### M7. README와 재실행
@@ -806,7 +879,7 @@ comment-guard/
 - **완료 조건:** README 명령만으로 재실행 성공
 
 ### M8. 자원 정리와 최종 점검
-- [ ] `make cleanup`, 상태 재조회 기록, `docs/COST_AND_CLEANUP.md`
+- [ ] `scripts/cleanup.sh` 작성, `make cleanup`, 상태 재조회 기록, `docs/COST_AND_CLEANUP.md`
 - [ ] 비밀값 검사: `git log -p`에서 키나 토큰 패턴 검색(예: `gitleaks` 또는 grep)
 - [ ] 로그아웃 상태에서 저장소 공개 여부 확인
 - **완료 조건:** 14장 대응표의 모든 항목에 근거 파일이 있음
@@ -850,12 +923,12 @@ comment-guard/
 
 ## 15. 결정이 필요한 사항
 
-구현을 시작하기 전이나 해당 단계에 도달했을 때 결정합니다.
+구현을 시작하기 전이나 해당 단계에 도달했을 때 결정합니다. D1~D6은 모두 결정됐습니다. 새로 결정할 일이 생기면 이 표에 추가한 뒤 진행합니다.
 
-| # | 질문 | 기본안 | 결정 시점 |
+| # | 질문 | 결정 | 결정 시점 |
 |---|---|---|---|
 | D1 | 클라우드 환경 | **결정: Vercel** (Python 함수 + Blob 저장소, 서울 리전 `icn1`, 2026-11-09) | M4 전 |
-| D2 | M2(KcELECTRA) 진행 여부 | **결정: 필수로 진행** (M5 후, 2026-11-09) | M5 후 |
+| D2 | M2(KcELECTRA) 진행 여부 | **결정: 필수로 진행** (2026-11-09). 순서는 2026-11-10에 M4 앞으로 변경 (13장 M6) | M5 후 → M4 전 |
 | D3 | 원본/가공 데이터를 저장소에 포함할지 | **결정: 포함** (CC BY-SA 4.0 고지와 함께, 2026-11-09) | M1 |
 | D4 | 리포트 형식에 PDF 추가 여부 | **결정: JSON + CSV만** (2026-11-09) | M3 |
 | D5 | 리포트 서버 저장 기능 | **결정: 저장하지 않음** (2026-11-09) | M3 |
@@ -868,7 +941,7 @@ comment-guard/
 - 데이터: Korean HateSpeech Dataset — https://github.com/kocohub/korean-hate-speech
 - 데이터 카드(HuggingFace): https://huggingface.co/datasets/inmoonlight/kor_hate
 - 논문: Moon, J., Cho, W. I., & Lee, J. (2020). BEEP! Korean Corpus of Online News Comments for Toxic Speech Detection. https://arxiv.org/abs/2005.12503
-- 사전학습 모델(선택): beomi/KcELECTRA-base (MIT) — https://huggingface.co/beomi/KcELECTRA-base
+- 사전학습 모델: beomi/KcELECTRA-base (MIT, 리비전 `681201a` 고정) — https://huggingface.co/beomi/KcELECTRA-base
 - 증거 수집 체크리스트와 신고 절차 참고(법률 자문 아님):
   - 법무법인 법승, 악플 대응 FAQ — https://www.lawwin.co.kr/knowledge/6826
   - 사이버 명예훼손·모욕 신고 절차(ECRM) 관련 칼럼 — https://albup.co.kr/page/column_detail.php?content_id=1812
