@@ -1,0 +1,136 @@
+{
+  "model_version": "m2s44-20261116-8551cef",
+  "model_id": "m2s44",
+  "seed": 44,
+  "variant_of": "m2",
+  "created_at": "2026-11-16T00:32:00+09:00",
+  "git_commit": "8551cef2d5d82436b8d2cc5b98dfb35970ca0994",
+  "git_dirty": false,
+  "base_model": {
+    "name": "beomi/KcELECTRA-base",
+    "revision": "681201a097b8120e6dd2a2e63a3e13d338736f88",
+    "license": "MIT",
+    "note": "main 리비전은 v2023 가중치 + byte-level BPE 토크나이저(5deca41). tokenizer.json에 post-processor가 없어 [CLS]/[SEP]을 코드에서 직접 부착. 토크나이저 파일은 같은 리비전으로 가정"
+  },
+  "data": {
+    "train_fit": "sha256:b6a752ef7bfc84b56d0228c1df0d327a35a146c516ef65c2f49fc1ea0485a6a8",
+    "valid": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80",
+    "rows": {
+      "train_fit": 7106,
+      "valid": 790
+    }
+  },
+  "hyperparameters": {
+    "base_model": "beomi/KcELECTRA-base",
+    "revision": "681201a097b8120e6dd2a2e63a3e13d338736f88",
+    "max_length": 80,
+    "batch_size": 32,
+    "lr_grid": [
+      2e-05
+    ],
+    "max_epochs": 5,
+    "patience": 1,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "dropout": 0.1,
+    "bias_loss_weight": 0.5,
+    "selected_lr": 2e-05,
+    "selected_epoch": 3
+  },
+  "search": [
+    {
+      "lr": 2e-05,
+      "epoch": 1,
+      "train_loss": 1.4408,
+      "valid_hate_macro_f1": 0.6563,
+      "valid_bias_macro_f1": 0.5542,
+      "seconds": 50.4
+    },
+    {
+      "lr": 2e-05,
+      "epoch": 2,
+      "train_loss": 0.9788,
+      "valid_hate_macro_f1": 0.6804,
+      "valid_bias_macro_f1": 0.6786,
+      "seconds": 52.9
+    },
+    {
+      "lr": 2e-05,
+      "epoch": 3,
+      "train_loss": 0.746,
+      "valid_hate_macro_f1": 0.6963,
+      "valid_bias_macro_f1": 0.6993,
+      "seconds": 52.1
+    },
+    {
+      "lr": 2e-05,
+      "epoch": 4,
+      "train_loss": 0.5752,
+      "valid_hate_macro_f1": 0.6901,
+      "valid_bias_macro_f1": 0.7112,
+      "seconds": 51.5
+    },
+    {
+      "lr": 2e-05,
+      "epoch": 5,
+      "train_loss": 0.4743,
+      "valid_hate_macro_f1": 0.6925,
+      "valid_bias_macro_f1": 0.7083,
+      "seconds": 51.4
+    }
+  ],
+  "severity": {
+    "thresholds": {
+      "caution": 37,
+      "severe": 75
+    },
+    "sensitivity": {
+      "low": {
+        "normal": "show",
+        "caution": "show",
+        "severe": "hide"
+      },
+      "medium": {
+        "normal": "show",
+        "caution": "blur",
+        "severe": "hide"
+      },
+      "high": {
+        "normal": "show",
+        "caution": "hide",
+        "severe": "hide"
+      }
+    }
+  },
+  "severity_tuning": {
+    "selected": {
+      "caution": 37,
+      "severe": 75,
+      "grade_macro_f1": 0.6860772729627347,
+      "hate_block_rate": 0.6387434554973822,
+      "none_false_block_rate": 0.14613180515759314,
+      "false_block_target_met": true,
+      "hate_block_target_met": true,
+      "max_false_block": 0.15,
+      "min_hate_block": 0.6
+    },
+    "start_30_60": {
+      "caution": 30,
+      "severe": 60,
+      "grade_macro_f1": 0.681293845057448,
+      "hate_block_rate": 0.7277486910994765,
+      "none_false_block_rate": 0.1977077363896848
+    }
+  },
+  "valid_metrics": {
+    "m2s44_hate_macro_f1": 0.6963,
+    "m2s44_bias_macro_f1": 0.6993
+  },
+  "training_device": "mps",
+  "libraries": {
+    "python": "3.11.15",
+    "torch": "2.15.0",
+    "transformers": "5.22.2"
+  },
+  "artifact_bytes": 434005728
+}

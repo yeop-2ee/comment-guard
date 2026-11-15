@@ -1,0 +1,47 @@
+{
+  "run_id": "20261116-004324-evaluate-m2x3",
+  "step": "evaluate",
+  "started_at": "2026-11-16T00:43:24+09:00",
+  "finished_at": "2026-11-16T00:43:36+09:00",
+  "status": "success",
+  "git_commit": "8551cef2d5d82436b8d2cc5b98dfb35970ca0994",
+  "git_dirty": false,
+  "model_version": "m2x3-20261116-8551cef",
+  "inputs": {
+    "/Users/sangyeop/Projects/comment-guard/data/processed/eval.tsv": "sha256:6904b087a99ed155b7922d98448cd6c5bbe7a9f63ad6f5bf1b9377cb31434ff6",
+    "models/m2x3-20261116-8551cef/model_card.json": "sha256:be90bd71762cdc7c7530a296a623c40b57f64ce006bdc58c898ebb436b4991e7"
+  },
+  "config": {
+    "bootstrap": {
+      "bootstrap_iters": 1000,
+      "bootstrap_seed": 42
+    },
+    "model_dir": "models/m2x3-20261116-8551cef"
+  },
+  "outputs": [
+    "models/m2x3-20261116-8551cef/model_card.json",
+    "runs/20261116-004324-evaluate-m2x3/metrics.json",
+    "runs/20261116-004324-evaluate-m2x3/confusion_matrix_m2x3.png",
+    "runs/20261116-004324-evaluate-m2x3/error_candidates.json"
+  ],
+  "extra": {
+    "summary": {
+      "b0_macro_f1": 0.169,
+      "m2x3_macro_f1": 0.6993,
+      "m2x3_ci95": [
+        0.6555,
+        0.7389
+      ],
+      "fitness": {
+        "m2x3_ci_above_b0_ci": true,
+        "medium_none_false_block_le_15pct": true,
+        "medium_hate_block_ge_60pct": true
+      }
+    }
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

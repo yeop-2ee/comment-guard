@@ -1,0 +1,541 @@
+{
+  "eval_rows": 471,
+  "models": {
+    "m1": {
+      "model_version": "m1-20261109-591d16d",
+      "valid_hate_macro_f1": 0.5797,
+      "eval_hate_macro_f1": 0.5694,
+      "eval_accuracy": 0.5817,
+      "thresholds": {
+        "caution": 51,
+        "severe": 55
+      },
+      "eval_filter_medium": {
+        "hate_block_rate": 0.5983606557377049,
+        "none_false_block_rate": 0.08125
+      },
+      "probe": {
+        "accuracy": 0.9286,
+        "ok_false_block_rate": 0.0417,
+        "toxic_miss_rate": 0.1111,
+        "by_category": {
+          "intensifier_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 5,
+            "accuracy": 0.8333
+          },
+          "intensifier_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 5,
+            "accuracy": 0.8333
+          },
+          "chosung_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "chosung_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 5,
+            "accuracy": 0.8333
+          },
+          "emoji_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "plain_criticism": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "plain_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          }
+        }
+      },
+      "runtime_cpu": {
+        "load_seconds": 0.2,
+        "latency_ms_single_p50": 0.3,
+        "latency_ms_single_p90": 0.3,
+        "latency_ms_batch100_p50": 2.7,
+        "peak_rss_mb": 368.1,
+        "artifact_mb": 3.1,
+        "threads": 1
+      }
+    },
+    "m2": {
+      "model_version": "m2-20261110-314b2b2",
+      "valid_hate_macro_f1": 0.7132,
+      "eval_hate_macro_f1": 0.6936,
+      "eval_accuracy": 0.6964,
+      "thresholds": {
+        "caution": 39,
+        "severe": 70
+      },
+      "eval_filter_medium": {
+        "hate_block_rate": 0.6639344262295082,
+        "none_false_block_rate": 0.05
+      },
+      "probe": {
+        "accuracy": 1.0,
+        "ok_false_block_rate": 0.0,
+        "toxic_miss_rate": 0.0,
+        "by_category": {
+          "intensifier_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "intensifier_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "chosung_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "chosung_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "emoji_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "plain_criticism": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "plain_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          }
+        }
+      },
+      "runtime_cpu": {
+        "load_seconds": 1.87,
+        "latency_ms_single_p50": 9.6,
+        "latency_ms_single_p90": 14.1,
+        "latency_ms_batch100_p50": 879.1,
+        "peak_rss_mb": 1266.0,
+        "artifact_mb": 436.7,
+        "threads": 1
+      }
+    },
+    "m3": {
+      "model_version": "m3-20261115-5b32863",
+      "valid_hate_macro_f1": 0.696,
+      "eval_hate_macro_f1": 0.7231,
+      "eval_accuracy": 0.7261,
+      "thresholds": {
+        "caution": 46,
+        "severe": 68
+      },
+      "eval_filter_medium": {
+        "hate_block_rate": 0.639344262295082,
+        "none_false_block_rate": 0.05
+      },
+      "probe": {
+        "accuracy": 0.9762,
+        "ok_false_block_rate": 0.0,
+        "toxic_miss_rate": 0.0556,
+        "by_category": {
+          "intensifier_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "intensifier_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "chosung_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "chosung_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "emoji_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "plain_criticism": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "plain_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 5,
+            "accuracy": 0.8333
+          }
+        }
+      },
+      "runtime_cpu": {
+        "load_seconds": 2.07,
+        "latency_ms_single_p50": 9.4,
+        "latency_ms_single_p90": 14.3,
+        "latency_ms_batch100_p50": 923.1,
+        "peak_rss_mb": 1408.5,
+        "artifact_mb": 510.1,
+        "threads": 1
+      }
+    },
+    "m2x3": {
+      "model_version": "m2x3-20261116-8551cef",
+      "valid_hate_macro_f1": 0.7107,
+      "eval_hate_macro_f1": 0.6993,
+      "eval_accuracy": 0.7028,
+      "thresholds": {
+        "caution": 36,
+        "severe": 77
+      },
+      "eval_filter_medium": {
+        "hate_block_rate": 0.6229508196721312,
+        "none_false_block_rate": 0.05
+      },
+      "probe": {
+        "accuracy": 1.0,
+        "ok_false_block_rate": 0.0,
+        "toxic_miss_rate": 0.0,
+        "by_category": {
+          "intensifier_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "intensifier_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "chosung_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "chosung_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "emoji_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "plain_criticism": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "plain_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          }
+        }
+      },
+      "runtime_cpu": {
+        "load_seconds": 3.75,
+        "latency_ms_single_p50": 28.7,
+        "latency_ms_single_p90": 42.1,
+        "latency_ms_batch100_p50": 2654.0,
+        "peak_rss_mb": 2137.5,
+        "artifact_mb": 1310.0,
+        "threads": 1
+      }
+    },
+    "m3x3": {
+      "model_version": "m3x3-20261116-8551cef",
+      "valid_hate_macro_f1": 0.6945,
+      "eval_hate_macro_f1": 0.7348,
+      "eval_accuracy": 0.7367,
+      "thresholds": {
+        "caution": 40,
+        "severe": 77
+      },
+      "eval_filter_medium": {
+        "hate_block_rate": 0.6557377049180327,
+        "none_false_block_rate": 0.05
+      },
+      "probe": {
+        "accuracy": 0.9762,
+        "ok_false_block_rate": 0.0,
+        "toxic_miss_rate": 0.0556,
+        "by_category": {
+          "intensifier_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "intensifier_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "chosung_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "chosung_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "emoji_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "plain_criticism": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "plain_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 5,
+            "accuracy": 0.8333
+          }
+        }
+      },
+      "runtime_cpu": {
+        "load_seconds": 4.37,
+        "latency_ms_single_p50": 28.6,
+        "latency_ms_single_p90": 43.2,
+        "latency_ms_batch100_p50": 2762.1,
+        "peak_rss_mb": 2431.0,
+        "artifact_mb": 1530.3,
+        "threads": 1
+      }
+    },
+    "m23x6": {
+      "model_version": "m23x6-20261116-8551cef",
+      "valid_hate_macro_f1": 0.7109,
+      "eval_hate_macro_f1": 0.721,
+      "eval_accuracy": 0.7219,
+      "thresholds": {
+        "caution": 36,
+        "severe": 73
+      },
+      "eval_filter_medium": {
+        "hate_block_rate": 0.6721311475409836,
+        "none_false_block_rate": 0.04375
+      },
+      "probe": {
+        "accuracy": 1.0,
+        "ok_false_block_rate": 0.0,
+        "toxic_miss_rate": 0.0,
+        "by_category": {
+          "intensifier_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "intensifier_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "chosung_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "chosung_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "emoji_praise": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "plain_criticism": {
+            "expected": "ok",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          },
+          "plain_insult": {
+            "expected": "toxic",
+            "n": 6,
+            "correct": 6,
+            "accuracy": 1.0
+          }
+        }
+      },
+      "runtime_cpu": {
+        "load_seconds": 7.56,
+        "latency_ms_single_p50": 57.1,
+        "latency_ms_single_p90": 85.4,
+        "latency_ms_batch100_p50": 5414.0,
+        "peak_rss_mb": 3721.3,
+        "artifact_mb": 2840.3,
+        "threads": 1
+      }
+    }
+  },
+  "minus_m2_macro_f1": {
+    "m1": {
+      "mean": -0.1245,
+      "ci95": [
+        -0.1751,
+        -0.0739
+      ],
+      "share_le_0": 1.0,
+      "iters": 1000,
+      "seed": 42
+    },
+    "m3": {
+      "mean": 0.029,
+      "ci95": [
+        -0.0085,
+        0.0678
+      ],
+      "share_le_0": 0.066,
+      "iters": 1000,
+      "seed": 42
+    },
+    "m2x3": {
+      "mean": 0.0049,
+      "ci95": [
+        -0.0182,
+        0.0281
+      ],
+      "share_le_0": 0.332,
+      "iters": 1000,
+      "seed": 42
+    },
+    "m3x3": {
+      "mean": 0.0409,
+      "ci95": [
+        0.0063,
+        0.0772
+      ],
+      "share_le_0": 0.01,
+      "iters": 1000,
+      "seed": 42
+    },
+    "m23x6": {
+      "mean": 0.0265,
+      "ci95": [
+        -0.0031,
+        0.0558
+      ],
+      "share_le_0": 0.041,
+      "iters": 1000,
+      "seed": 42
+    }
+  },
+  "selection": {
+    "rule": "명세서 4.5장(4.7장도 같은 규칙): 운영 조건(p50<=500ms, 100건 배치<=12000ms, 메모리<=8000MB)을 통과한 후보 중 valid macro-F1 최고, 차이 0.005 미만은 동률로 보고 작은 모델",
+    "candidates": {
+      "m2": {
+        "valid_hate_macro_f1": 0.7132,
+        "artifact_mb": 436.7,
+        "checks": {
+          "single_p50_le_500ms": true,
+          "batch100_p50_le_12000ms": true,
+          "peak_rss_le_8000mb": true
+        },
+        "eligible": true
+      },
+      "m2x3": {
+        "valid_hate_macro_f1": 0.7107,
+        "artifact_mb": 1310.0,
+        "checks": {
+          "single_p50_le_500ms": true,
+          "batch100_p50_le_12000ms": true,
+          "peak_rss_le_8000mb": true
+        },
+        "eligible": true
+      },
+      "m3x3": {
+        "valid_hate_macro_f1": 0.6945,
+        "artifact_mb": 1530.3,
+        "checks": {
+          "single_p50_le_500ms": true,
+          "batch100_p50_le_12000ms": true,
+          "peak_rss_le_8000mb": true
+        },
+        "eligible": true
+      },
+      "m23x6": {
+        "valid_hate_macro_f1": 0.7109,
+        "artifact_mb": 2840.3,
+        "checks": {
+          "single_p50_le_500ms": true,
+          "batch100_p50_le_12000ms": true,
+          "peak_rss_le_8000mb": true
+        },
+        "eligible": true
+      }
+    },
+    "best_valid": 0.7132,
+    "tied": [
+      "m2",
+      "m2x3",
+      "m23x6"
+    ],
+    "serving_model": "m2"
+  }
+}

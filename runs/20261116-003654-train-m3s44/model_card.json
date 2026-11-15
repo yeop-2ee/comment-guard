@@ -1,0 +1,136 @@
+{
+  "model_version": "m3s44-20261116-8551cef",
+  "model_id": "m3s44",
+  "seed": 44,
+  "variant_of": "m3",
+  "created_at": "2026-11-16T00:41:35+09:00",
+  "git_commit": "8551cef2d5d82436b8d2cc5b98dfb35970ca0994",
+  "git_dirty": false,
+  "base_model": {
+    "name": "beomi/KcELECTRA-base-v2022",
+    "revision": "87285578b4686b6d190abd40e947a2a416add6de",
+    "license": "MIT",
+    "note": "M2와 같은 계열의 개선판. WordPiece 토크나이저(vocab.txt), 가중치는 pytorch_model.bin만 제공. [CLS]/[SEP]은 코드에서 직접 부착"
+  },
+  "data": {
+    "train_fit": "sha256:b6a752ef7bfc84b56d0228c1df0d327a35a146c516ef65c2f49fc1ea0485a6a8",
+    "valid": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80",
+    "rows": {
+      "train_fit": 7106,
+      "valid": 790
+    }
+  },
+  "hyperparameters": {
+    "base_model": "beomi/KcELECTRA-base-v2022",
+    "revision": "87285578b4686b6d190abd40e947a2a416add6de",
+    "max_length": 80,
+    "batch_size": 32,
+    "lr_grid": [
+      5e-05
+    ],
+    "max_epochs": 5,
+    "patience": 1,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "dropout": 0.1,
+    "bias_loss_weight": 0.5,
+    "selected_lr": 5e-05,
+    "selected_epoch": 3
+  },
+  "search": [
+    {
+      "lr": 5e-05,
+      "epoch": 1,
+      "train_loss": 1.3029,
+      "valid_hate_macro_f1": 0.6663,
+      "valid_bias_macro_f1": 0.6834,
+      "seconds": 54.3
+    },
+    {
+      "lr": 5e-05,
+      "epoch": 2,
+      "train_loss": 0.848,
+      "valid_hate_macro_f1": 0.6809,
+      "valid_bias_macro_f1": 0.7389,
+      "seconds": 54.0
+    },
+    {
+      "lr": 5e-05,
+      "epoch": 3,
+      "train_loss": 0.5269,
+      "valid_hate_macro_f1": 0.6938,
+      "valid_bias_macro_f1": 0.7537,
+      "seconds": 53.1
+    },
+    {
+      "lr": 5e-05,
+      "epoch": 4,
+      "train_loss": 0.3137,
+      "valid_hate_macro_f1": 0.6831,
+      "valid_bias_macro_f1": 0.7667,
+      "seconds": 52.9
+    },
+    {
+      "lr": 5e-05,
+      "epoch": 5,
+      "train_loss": 0.1845,
+      "valid_hate_macro_f1": 0.6786,
+      "valid_bias_macro_f1": 0.7514,
+      "seconds": 54.6
+    }
+  ],
+  "severity": {
+    "thresholds": {
+      "caution": 45,
+      "severe": 77
+    },
+    "sensitivity": {
+      "low": {
+        "normal": "show",
+        "caution": "show",
+        "severe": "hide"
+      },
+      "medium": {
+        "normal": "show",
+        "caution": "blur",
+        "severe": "hide"
+      },
+      "high": {
+        "normal": "show",
+        "caution": "hide",
+        "severe": "hide"
+      }
+    }
+  },
+  "severity_tuning": {
+    "selected": {
+      "caution": 45,
+      "severe": 77,
+      "grade_macro_f1": 0.6564594213093782,
+      "hate_block_rate": 0.6701570680628273,
+      "none_false_block_rate": 0.14326647564469913,
+      "false_block_target_met": true,
+      "hate_block_target_met": true,
+      "max_false_block": 0.15,
+      "min_hate_block": 0.6
+    },
+    "start_30_60": {
+      "caution": 30,
+      "severe": 60,
+      "grade_macro_f1": 0.6859244448695625,
+      "hate_block_rate": 0.774869109947644,
+      "none_false_block_rate": 0.18911174785100288
+    }
+  },
+  "valid_metrics": {
+    "m3s44_hate_macro_f1": 0.6938,
+    "m3s44_bias_macro_f1": 0.7537
+  },
+  "training_device": "mps",
+  "libraries": {
+    "python": "3.11.15",
+    "torch": "2.15.0",
+    "transformers": "5.22.2"
+  },
+  "artifact_bytes": 508787440
+}

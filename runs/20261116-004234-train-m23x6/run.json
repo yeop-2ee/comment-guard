@@ -1,0 +1,62 @@
+{
+  "run_id": "20261116-004234-train-m23x6",
+  "step": "train",
+  "started_at": "2026-11-16T00:42:34+09:00",
+  "finished_at": "2026-11-16T00:43:19+09:00",
+  "status": "success",
+  "git_commit": "8551cef2d5d82436b8d2cc5b98dfb35970ca0994",
+  "git_dirty": false,
+  "model_version": "m23x6-20261116-8551cef",
+  "inputs": {
+    "/Users/sangyeop/Projects/comment-guard/data/processed/valid.tsv": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80",
+    "/Users/sangyeop/Projects/comment-guard/configs/severity.yaml": "sha256:efcc4bbf7af7d7ac11900f112a8cd7f6cfee080c39a0988230e3cb02e847d28e",
+    "models/m2-20261110-314b2b2/model_card.json": "sha256:2ef95955f7bfa1bc893d9447530dae0e104d928ba67915c92e09754ded298867",
+    "models/m2s43-20261116-8551cef/model_card.json": "sha256:669a9b93600912c683c4f1bfc65c7217af21e1dac918e9e692347690345577bf",
+    "models/m2s44-20261116-8551cef/model_card.json": "sha256:e304903fe9ff4d851a76ae6de0e1fcb6de2c0e2951d222fae1baa2194e6c8101",
+    "models/m3-20261115-5b32863/model_card.json": "sha256:06a7369ea1a592d4458690fb1b7d52369ba3cf513e587f9b6d9110e87e890477",
+    "models/m3s43-20261116-8551cef/model_card.json": "sha256:188dade60041e956317993915bb21254ec0feb60b48340bec13172ef3c92b898",
+    "models/m3s44-20261116-8551cef/model_card.json": "sha256:d9b70195b80746a1e21d33a7b1f1deb16018af27f041faaea82bd05bc20c8254"
+  },
+  "config": {
+    "members": [
+      "models/m2-20261110-314b2b2",
+      "models/m2s43-20261116-8551cef",
+      "models/m2s44-20261116-8551cef",
+      "models/m3-20261115-5b32863",
+      "models/m3s43-20261116-8551cef",
+      "models/m3s44-20261116-8551cef"
+    ],
+    "weights": "equal",
+    "severity_tuning": {
+      "max_none_false_block_medium": 0.15,
+      "min_hate_block_medium": 0.6
+    }
+  },
+  "outputs": [
+    "models/m23x6-20261116-8551cef/",
+    "runs/20261116-004234-train-m23x6/model_card.json"
+  ],
+  "extra": {
+    "valid_metrics": {
+      "m23x6_hate_macro_f1": 0.7109,
+      "m23x6_bias_macro_f1": 0.7454
+    },
+    "members": [
+      "m2-20261110-314b2b2",
+      "m2s43-20261116-8551cef",
+      "m2s44-20261116-8551cef",
+      "m3-20261115-5b32863",
+      "m3s43-20261116-8551cef",
+      "m3s44-20261116-8551cef"
+    ],
+    "severity": {
+      "caution": 36,
+      "severe": 73
+    }
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "model_version": "m23x6-20261116-8551cef",
+  "model_id": "m23x6",
+  "name": "M2·M3 시드 6개 평균",
+  "created_at": "2026-11-16T00:43:19+09:00",
+  "git_commit": "8551cef2d5d82436b8d2cc5b98dfb35970ca0994",
+  "git_dirty": false,
+  "method": "구성 모델의 hate·bias 클래스 확률을 같은 가중치로 평균",
+  "members": [
+    {
+      "model_id": "m2",
+      "model_version": "m2-20261110-314b2b2",
+      "git_dirty": false,
+      "valid_hate_macro_f1": 0.7132,
+      "artifact_bytes": 436653239
+    },
+    {
+      "model_id": "m2s43",
+      "model_version": "m2s43-20261116-8551cef",
+      "git_dirty": false,
+      "valid_hate_macro_f1": 0.6997,
+      "artifact_bytes": 436651886
+    },
+    {
+      "model_id": "m2s44",
+      "model_version": "m2s44-20261116-8551cef",
+      "git_dirty": false,
+      "valid_hate_macro_f1": 0.6963,
+      "artifact_bytes": 436651887
+    },
+    {
+      "model_id": "m3",
+      "model_version": "m3-20261115-5b32863",
+      "git_dirty": false,
+      "valid_hate_macro_f1": 0.696,
+      "artifact_bytes": 510104002
+    },
+    {
+      "model_id": "m3s43",
+      "model_version": "m3s43-20261116-8551cef",
+      "git_dirty": false,
+      "valid_hate_macro_f1": 0.6834,
+      "artifact_bytes": 510102654
+    },
+    {
+      "model_id": "m3s44",
+      "model_version": "m3s44-20261116-8551cef",
+      "git_dirty": false,
+      "valid_hate_macro_f1": 0.6938,
+      "artifact_bytes": 510102659
+    }
+  ],
+  "data": {
+    "train_fit": "sha256:b6a752ef7bfc84b56d0228c1df0d327a35a146c516ef65c2f49fc1ea0485a6a8",
+    "valid": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80"
+  },
+  "severity": {
+    "thresholds": {
+      "caution": 36,
+      "severe": 73
+    },
+    "sensitivity": {
+      "low": {
+        "normal": "show",
+        "caution": "show",
+        "severe": "hide"
+      },
+      "medium": {
+        "normal": "show",
+        "caution": "blur",
+        "severe": "hide"
+      },
+      "high": {
+        "normal": "show",
+        "caution": "hide",
+        "severe": "hide"
+      }
+    }
+  },
+  "severity_tuning": {
+    "selected": {
+      "caution": 36,
+      "severe": 73,
+      "grade_macro_f1": 0.7046339647077869,
+      "hate_block_rate": 0.6492146596858639,
+      "none_false_block_rate": 0.1489971346704871,
+      "false_block_target_met": true,
+      "hate_block_target_met": true,
+      "max_false_block": 0.15,
+      "min_hate_block": 0.6
+    },
+    "start_30_60": {
+      "caution": 30,
+      "severe": 60,
+      "grade_macro_f1": 0.6965146506034707,
+      "hate_block_rate": 0.7643979057591623,
+      "none_false_block_rate": 0.18624641833810887
+    }
+  },
+  "valid_metrics": {
+    "m23x6_hate_macro_f1": 0.7109,
+    "m23x6_bias_macro_f1": 0.7454
+  },
+  "artifact_bytes": 2840266327
+}

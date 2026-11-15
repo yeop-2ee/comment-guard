@@ -1,0 +1,84 @@
+{
+  "model_version": "m2x3-20261116-8551cef",
+  "model_id": "m2x3",
+  "name": "M2 시드 3개 평균",
+  "created_at": "2026-11-16T00:42:04+09:00",
+  "git_commit": "8551cef2d5d82436b8d2cc5b98dfb35970ca0994",
+  "git_dirty": false,
+  "method": "구성 모델의 hate·bias 클래스 확률을 같은 가중치로 평균",
+  "members": [
+    {
+      "model_id": "m2",
+      "model_version": "m2-20261110-314b2b2",
+      "git_dirty": false,
+      "valid_hate_macro_f1": 0.7132,
+      "artifact_bytes": 436653239
+    },
+    {
+      "model_id": "m2s43",
+      "model_version": "m2s43-20261116-8551cef",
+      "git_dirty": false,
+      "valid_hate_macro_f1": 0.6997,
+      "artifact_bytes": 436651886
+    },
+    {
+      "model_id": "m2s44",
+      "model_version": "m2s44-20261116-8551cef",
+      "git_dirty": false,
+      "valid_hate_macro_f1": 0.6963,
+      "artifact_bytes": 436651887
+    }
+  ],
+  "data": {
+    "train_fit": "sha256:b6a752ef7bfc84b56d0228c1df0d327a35a146c516ef65c2f49fc1ea0485a6a8",
+    "valid": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80"
+  },
+  "severity": {
+    "thresholds": {
+      "caution": 36,
+      "severe": 77
+    },
+    "sensitivity": {
+      "low": {
+        "normal": "show",
+        "caution": "show",
+        "severe": "hide"
+      },
+      "medium": {
+        "normal": "show",
+        "caution": "blur",
+        "severe": "hide"
+      },
+      "high": {
+        "normal": "show",
+        "caution": "hide",
+        "severe": "hide"
+      }
+    }
+  },
+  "severity_tuning": {
+    "selected": {
+      "caution": 36,
+      "severe": 77,
+      "grade_macro_f1": 0.7019388010185175,
+      "hate_block_rate": 0.6178010471204188,
+      "none_false_block_rate": 0.14326647564469913,
+      "false_block_target_met": true,
+      "hate_block_target_met": true,
+      "max_false_block": 0.15,
+      "min_hate_block": 0.6
+    },
+    "start_30_60": {
+      "caution": 30,
+      "severe": 60,
+      "grade_macro_f1": 0.6840816939221566,
+      "hate_block_rate": 0.743455497382199,
+      "none_false_block_rate": 0.1977077363896848
+    }
+  },
+  "valid_metrics": {
+    "m2x3_hate_macro_f1": 0.7107,
+    "m2x3_bias_macro_f1": 0.7067
+  },
+  "artifact_bytes": 1309957012
+}

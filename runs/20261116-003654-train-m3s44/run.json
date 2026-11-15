@@ -1,0 +1,62 @@
+{
+  "run_id": "20261116-003654-train-m3s44",
+  "step": "train",
+  "started_at": "2026-11-16T00:36:54+09:00",
+  "finished_at": "2026-11-16T00:41:35+09:00",
+  "status": "success",
+  "git_commit": "8551cef2d5d82436b8d2cc5b98dfb35970ca0994",
+  "git_dirty": false,
+  "model_version": "m3s44-20261116-8551cef",
+  "inputs": {
+    "/Users/sangyeop/Projects/comment-guard/data/processed/train_fit.tsv": "sha256:b6a752ef7bfc84b56d0228c1df0d327a35a146c516ef65c2f49fc1ea0485a6a8",
+    "/Users/sangyeop/Projects/comment-guard/data/processed/valid.tsv": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80",
+    "/Users/sangyeop/Projects/comment-guard/configs/train.yaml": "sha256:5674ae3ae793e93590f51ff037e25062e7096e5e6139bf8be268548f9bc3881c",
+    "/Users/sangyeop/Projects/comment-guard/configs/severity.yaml": "sha256:efcc4bbf7af7d7ac11900f112a8cd7f6cfee080c39a0988230e3cb02e847d28e"
+  },
+  "config": {
+    "m3s44": {
+      "base_model": "beomi/KcELECTRA-base-v2022",
+      "revision": "87285578b4686b6d190abd40e947a2a416add6de",
+      "max_length": 80,
+      "batch_size": 32,
+      "lr_grid": [
+        5e-05
+      ],
+      "max_epochs": 5,
+      "patience": 1,
+      "weight_decay": 0.01,
+      "warmup_ratio": 0.1,
+      "dropout": 0.1,
+      "bias_loss_weight": 0.5
+    },
+    "seed": 44,
+    "device": "mps",
+    "severity_tuning": {
+      "max_none_false_block_medium": 0.15,
+      "min_hate_block_medium": 0.6
+    }
+  },
+  "outputs": [
+    "models/m3s44-20261116-8551cef/",
+    "runs/20261116-003654-train-m3s44/model_card.json"
+  ],
+  "extra": {
+    "valid_metrics": {
+      "m3s44_hate_macro_f1": 0.6938,
+      "m3s44_bias_macro_f1": 0.7537
+    },
+    "selected": {
+      "lr": 5e-05,
+      "epoch": 3
+    },
+    "severity": {
+      "caution": 45,
+      "severe": 77
+    }
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}
