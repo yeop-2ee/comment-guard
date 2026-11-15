@@ -115,8 +115,10 @@ def predict(model: model_store.CommentModel, texts: list[str]) -> list[dict[str,
 
 def _display_name(card: dict[str, Any]) -> str:
     mid = card.get("model_id", "m1")
-    if mid == "ens":
-        return "ENS · " + " + ".join(m["model_id"].upper() for m in card.get("members", [])) + " 앙상블"
+    if card.get("name"):
+        return f"{mid.upper()} · {card['name']}"
+    if card.get("members"):
+        return f"{mid.upper()} · " + " + ".join(m["model_id"].upper() for m in card["members"]) + " 앙상블"
     base = (card.get("base_model") or {}).get("name", "").split("/")[-1]
     return f"{mid.upper()} · {base or 'TF-IDF + 로지스틱 회귀'}"
 

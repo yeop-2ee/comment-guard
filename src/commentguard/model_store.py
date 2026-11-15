@@ -85,12 +85,12 @@ def load_any(model_dir: str | Path):
     """model_card.json의 model_id로 로더를 고릅니다. M2~M4는 torch가 필요해서 그때만 import."""
     model_dir = Path(model_dir)
     card = json.loads((model_dir / "model_card.json").read_text(encoding="utf-8"))
-    if card.get("model_id") in TRANSFORMER_IDS:
-        from commentguard.m2 import load_m2
-        return load_m2(model_dir)
-    if card.get("model_id") == "ens":
+    if card.get("members"):
         from commentguard.ensemble import load_ensemble
         return load_ensemble(model_dir)
+    if str(card.get("model_id", "m1"))[:2] in TRANSFORMER_IDS:  # m2s43 같은 시드 변형 포함
+        from commentguard.m2 import load_m2
+        return load_m2(model_dir)
     return load_local(model_dir)
 
 

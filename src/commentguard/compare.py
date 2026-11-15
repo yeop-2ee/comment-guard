@@ -2,8 +2,8 @@
 
 python -m commentguard.compare <M1 폴더> <M2 폴더>
     → runs/<run_id>/comparison.json
-python -m commentguard.compare --all <모델 폴더 ...>
-    여러 모델을 한 번에 비교하고 명세서 4.5장 규칙으로 서빙 모델을 고릅니다 (후보: m2, m3, m4, ens)
+python -m commentguard.compare --all [--candidates m2,m2x3,...] <모델 폴더 ...>
+    여러 모델을 한 번에 비교하고 명세서 4.5장 규칙으로 서빙 모델을 고릅니다 (후보 기본값: m2, m3, m4, ens)
     → runs/<run_id>-compare-all/comparison.json
     - eval macro-F1과 짝지은 부트스트랩 차이(M2 - M1), 서비스 지표, 행동 검사
     - CPU 지연시간·메모리·로드 시간·산출물 크기 (모델마다 별도 프로세스에서 측정)
@@ -52,7 +52,7 @@ def measure(model_dir: str) -> dict[str, Any]:
         s = time.perf_counter(); model.predict_proba(texts); batch.append((time.perf_counter() - s) * 1000)
     rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     rss_mb = rss / 1024 / 1024 if sys.platform == "darwin" else rss / 1024  # macOS는 바이트, 리눅스는 KB
-    size = model.card.get("artifact_bytes") if model.card.get("model_id") == "ens" else \
+    size = model.card.get("artifact_bytes") if model.card.get("members") else \
         sum(p.stat().st_size for p in Path(model_dir).iterdir() if p.is_file())
     return {"load_seconds": round(load_s, 2), "latency_ms_single_p50": round(float(np.median(single)), 1),
             "latency_ms_single_p90": round(float(np.percentile(single, 90)), 1),
@@ -137,10 +137,10 @@ LIMITS = {"single_p50_ms": 500, "batch100_p50_ms": 12_000, "peak_rss_mb": 8_000}
 TIE = 0.005
 
 
-def select_serving(models: dict[str, dict[str, Any]]) -> dict[str, Any]:
+def select_serving(models: dict[str, dict[str, Any]], candidates: tuple[str, ...] = CANDIDATES) -> dict[str, Any]:
     """운영 조건을 통과한 후보 중 valid macro-F1이 가장 높은 모델. 0.005 미만 차이는 동률로 보고 작은 모델."""
     table = {}
-    for k in CANDIDATES:
+    for k in candidates:
         if k not in models:
             continue
         r = models[k]["runtime_cpu"]
@@ -153,17 +153,21 @@ def select_serving(models: dict[str, dict[str, Any]]) -> dict[str, Any]:
     best = max(v["valid_hate_macro_f1"] for v in ok.values())
     tied = [k for k, v in ok.items() if best - v["valid_hate_macro_f1"] < TIE]
     chosen = min(tied, key=lambda k: ok[k]["artifact_mb"])
-    return {"rule": "명세서 4.5장: 운영 조건(p50<=500ms, 100건 배치<=12000ms, 메모리<=8000MB)을 통과한 후보 중 valid macro-F1 최고, "
+    return {"rule": "명세서 4.5장(4.7장도 같은 규칙): 운영 조건(p50<=500ms, 100건 배치<=12000ms, 메모리<=8000MB)을 통과한 후보 중 valid macro-F1 최고, "
                     "차이 0.005 미만은 동률로 보고 작은 모델", "candidates": table, "best_valid": best, "tied": tied,
             "serving_model": chosen}
 
 
 def main_all(argv: list[str]) -> int:
+    candidates = CANDIDATES
+    if argv[:1] == ["--candidates"]:
+        candidates, argv = tuple(argv[1].split(",")), argv[2:]
     dirs = [Path(a) for a in argv]
     ev_cfg = yaml.safe_load(open(REPO_ROOT / "configs" / "train.yaml", encoding="utf-8"))["evaluation"]
     eval_path = PROCESSED_DIR / "eval.tsv"
     try:
-        with run_step("compare", suffix="all", config={"models": [rel(d) for d in dirs], "bootstrap": ev_cfg, "limits": LIMITS},
+        with run_step("compare", suffix="all", config={"models": [rel(d) for d in dirs], "candidates": list(candidates),
+                                                       "bootstrap": ev_cfg, "limits": LIMITS},
                       inputs=[eval_path, PROBE_PATH, *[d / "model_card.json" for d in dirs]]) as run:
             check_manifest()
             df, probe_df = read_tsv(eval_path), read_tsv(PROBE_PATH)
@@ -193,7 +197,7 @@ def main_all(argv: list[str]) -> int:
                 res = subprocess.run([sys.executable, "-m", "commentguard.compare", "--measure", str(d)],
                                      capture_output=True, text=True, check=True, cwd=REPO_ROOT)
                 out["models"][key]["runtime_cpu"] = json.loads(res.stdout.strip().splitlines()[-1])
-            out["selection"] = select_serving(out["models"])
+            out["selection"] = select_serving(out["models"], candidates)
             path = run.dir / "comparison.json"
             path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
             run.outputs.append(rel(path))

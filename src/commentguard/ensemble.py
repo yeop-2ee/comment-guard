@@ -1,7 +1,7 @@
 """ENS: 구성 모델의 확률을 같은 가중치로 평균하는 앙상블 (명세서 4.5장).
 
-python -m commentguard.ensemble [구성 모델 폴더 ...]
-    폴더를 주지 않으면 configs/train.yaml의 ens.members (models/LATEST_<ID>).
+python -m commentguard.ensemble [--id m2x3] [--name "이름"] [구성 모델 폴더 ...]
+    폴더를 주지 않으면 configs/train.yaml의 ens.members (models/LATEST_<ID>). --id는 모델 ID(기본 ens).
     구성 모델의 valid 확률을 평균해서 심각도 기준값을 다시 조정합니다. eval은 읽지 않습니다.
     → models/ens-<날짜>-<커밋>/model_card.json (가중치 파일 없음, 구성 모델 버전만 기록), models/LATEST_ENS
 
@@ -70,15 +70,22 @@ def _macro_f1(y_true, y_pred, labels) -> float:
 
 
 def main(argv: Sequence[str] = ()) -> int:
+    argv, key, name = list(argv), "ens", None
+    while argv and argv[0] in ("--id", "--name"):
+        if argv[0] == "--id":
+            key = argv[1]
+        else:
+            name = argv[1]
+        argv = argv[2:]
     cfg_all = yaml.safe_load(open(TRAIN_CFG, encoding="utf-8"))
     sev_cfg = yaml.safe_load(open(SEVERITY_CFG, encoding="utf-8"))
     fit_path, valid_path = PROCESSED_DIR / "train_fit.tsv", PROCESSED_DIR / "valid.tsv"
     try:
         dirs = [Path(a) for a in argv] or [model_store.latest_dir(k) for k in cfg_all["ens"]["members"]]
-        with run_step("train", suffix="ens", config={"members": [rel(d) for d in dirs], "weights": "equal",
+        with run_step("train", suffix=key, config={"members": [rel(d) for d in dirs], "weights": "equal",
                                                     "severity_tuning": sev_cfg["tuning"]},
                       inputs=[valid_path, SEVERITY_CFG, *[d / "model_card.json" for d in dirs]]) as run:
-            version = make_model_version("ens")
+            version = make_model_version(key)
             run.model_version = version
             valid = read_tsv(valid_path)
             members = [model_store.load_cached(d) for d in dirs]
@@ -101,7 +108,8 @@ def main(argv: Sequence[str] = ()) -> int:
 
             infos = [member_info(m, d) for m, d in zip(members, dirs)]
             card = {
-                "model_version": version, "model_id": "ens",
+                "model_version": version, "model_id": key,
+                **({"name": name} if name else {}),
                 "created_at": now_kst().isoformat(timespec="seconds"),
                 "git_commit": run.git_commit,
                 # 구성 모델 중 하나라도 dirty면 앙상블도 제출용으로 쓰지 않음
@@ -114,19 +122,19 @@ def main(argv: Sequence[str] = ()) -> int:
                     "caution": start.caution, "severe": start.severe,
                     "grade_macro_f1": grade_macro_f1(scores, valid["hate"], start.caution, start.severe),
                     **filter_rates(scores, valid["hate"], start)["medium"]}},
-                "valid_metrics": {"ens_hate_macro_f1": round(f1_h, 4), "ens_bias_macro_f1": round(f1_b, 4)},
+                "valid_metrics": {f"{key}_hate_macro_f1": round(f1_h, 4), f"{key}_bias_macro_f1": round(f1_b, 4)},
                 "artifact_bytes": sum(i["artifact_bytes"] for i in infos),
             }
             model_dir = model_store.MODELS_DIR / version
             model_dir.mkdir(parents=True, exist_ok=True)
             model_store.write_card(model_dir, card)
-            (model_store.MODELS_DIR / "LATEST_ENS").write_text(version + "\n")
+            (model_store.MODELS_DIR / f"LATEST_{key.upper()}").write_text(version + "\n")
             shutil.copy(model_dir / "model_card.json", run.dir / "model_card.json")
             run.outputs += [f"models/{version}/", rel(run.dir / "model_card.json")]
             run.extra.update(valid_metrics=card["valid_metrics"], members=[i["model_version"] for i in infos],
                              severity=card["severity"]["thresholds"])
     except Exception as e:
-        print(f"[ens] 실패: {type(e).__name__}: {e}", file=sys.stderr)
+        print(f"[{key}] 실패: {type(e).__name__}: {e}", file=sys.stderr)
         return 1
     print(f"model_version={version} members={[i['model_version'] for i in infos]} valid={card['valid_metrics']} severity={tuning}")
     return 0

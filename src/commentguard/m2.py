@@ -1,7 +1,8 @@
 """M2: KcELECTRA 미세조정 (명세서 4.3장). torch와 transformers가 필요합니다 (requirements-m2.txt).
 같은 코드로 M3·M4(명세서 4.5장)도 학습합니다. 설정은 configs/train.yaml의 m2 / m3 / m4.
 
-python -m commentguard.m2 [--model m3|m4]
+python -m commentguard.m2 [--model m3|m4] [--seed N]
+    --seed를 주면 시드 변형(예: m2s43, 명세서 4.7장)을 만듭니다. 학습률은 같은 모델의 기존 카드에서 고른 값으로 고정합니다.
     train_fit으로 학습, valid로 학습률·에폭(조기 종료)과 심각도 기준값 선택. eval은 읽지 않습니다.
     → models/<id>-<날짜>-<커밋>/ (model.safetensors, config.json, tokenizer, model_card.json), models/LATEST_<ID>
 
@@ -187,9 +188,16 @@ def train_one(cfg: dict, lr: float, fit, valid, tok, device: str, seed: int, log
 
 
 def main(argv: Sequence[str] = ()) -> int:
-    key = "m2"
-    if list(argv[:1]) == ["--model"]:
-        key = argv[1]
+    argv, key, seed_arg = list(argv), "m2", None
+    while argv:
+        if argv[0] == "--model":
+            key = argv[1]
+        elif argv[0] == "--seed":
+            seed_arg = int(argv[1])
+        else:
+            print(f"[m2] 모르는 인자: {argv[0]}", file=sys.stderr)
+            return 2
+        argv = argv[2:]
     cfg_all = yaml.safe_load(open(TRAIN_CFG, encoding="utf-8"))
     sev_cfg = yaml.safe_load(open(SEVERITY_CFG, encoding="utf-8"))
     if key not in ("m2", "m3", "m4"):
@@ -197,6 +205,12 @@ def main(argv: Sequence[str] = ()) -> int:
         return 2
     cfg, seed = dict(cfg_all[key]), cfg_all["seed"]
     base_license, base_note = cfg.pop("license", "MIT"), cfg.pop("note", M2_NOTE)
+    base_key = key
+    if seed_arg is not None:  # 시드 변형: 기존 모델이 valid로 고른 학습률만 사용
+        base_card = json.loads((MODELS_DIR / (MODELS_DIR / f"LATEST_{key.upper()}").read_text().strip()
+                                / "model_card.json").read_text(encoding="utf-8"))
+        cfg["lr_grid"] = [base_card["hyperparameters"]["selected_lr"]]
+        seed, key = seed_arg, f"{key}s{seed_arg}"
     fit_path, valid_path = PROCESSED_DIR / "train_fit.tsv", PROCESSED_DIR / "valid.tsv"
     device = pick_device()
     try:
@@ -234,7 +248,8 @@ def main(argv: Sequence[str] = ()) -> int:
             best["config"].save_pretrained(model_dir)
             tok.save_pretrained(model_dir)
             card = {
-                "model_version": version, "model_id": key,
+                "model_version": version, "model_id": key, "seed": seed,
+                **({"variant_of": base_key} if key != base_key else {}),
                 "created_at": now_kst().isoformat(timespec="seconds"),
                 "git_commit": run.git_commit, "git_dirty": run.git_dirty,
                 "base_model": {"name": cfg["base_model"], "revision": cfg["revision"], "license": base_license,
@@ -256,7 +271,8 @@ def main(argv: Sequence[str] = ()) -> int:
                 "artifact_bytes": (model_dir / "model.safetensors").stat().st_size,
             }
             (model_dir / "model_card.json").write_text(json.dumps(card, ensure_ascii=False, indent=2), encoding="utf-8")
-            (MODELS_DIR / f"LATEST_{key.upper()}").write_text(version + "\n")
+            if key == base_key:  # 시드 변형은 앙상블 구성 요소로만 쓰므로 LATEST를 만들지 않음
+                (MODELS_DIR / f"LATEST_{key.upper()}").write_text(version + "\n")
             shutil.copy(model_dir / "model_card.json", run.dir / "model_card.json")
             run.outputs += [f"models/{version}/", rel(run.dir / "model_card.json")]
             run.extra.update(valid_metrics=card["valid_metrics"], selected={"lr": best["lr"], "epoch": best["epoch"]},

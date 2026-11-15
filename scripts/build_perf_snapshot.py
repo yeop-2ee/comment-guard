@@ -16,7 +16,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 RUNS = ROOT / "runs"
 HTML = ROOT / "src" / "commentguard" / "static" / "index.html"
-ORDER = ["m1", "m2", "m3", "m4", "ens"]
 PROBE1 = [("intensifier_praise", "‘개’ 강조 칭찬", "보여야 함"), ("intensifier_insult", "‘개’ 비하", "가려야 함"),
           ("chosung_praise", "초성 칭찬", "보여야 함"), ("chosung_insult", "초성 욕설", "가려야 함"),
           ("emoji_praise", "이모지 칭찬", "보여야 함"), ("plain_criticism", "정상 비판", "보여야 함"),
@@ -47,10 +46,7 @@ def main() -> int:
     cmp_id, cmp = found
     sources = [cmp_id]
     models, b0 = {}, None
-    for key in ORDER:
-        if key not in cmp["models"]:
-            continue
-        c = cmp["models"][key]
+    for key, c in cmp["models"].items():  # 비교할 때 준 순서
         ev = latest("*-evaluate*/metrics.json", lambda d, v=c["model_version"]: d["model_version"] == v)
         card = latest("*-train*/model_card.json", lambda d, v=c["model_version"]: d["model_version"] == v)
         if not ev or not card:
@@ -59,8 +55,8 @@ def main() -> int:
         (ev_id, m), (card_id, cd) = ev, card
         sources += [ev_id, card_id]
         h, sev, rt = m["hate"][key], m["severity"], c["runtime_cpu"]
-        if key == "ens":
-            name, desc = "ENS", " + ".join(x["model_id"].upper() for x in cd["members"]) + " 확률 평균"
+        if cd.get("members"):
+            name, desc = key.upper(), cd.get("name") or " + ".join(x["model_id"].upper() for x in cd["members"]) + " 확률 평균"
         else:
             name, desc = key.upper(), (cd.get("base_model") or {}).get("name", "글자 n-gram TF-IDF + 로지스틱 회귀").split("/")[-1]
         cmx = h["confusion_matrix"]["rows_true_cols_pred"]
