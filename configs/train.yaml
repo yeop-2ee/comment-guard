@@ -33,3 +33,38 @@ m2:
   warmup_ratio: 0.1
   dropout: 0.1
   bias_loss_weight: 0.5   # loss = CE(hate) + 0.5 × CE(bias), 클래스 가중치는 train_fit 기준 balanced
+
+# M3·M4: 성능 개선 후보 (명세서 4.5장). 구조와 학습 방법은 m2와 같고, 조정은 valid만 사용
+m3:
+  base_model: beomi/KcELECTRA-base-v2022
+  revision: 87285578b4686b6d190abd40e947a2a416add6de
+  license: MIT
+  note: "M2와 같은 계열의 개선판. WordPiece 토크나이저(vocab.txt), 가중치는 pytorch_model.bin만 제공. [CLS]/[SEP]은 코드에서 직접 부착"
+  max_length: 80          # train_fit 토큰 길이 최대 66 + [CLS]/[SEP]
+  batch_size: 32
+  lr_grid: [2.0e-5, 5.0e-5]
+  max_epochs: 5
+  patience: 1
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  dropout: 0.1
+  bias_loss_weight: 0.5
+
+m4:
+  base_model: klue/roberta-large
+  revision: 28d911204e9022eda172571ca8cc61eaffd942f7
+  license: "허브 모델 카드에 표기 없음 (KLUE 프로젝트는 CC BY-SA 4.0으로 알려져 있으나 직접 확인하지 못함)"
+  note: "BERT 방식 WordPiece 토크나이저([CLS]/[SEP]/[PAD]). [CLS]/[SEP]은 코드에서 직접 부착"
+  max_length: 96          # train_fit 토큰 길이 최대 79 + [CLS]/[SEP]
+  batch_size: 16          # 모델이 커서 줄임
+  lr_grid: [1.0e-5, 2.0e-5]
+  max_epochs: 5
+  patience: 1
+  weight_decay: 0.01
+  warmup_ratio: 0.1
+  dropout: 0.1
+  bias_loss_weight: 0.5
+
+# ENS: 구성 모델의 확률을 같은 가중치로 평균 (명세서 4.5장)
+ens:
+  members: [m2, m3, m4]

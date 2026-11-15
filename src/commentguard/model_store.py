@@ -23,6 +23,7 @@ MODELS_DIR = REPO_ROOT / "models"
 LATEST_FILE = MODELS_DIR / "LATEST"
 SERVING_CFG = REPO_ROOT / "configs" / "serving.yaml"
 BIAS_CLASSES = ("none", "others", "gender")
+TRANSFORMER_IDS = ("m2", "m3", "m4")  # m2.py로 학습·로드하는 모델
 
 
 @dataclass
@@ -81,10 +82,10 @@ def load_local(model_dir: str | Path) -> CommentModel:
 
 
 def load_any(model_dir: str | Path):
-    """model_card.json의 model_id로 M1/M2 로더를 고릅니다. M2는 torch가 필요해서 그때만 import."""
+    """model_card.json의 model_id로 로더를 고릅니다. M2~M4는 torch가 필요해서 그때만 import."""
     model_dir = Path(model_dir)
     card = json.loads((model_dir / "model_card.json").read_text(encoding="utf-8"))
-    if card.get("model_id") == "m2":
+    if card.get("model_id") in TRANSFORMER_IDS:
         from commentguard.m2 import load_m2
         return load_m2(model_dir)
     return load_local(model_dir)
