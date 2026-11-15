@@ -1054,7 +1054,7 @@ function renderPerf(live) {
       // ③ 자세한 내용 (눌러서 펼침)
       h("div", { class: "wide accs" },
         h("div", { class: "accs-head" }, h("b", { text: "자세히 보기" }),
-          h("button", { class: "textbtn", text: "모두 펼치기", onclick: (e) => { const all = [...document.querySelectorAll("#p-body details")], openAll = all.some((x) => !x.open);
+          h("button", { class: "textbtn", text: "모두 접기", onclick: (e) => { const all = [...document.querySelectorAll("#p-body details")], openAll = all.some((x) => !x.open);
             all.forEach((x) => (x.open = openAll)); e.currentTarget.textContent = openAll ? "모두 접기" : "모두 펼치기"; } })),
         acc("어디서 틀리나", "혼동행렬 · 클래스별 F1",
           h("div", { class: "cms" }, (isS ? [cur] : [cur, P.serving]).map((k) => confusion(M[k]))),
@@ -1108,8 +1108,8 @@ function renderPerf(live) {
           h("p", { class: "srcs" },
             `평가 데이터: BEEP! dev.tsv ${P.evalRows}건 (정상 ${P.evalCounts.none} / 공격 ${P.evalCounts.offensive} / 혐오 ${P.evalCounts.hate}). 학습, 어휘 사전, 하이퍼파라미터, 기준값 조정, 모델 선택에 쓰지 않았습니다.`, h("br"),
             `기록 파일: ${P.sources.map((s) => `runs/${s}`).join(" · ")}`, h("br"), "설명과 해석: docs/EVALUATION.md"))))].filter(Boolean));
-  const expand = new URLSearchParams(location.search).has("expand");  // 주소에 ?expand 를 붙이면 처음부터 펼침
-  document.querySelectorAll("#p-body details").forEach((x, i) => (x.open = open.length ? !!open[i] : expand));  // 펼쳐 둔 항목 유지
+  // 자세히 보기는 처음부터 펼쳐 둠. 사용자가 접은 항목은 다시 그려도 접힌 채로 유지
+  document.querySelectorAll("#p-body details").forEach((x, i) => (x.open = open.length ? !!open[i] : true));
   stagger($("p-body"));
 }
 loadStatus();

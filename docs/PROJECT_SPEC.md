@@ -7,7 +7,7 @@
 - 작성일: 2026-11-09
 - 상태: v1.4 (2026-11-16, 성능 개선 후보와 시드 앙상블 비교, 모델 선택 기능, 모델 정리). D1~D6 모두 결정됨. M0~M3과 M6(로컬 범위)까지 실행했고, M4(클라우드 배포)부터는 아직 실행하지 않았습니다. 단계별 진행 상태는 13장에 있습니다.
 - 서빙 모델: M2 `m2-20261110-314b2b2` (4.3장, 근거는 `docs/EVALUATION.md` 8장)
-- 관련 문서: `docs/DATA.md`(데이터), `docs/EVALUATION.md`(평가 결과), `README.md`(제출용, M7에서 작성)
+- 관련 문서: `docs/DATA.md`(데이터), `docs/EVALUATION.md`(평가 결과), `README.md`(제출용)
 
 ---
 
@@ -801,7 +801,7 @@ M2와 비교 단계는 Make 타깃이 없어서 모듈을 직접 실행합니다
 
 ```
 comment-guard/
-├── README.md                    # (예정, M7) 제출용 메인 문서 (14장 목차)
+├── README.md                    # 제출용 메인 문서
 ├── LICENSE                      # 코드 라이선스 (MIT)
 ├── Makefile                     # 파이프라인 진입점 (7.1장)
 ├── vercel.json                  # Vercel 함수 설정 (리전, 메모리, 최대 실행 시간)
@@ -889,7 +889,7 @@ comment-guard/
 | M6 M2 사전학습 모델 | 로컬 범위 완료. cold start 측정과 클라우드 스모크는 M4에서 | `runs/20261110-003741-train-m2`, `-010215-evaluate-m2`, `-010228-compare`, `-010553-smoke-local`, 행동 검사 2건 |
 | M6 추가: 시드 반복·시드 앙상블 (D8) | 완료. 서빙 모델은 M2 유지, M4·ENS 등 삭제 | `runs/20261116-002311-train-m2s43` ~ `-004633-probe-behavior_v2` |
 | M6 추가: 성능 개선 후보 (D7) | 완료. 서빙 모델은 M2 유지 | `runs/20261115-232408-train-m3`, `-233346-train-m4`, `runs/20261116-000626-train-ens`, `-000811-compare-all` |
-| M7 README와 재실행 | 시작 전 | — |
+| M7 README와 재실행 | README 작성함(미실행 단계는 미실행으로 표시). 새 폴더 재실행은 시작 전 | `README.md` |
 | M8 자원 정리와 최종 점검 | 시작 전 | — |
 
 ### M0. 저장소 뼈대
@@ -938,7 +938,7 @@ comment-guard/
 - **완료 조건:** `EVALUATION.md`에 M1 vs M2 비교와 서빙 모델 선택 이유 추가
 
 ### M7. README와 재실행
-- [ ] README 작성 (14장 목차)
+- [x] README 작성. 클라우드 단계가 끝나면 해당 절을 갱신
 - [ ] 9장 새 폴더 재실행 → `docs/RERUN.md`
 - **완료 조건:** README 명령만으로 재실행 성공
 
