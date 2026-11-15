@@ -1,0 +1,63 @@
+{
+  "run_id": "20261115-233346-train-m4",
+  "step": "train",
+  "started_at": "2026-11-15T23:33:46+09:00",
+  "finished_at": "2026-11-16T00:05:52+09:00",
+  "status": "success",
+  "git_commit": "e1be820bb2dcdaa2bc6264ad04484335873d0c2e",
+  "git_dirty": false,
+  "model_version": "m4-20261115-e1be820",
+  "inputs": {
+    "/Users/sangyeop/Projects/comment-guard/data/processed/train_fit.tsv": "sha256:b6a752ef7bfc84b56d0228c1df0d327a35a146c516ef65c2f49fc1ea0485a6a8",
+    "/Users/sangyeop/Projects/comment-guard/data/processed/valid.tsv": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80",
+    "/Users/sangyeop/Projects/comment-guard/configs/train.yaml": "sha256:5674ae3ae793e93590f51ff037e25062e7096e5e6139bf8be268548f9bc3881c",
+    "/Users/sangyeop/Projects/comment-guard/configs/severity.yaml": "sha256:efcc4bbf7af7d7ac11900f112a8cd7f6cfee080c39a0988230e3cb02e847d28e"
+  },
+  "config": {
+    "m4": {
+      "base_model": "klue/roberta-large",
+      "revision": "28d911204e9022eda172571ca8cc61eaffd942f7",
+      "max_length": 96,
+      "batch_size": 16,
+      "lr_grid": [
+        1e-05,
+        2e-05
+      ],
+      "max_epochs": 5,
+      "patience": 1,
+      "weight_decay": 0.01,
+      "warmup_ratio": 0.1,
+      "dropout": 0.1,
+      "bias_loss_weight": 0.5
+    },
+    "seed": 42,
+    "device": "mps",
+    "severity_tuning": {
+      "max_none_false_block_medium": 0.15,
+      "min_hate_block_medium": 0.6
+    }
+  },
+  "outputs": [
+    "models/m4-20261115-e1be820/",
+    "runs/20261115-233346-train-m4/model_card.json"
+  ],
+  "extra": {
+    "valid_metrics": {
+      "m4_hate_macro_f1": 0.667,
+      "m4_bias_macro_f1": 0.7273
+    },
+    "selected": {
+      "lr": 1e-05,
+      "epoch": 3
+    },
+    "severity": {
+      "caution": 40,
+      "severe": 63
+    }
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

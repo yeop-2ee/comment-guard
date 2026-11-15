@@ -1,0 +1,175 @@
+{
+  "model_version": "m3-20261115-5b32863",
+  "model_id": "m3",
+  "created_at": "2026-11-15T23:33:43+09:00",
+  "git_commit": "5b32863530a56201a7b118b56151265936b1fc83",
+  "git_dirty": false,
+  "base_model": {
+    "name": "beomi/KcELECTRA-base-v2022",
+    "revision": "87285578b4686b6d190abd40e947a2a416add6de",
+    "license": "MIT",
+    "note": "M2와 같은 계열의 개선판. WordPiece 토크나이저(vocab.txt), 가중치는 pytorch_model.bin만 제공. [CLS]/[SEP]은 코드에서 직접 부착"
+  },
+  "data": {
+    "train_fit": "sha256:b6a752ef7bfc84b56d0228c1df0d327a35a146c516ef65c2f49fc1ea0485a6a8",
+    "valid": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80",
+    "rows": {
+      "train_fit": 7106,
+      "valid": 790
+    }
+  },
+  "hyperparameters": {
+    "base_model": "beomi/KcELECTRA-base-v2022",
+    "revision": "87285578b4686b6d190abd40e947a2a416add6de",
+    "max_length": 80,
+    "batch_size": 32,
+    "lr_grid": [
+      2e-05,
+      5e-05
+    ],
+    "max_epochs": 5,
+    "patience": 1,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "dropout": 0.1,
+    "bias_loss_weight": 0.5,
+    "selected_lr": 5e-05,
+    "selected_epoch": 3
+  },
+  "search": [
+    {
+      "lr": 2e-05,
+      "epoch": 1,
+      "train_loss": 1.3845,
+      "valid_hate_macro_f1": 0.6733,
+      "valid_bias_macro_f1": 0.66,
+      "seconds": 56.2
+    },
+    {
+      "lr": 2e-05,
+      "epoch": 2,
+      "train_loss": 0.9388,
+      "valid_hate_macro_f1": 0.677,
+      "valid_bias_macro_f1": 0.721,
+      "seconds": 53.8
+    },
+    {
+      "lr": 2e-05,
+      "epoch": 3,
+      "train_loss": 0.7286,
+      "valid_hate_macro_f1": 0.6853,
+      "valid_bias_macro_f1": 0.7353,
+      "seconds": 53.9
+    },
+    {
+      "lr": 2e-05,
+      "epoch": 4,
+      "train_loss": 0.573,
+      "valid_hate_macro_f1": 0.6829,
+      "valid_bias_macro_f1": 0.7286,
+      "seconds": 54.0
+    },
+    {
+      "lr": 2e-05,
+      "epoch": 5,
+      "train_loss": 0.473,
+      "valid_hate_macro_f1": 0.6849,
+      "valid_bias_macro_f1": 0.7308,
+      "seconds": 54.2
+    },
+    {
+      "lr": 5e-05,
+      "epoch": 1,
+      "train_loss": 1.2908,
+      "valid_hate_macro_f1": 0.6595,
+      "valid_bias_macro_f1": 0.6938,
+      "seconds": 56.3
+    },
+    {
+      "lr": 5e-05,
+      "epoch": 2,
+      "train_loss": 0.8344,
+      "valid_hate_macro_f1": 0.6822,
+      "valid_bias_macro_f1": 0.7522,
+      "seconds": 56.0
+    },
+    {
+      "lr": 5e-05,
+      "epoch": 3,
+      "train_loss": 0.5376,
+      "valid_hate_macro_f1": 0.696,
+      "valid_bias_macro_f1": 0.7273,
+      "seconds": 55.7
+    },
+    {
+      "lr": 5e-05,
+      "epoch": 4,
+      "train_loss": 0.3249,
+      "valid_hate_macro_f1": 0.6645,
+      "valid_bias_macro_f1": 0.7498,
+      "seconds": 54.4
+    },
+    {
+      "lr": 5e-05,
+      "epoch": 5,
+      "train_loss": 0.197,
+      "valid_hate_macro_f1": 0.6854,
+      "valid_bias_macro_f1": 0.7551,
+      "seconds": 54.2
+    }
+  ],
+  "severity": {
+    "thresholds": {
+      "caution": 46,
+      "severe": 68
+    },
+    "sensitivity": {
+      "low": {
+        "normal": "show",
+        "caution": "show",
+        "severe": "hide"
+      },
+      "medium": {
+        "normal": "show",
+        "caution": "blur",
+        "severe": "hide"
+      },
+      "high": {
+        "normal": "show",
+        "caution": "hide",
+        "severe": "hide"
+      }
+    }
+  },
+  "severity_tuning": {
+    "selected": {
+      "caution": 46,
+      "severe": 68,
+      "grade_macro_f1": 0.6849328145149826,
+      "hate_block_rate": 0.6020942408376964,
+      "none_false_block_rate": 0.10888252148997135,
+      "false_block_target_met": true,
+      "hate_block_target_met": true,
+      "max_false_block": 0.15,
+      "min_hate_block": 0.6
+    },
+    "start_30_60": {
+      "caution": 30,
+      "severe": 60,
+      "grade_macro_f1": 0.683209116278623,
+      "hate_block_rate": 0.6544502617801047,
+      "none_false_block_rate": 0.22636103151862463
+    }
+  },
+  "valid_metrics": {
+    "m3_hate_macro_f1": 0.696,
+    "m3_bias_macro_f1": 0.7273
+  },
+  "training_device": "mps",
+  "libraries": {
+    "python": "3.11.15",
+    "torch": "2.15.0",
+    "transformers": "5.22.2"
+  },
+  "artifact_bytes": 508787440
+}

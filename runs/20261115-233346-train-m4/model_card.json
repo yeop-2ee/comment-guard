@@ -1,0 +1,167 @@
+{
+  "model_version": "m4-20261115-e1be820",
+  "model_id": "m4",
+  "created_at": "2026-11-16T00:05:52+09:00",
+  "git_commit": "e1be820bb2dcdaa2bc6264ad04484335873d0c2e",
+  "git_dirty": false,
+  "base_model": {
+    "name": "klue/roberta-large",
+    "revision": "28d911204e9022eda172571ca8cc61eaffd942f7",
+    "license": "허브 모델 카드에 표기 없음 (KLUE 프로젝트는 CC BY-SA 4.0으로 알려져 있으나 직접 확인하지 못함)",
+    "note": "BERT 방식 WordPiece 토크나이저([CLS]/[SEP]/[PAD]). [CLS]/[SEP]은 코드에서 직접 부착"
+  },
+  "data": {
+    "train_fit": "sha256:b6a752ef7bfc84b56d0228c1df0d327a35a146c516ef65c2f49fc1ea0485a6a8",
+    "valid": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80",
+    "rows": {
+      "train_fit": 7106,
+      "valid": 790
+    }
+  },
+  "hyperparameters": {
+    "base_model": "klue/roberta-large",
+    "revision": "28d911204e9022eda172571ca8cc61eaffd942f7",
+    "max_length": 96,
+    "batch_size": 16,
+    "lr_grid": [
+      1e-05,
+      2e-05
+    ],
+    "max_epochs": 5,
+    "patience": 1,
+    "weight_decay": 0.01,
+    "warmup_ratio": 0.1,
+    "dropout": 0.1,
+    "bias_loss_weight": 0.5,
+    "selected_lr": 1e-05,
+    "selected_epoch": 3
+  },
+  "search": [
+    {
+      "lr": 1e-05,
+      "epoch": 1,
+      "train_loss": 1.307,
+      "valid_hate_macro_f1": 0.6259,
+      "valid_bias_macro_f1": 0.7045,
+      "seconds": 210.7
+    },
+    {
+      "lr": 1e-05,
+      "epoch": 2,
+      "train_loss": 0.8973,
+      "valid_hate_macro_f1": 0.6521,
+      "valid_bias_macro_f1": 0.7235,
+      "seconds": 206.7
+    },
+    {
+      "lr": 1e-05,
+      "epoch": 3,
+      "train_loss": 0.6015,
+      "valid_hate_macro_f1": 0.667,
+      "valid_bias_macro_f1": 0.7273,
+      "seconds": 209.5
+    },
+    {
+      "lr": 1e-05,
+      "epoch": 4,
+      "train_loss": 0.3946,
+      "valid_hate_macro_f1": 0.6651,
+      "valid_bias_macro_f1": 0.7278,
+      "seconds": 207.7
+    },
+    {
+      "lr": 1e-05,
+      "epoch": 5,
+      "train_loss": 0.2561,
+      "valid_hate_macro_f1": 0.6544,
+      "valid_bias_macro_f1": 0.738,
+      "seconds": 213.0
+    },
+    {
+      "lr": 2e-05,
+      "epoch": 1,
+      "train_loss": 1.304,
+      "valid_hate_macro_f1": 0.589,
+      "valid_bias_macro_f1": 0.7034,
+      "seconds": 216.8
+    },
+    {
+      "lr": 2e-05,
+      "epoch": 2,
+      "train_loss": 0.8987,
+      "valid_hate_macro_f1": 0.6588,
+      "valid_bias_macro_f1": 0.713,
+      "seconds": 208.6
+    },
+    {
+      "lr": 2e-05,
+      "epoch": 3,
+      "train_loss": 0.5398,
+      "valid_hate_macro_f1": 0.6445,
+      "valid_bias_macro_f1": 0.7208,
+      "seconds": 206.3
+    },
+    {
+      "lr": 2e-05,
+      "epoch": 4,
+      "train_loss": 0.297,
+      "valid_hate_macro_f1": 0.6549,
+      "valid_bias_macro_f1": 0.7398,
+      "seconds": 204.5
+    }
+  ],
+  "severity": {
+    "thresholds": {
+      "caution": 40,
+      "severe": 63
+    },
+    "sensitivity": {
+      "low": {
+        "normal": "show",
+        "caution": "show",
+        "severe": "hide"
+      },
+      "medium": {
+        "normal": "show",
+        "caution": "blur",
+        "severe": "hide"
+      },
+      "high": {
+        "normal": "show",
+        "caution": "hide",
+        "severe": "hide"
+      }
+    }
+  },
+  "severity_tuning": {
+    "selected": {
+      "caution": 40,
+      "severe": 63,
+      "grade_macro_f1": 0.6367529926335175,
+      "hate_block_rate": 0.6073298429319371,
+      "none_false_block_rate": 0.14613180515759314,
+      "false_block_target_met": true,
+      "hate_block_target_met": true,
+      "max_false_block": 0.15,
+      "min_hate_block": 0.6
+    },
+    "start_30_60": {
+      "caution": 30,
+      "severe": 60,
+      "grade_macro_f1": 0.6513654112243698,
+      "hate_block_rate": 0.6178010471204188,
+      "none_false_block_rate": 0.20630372492836677
+    }
+  },
+  "valid_metrics": {
+    "m4_hate_macro_f1": 0.667,
+    "m4_bias_macro_f1": 0.7273
+  },
+  "training_device": "mps",
+  "libraries": {
+    "python": "3.11.15",
+    "torch": "2.15.0",
+    "transformers": "5.22.2"
+  },
+  "artifact_bytes": 1346698856
+}
