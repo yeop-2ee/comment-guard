@@ -47,6 +47,8 @@ def main() -> int:
     sources = [cmp_id]
     models, b0 = {}, None
     for key, c in cmp["models"].items():  # 비교할 때 준 순서
+        if not (ROOT / "models" / c["model_version"] / "model_card.json").is_file():
+            continue  # 비교 뒤 models/에서 지운 후보는 화면에 올리지 않음 (기록은 runs/와 EVALUATION.md에 있음)
         ev = latest("*-evaluate*/metrics.json", lambda d, v=c["model_version"]: d["model_version"] == v)
         card = latest("*-train*/model_card.json", lambda d, v=c["model_version"]: d["model_version"] == v)
         if not ev or not card:

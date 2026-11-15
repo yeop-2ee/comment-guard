@@ -242,7 +242,7 @@
   .panel-head small { font-size: 12px; color: var(--fg-3); font-weight: 400; text-align: right; }
   .summary em { display: block; font-style: normal; font-size: 12px; color: var(--fg-3); margin-top: 2px; }
   .summary .pill { margin-top: 6px; }
-  .hb { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px 12px; align-items: center; font-size: 13px; }
+  .hb { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 10px 12px; align-items: center; font-size: 13px; }
   .hb .track { position: relative; height: 10px; background: var(--subtle); border-radius: 4px; }
   .hb .track i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; background: #8f9bbd; transform-origin: left center; animation: grow .7s var(--ease) both; }
   .hb .track i.on { background: var(--primary); }
@@ -260,9 +260,62 @@
   .cm caption { caption-side: top; text-align: left; font-weight: 700; font-size: 13px; padding-bottom: 6px; }
   .stack { display: flex; gap: 2px; height: 14px; }
   .stack i { display: block; height: 100%; border-radius: 3px; min-width: 2px; }
-  .stackrow { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 6px 12px; align-items: center; font-size: 13px; }
+  .stackrow { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 6px 12px; align-items: center; font-size: 13px; }
   .stackrow .cap { grid-column: 2; display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: 12px; color: var(--fg-2); margin-bottom: 8px; }
-  .limits { margin: 0; padding-left: 18px; font-size: 13px; color: var(--fg-2); display: grid; gap: 6px; }
+  .hero { display: flex; justify-content: space-between; align-items: center; gap: 12px 24px; flex-wrap: wrap; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+  .hero-name { display: flex; align-items: center; gap: 10px; }
+  .hero-name b { font-size: 26px; letter-spacing: -0.02em; line-height: 1.1; }
+  .hero-desc { font-size: 12.5px; color: var(--fg-3); margin-top: 4px; overflow-wrap: anywhere; }
+  .tag { display: inline-block; font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--subtle); color: var(--fg-2); white-space: nowrap; }
+  .tag.serve { background: var(--primary); color: var(--on-primary); }
+  .hb .tag { margin-left: 8px; font-size: 10.5px; padding: 1px 6px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chips .chipbtn[aria-pressed="true"] { background: var(--primary); border-color: var(--primary); color: var(--on-primary); }
+  .summary em.vs { color: var(--fg-2); }
+  .summary strong { display: block; }
+  .pill.p-plain { background: var(--subtle); color: var(--fg-2); }
+  .pill.p-plain::before { display: none; }
+  .verdict { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; padding: 14px 20px; background: var(--tint); }
+  .verdict .kw { flex: 1; min-width: 260px; }
+  .ptable td.serve, .ptable th.serve { background: var(--tint); }
+  .bullet { position: relative; display: block; height: 6px; margin: 8px 0 6px; background: var(--subtle); border-radius: 3px; }
+  .bullet i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 3px; background: var(--primary); transform-origin: left center; animation: grow .7s var(--ease) both; }
+  .bullet b { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; background: var(--fg-3); border-radius: 1px; }
+  .summary .delta { display: inline-block; font-size: 12px; font-weight: 600; color: var(--primary); background: var(--tint); border-radius: 6px; padding: 1px 7px; margin: 6px 6px 0 0; }
+  .minis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px 32px; }
+  @media (max-width: 960px) { .minis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 600px) { .minis { grid-template-columns: 1fr; } }
+  .mini h3 { font-size: 13.5px; margin: 0 0 8px; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .mini h3 small { font-size: 11.5px; font-weight: 400; color: var(--fg-3); }
+  .hb.sm { grid-template-columns: 46px minmax(0, 1fr) auto; gap: 7px 10px; font-size: 12.5px; }
+  .hb.sm .track { height: 8px; }
+  .hb.sm .track u { top: 3px; }
+  .legend { display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: 12px; color: var(--fg-3); }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .sw { display: inline-block; width: 16px; height: 8px; border-radius: 2px; background: #8f9bbd; }
+  .sw.on { background: var(--primary); }
+  .sw.ci { height: 2px; background: var(--fg); border-radius: 0; }
+  .sw.goal { width: 0; height: 12px; background: none; border-left: 1.5px dashed var(--fg-3); border-radius: 0; }
+  .kw { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 6px 14px; margin: 0; font-size: 13px; }
+  .kw dt { font-weight: 700; color: var(--fg); white-space: nowrap; }
+  .kw dt::after { content: ":"; font-weight: 400; color: var(--fg-3); }
+  .kw dd { margin: 0; color: var(--fg-2); }
+  .kw dd b { color: var(--fg); }
+  .dots { display: inline-flex; gap: 3px; vertical-align: middle; }
+  .dots i { width: 9px; height: 9px; border-radius: 50%; background: none; box-shadow: inset 0 0 0 1.5px var(--line-strong); }
+  .dots i.on { background: var(--primary); box-shadow: none; }
+  .accs { display: grid; gap: 10px; }
+  .accs-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 4px 0; font-size: 13px; }
+  .acc > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; font-weight: 700; cursor: pointer; list-style: none; }
+  .acc > summary::-webkit-details-marker { display: none; }
+  .acc > summary span::before { content: "+"; display: inline-block; width: 18px; color: var(--fg-3); font-weight: 400; }
+  .acc[open] > summary span::before { content: "−"; }
+  .acc > summary small { font-size: 12px; font-weight: 400; color: var(--fg-3); text-align: right; }
+  .acc > summary:hover { background: #fafbfd; }
+  .acc[open] > summary { border-bottom: 1px solid var(--line); }
+  .acc .panel-body > * + * { margin-top: 14px; }
+  .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  @media (max-width: 960px) { .two { grid-template-columns: 1fr; } }
   .srcs { font-size: 12px; color: var(--fg-3); margin: 0; line-height: 1.8; overflow-wrap: anywhere; }
 
   footer { max-width: 1240px; margin: 0 auto; padding-block: 0 40px; font-size: 12px; color: var(--fg-3); display: flex; gap: 16px; flex-wrap: wrap; justify-content: space-between; }
@@ -304,8 +357,8 @@
           <div class="fieldlabel"><span>한 줄에 댓글 하나</span></div>
           <div class="editor"><div class="ln" id="f-ln">1</div><textarea id="f-input" spellcheck="false" aria-label="댓글 입력" placeholder="댓글을 붙여넣으세요"></textarea></div>
           <div class="samples"><span>예시</span>
-            <button class="chipbtn" data-preset="ent">연예 뉴스</button><button class="chipbtn" data-preset="hate">혐오·차별</button><button class="chipbtn" data-preset="slang">신조어·초성</button><button class="chipbtn" data-preset="hard">놓치기 쉬운 유형</button></div>
-          <p class="note">예시는 공개 데이터셋 BEEP!에 실린 실제 뉴스 댓글입니다(CC BY-SA 4.0). ‘놓치기 쉬운 유형’만 직접 만든 문장입니다.</p>
+            <button class="chipbtn" data-preset="ent">연예 뉴스</button><button class="chipbtn" data-preset="hate">혐오·차별</button><button class="chipbtn" data-preset="slang">신조어·초성</button><button class="chipbtn" data-preset="hard">모델이 놓치는 유형</button></div>
+          <p class="note">예시는 공개 데이터셋 BEEP!에 실린 실제 뉴스 댓글입니다(CC BY-SA 4.0). ‘모델이 놓치는 유형’만 직접 만든 문장입니다.</p>
           <p class="note" id="f-note" hidden></p>
           <div class="fieldlabel" style="margin-top:18px"><span>민감도</span></div>
           <div class="seg" id="f-sens" role="group" aria-label="민감도">
@@ -369,8 +422,9 @@
           <div class="fieldlabel"><span>한 줄에 댓글 하나</span></div>
           <div class="editor"><div class="ln" id="a-ln">1</div><textarea id="a-input" spellcheck="false" aria-label="판정할 댓글" placeholder="판정을 볼 댓글을 붙여넣으세요"></textarea></div>
           <div class="samples"><span>예시</span>
-            <button class="chipbtn" data-apreset="edge">기준선 근처</button><button class="chipbtn" data-apreset="slang">신조어·초성</button><button class="chipbtn" data-apreset="bias">편향 표현</button><button class="chipbtn" data-apreset="hard">놓치기 쉬운 유형</button></div>
-          <p class="note">예시는 공개 데이터셋 BEEP!에 실린 실제 뉴스 댓글입니다(CC BY-SA 4.0). ‘놓치기 쉬운 유형’만 직접 만든 문장입니다.</p>
+            <button class="chipbtn" data-apreset="edge">기준선 근처</button><button class="chipbtn" data-apreset="slang">신조어·초성</button><button class="chipbtn" data-apreset="bias">편향 표현</button><button class="chipbtn" data-apreset="hard">모델이 놓치는 유형</button></div>
+          <p class="note" id="a-note" hidden></p>
+          <p class="note">예시는 공개 데이터셋 BEEP!에 실린 실제 뉴스 댓글입니다(CC BY-SA 4.0). ‘모델이 놓치는 유형’만 직접 만든 문장입니다.</p>
           <div class="actions"><button class="btn primary" id="a-run">판정 보기</button></div>
           <div id="a-error"></div>
         </div>
@@ -384,7 +438,7 @@
     <div class="intro">
       <div>
         <h1>모델 성능</h1>
-        <p>학습과 조정에 쓰지 않은 평가 데이터 471건으로 잰 결과입니다. 기준 모델(B0)과 학습한 모델들을 같은 데이터와 같은 계산으로 비교합니다.</p>
+        <p>학습과 조정에 쓰지 않은 평가 데이터 471건으로 잰 결과입니다. 오른쪽 위에서 모델을 바꾸면 이 화면도 그 모델 기준으로 바뀝니다.</p>
       </div>
       <div class="formula" id="p-version"></div>
     </div>
@@ -414,9 +468,9 @@ const IDS = ["haru", "dal3", "sky7", "bom0", "jin2", "moon", "star", "neo9", "su
 // 실제 연예 뉴스 댓글 원문이며, 실명이 없는 댓글만 골랐습니다. 이 파일은 정답이 없어 학습·조정·평가에 쓰이지 않습니다.
 // 선정적이거나 수위가 지나친 댓글은 뺐습니다. hard만 직접 만든 문장입니다 (data/probes/behavior_v2.tsv의 비꼼 유형).
 const PRESETS = {
-  ent: ["예쁘긴 진짜 예쁘다.", "진짜 재미 드럽게 없었는데 왜 인기인지 모르겠다", "둘다 넘 좋다~행복하세요", "못생긴 것들끼리 결혼 하는구나.", "빨리 다음화 보고싶네요 ㅠㅠ오랜만에첫사랑의 풋풋한 감정이 느껴져요 ㅋㅋ", "누굽니까? 이 무명배우는", "이정도 그림은 괜찮은데. 뭐가 문제지 ㅎ", "예전만 못해 이 아줌마야", "좋게좋게 해결되시길", "돈맛 보더니 금방 변하셨네", "실검 2위라서 왔더니 별거아니네", "누구나 실수할수있다 진심으로 반성하세요", "다 늙어서 뭔 이혼 ;;;;", "재미없다 그만 방송해라 지겹다", "작품상이 버닝? 에이 진짜 이건아니다!", "실력 없는 밴드에 그저그런 멤버들이 참..", "결혼을 왜하냐 불쌍한 것", "꽤나 유난떠네ㅜㅜㅜ 애도 생각해라ㅜㅠㅜ 지겨워", "지는 돼지겠지머", "쑈하고 자빠져뜨아"],
-  hate: ["선생님 너무 못생김", "틀딱 전용 드라마", "남자가 공석에서 질질 짜는 거 보기 안좋다", "취집가냐?하튼 이래서 안돼.이나라 여자들은", "여자의 적은 여자", "ㅋㅋㅋㅋㅋ 기지배들 조선시대였으면 아무말도 못하는 것들이 입만 살아가지고", "전라도가 문제다 전라도는 과학ㅡㅡ", "나이를 떠나 남자가 너무 능력이없다 자신감도 없어보이고"],
-  slang: ["오빠 힘내세요ㅠㅠ", "보기 좋아요 ♡ 진짜 사랑하고 있고 행복한게 딱 보이네요♡", "백타 깨진다 ㄹㅇ이다", "언니가 맨날 틀어놔서 노잼인데미치겟음", "아들 참 잘생겼네요♡", "근데 가끔 고정멤버들이 게스트들 후려칠때 얼탱이없음 ^^", "개노잼이다 출연진 개편좀 하라고 적폐새끼들ㅋㅋ", "방송으로 보답해주세요~~~❤️❤️❤️❤️❤️❤️❤️❤️❤️", "존못인데 연기자로서는...", "ㅉㅉ 꼬래 초상권 ㅉㅉ 부모얼굴에ㅜ먹칠한건 아나보네 ㅋㅋ", "개듣보 두마리"],
+  ent: ["예쁘긴 진짜 예쁘다.", "진짜 재미 드럽게 없었는데 왜 인기인지 모르겠다", "둘다 넘 좋다~행복하세요", "못생긴 것들끼리 결혼 하는구나.", "빨리 다음화 보고싶네요 ㅠㅠ오랜만에첫사랑의 풋풋한 감정이 느껴져요 ㅋㅋ", "누굽니까? 이 무명배우는", "이정도 그림은 괜찮은데. 뭐가 문제지 ㅎ", "예전만 못해 이 아줌마야", "좋게좋게 해결되시길", "돈맛 보더니 금방 변하셨네", "실검 2위라서 왔더니 별거아니네", "누구나 실수할수있다 진심으로 반성하세요", "다 늙어서 뭔 이혼 ;;;;", "재미없다 그만 방송해라 지겹다", "작품상이 버닝? 에이 진짜 이건아니다!", "실력 없는 밴드에 그저그런 멤버들이 참..", "결혼을 왜하냐 불쌍한 것", "꽤나 유난떠네ㅜㅜㅜ 애도 생각해라ㅜㅠㅜ 지겨워", "쑈하고 자빠져뜨아"],
+  hate: ["선생님 너무 못생김", "틀딱 전용 드라마", "남자가 공석에서 질질 짜는 거 보기 안좋다", "여자의 적은 여자", "나이를 떠나 남자가 너무 능력이없다 자신감도 없어보이고"],
+  slang: ["오빠 힘내세요ㅠㅠ", "보기 좋아요 ♡ 진짜 사랑하고 있고 행복한게 딱 보이네요♡", "백타 깨진다 ㄹㅇ이다", "언니가 맨날 틀어놔서 노잼인데미치겟음", "아들 참 잘생겼네요♡", "근데 가끔 고정멤버들이 게스트들 후려칠때 얼탱이없음 ^^", "개노잼이다 출연진 개편좀 하라고 적폐새끼들ㅋㅋ", "방송으로 보답해주세요~~~❤️❤️❤️❤️❤️❤️❤️❤️❤️", "존못인데 연기자로서는...", "개듣보 두마리"],
   hard: ["기자님 소설 잘 쓰시네요", "와 연기 정말 대단하시네요^^ 발로 해도 이것보단 낫겠다", "축하합니다 꼴찌 ㅋㅋ", "역시 실력 하나는 끝내주네 ㅋ 다른 의미로", "참 잘~ 한다 잘해", "이 정도면 상 줘야지 최악상"],
 };
 // 예시를 불러올 때 함께 보여줄 안내
@@ -424,12 +478,16 @@ const PRESET_NOTE = {
   ent: "연예 뉴스 기사에 실제로 달린 댓글입니다. 칭찬, 불만, 인신공격이 섞여 있습니다.",
   hate: "성별·지역·나이 등 집단을 향한 실제 댓글입니다(수위가 지나친 댓글은 제외). 집단을 향한 공격이 심각으로, 개인을 향한 무례가 주의 이하로 판정되는지 비교해 보세요.",
   slang: "초성, 줄임말, 이모지가 들어간 실제 댓글입니다. 같은 표기가 칭찬에도 욕설에도 쓰입니다.",
-  hard: "직접 만든 문장입니다. 겉으로는 칭찬처럼 보이는 비꼼은 모델이 놓치기 쉬운 유형이라, 이 예시들은 대부분 가려지지 않고 그대로 보입니다.",
+  hard: "모델의 한계를 보여주는 예시입니다(직접 만든 문장). 겉으로는 칭찬처럼 보이는 비꼼은 사람이 보면 악플이지만, 모델은 대부분 일반으로 판정해서 가리지 못합니다. 평가에서도 비꼼 6문장 중 서빙 모델이 맞힌 것은 0개였습니다.",
+};
+const APRESET_NOTE = {
+  edge: "점수가 등급 기준선 근처에 걸리는 실제 댓글입니다. 모델을 바꾸면 등급이 달라질 수 있습니다.",
+  hard: PRESET_NOTE.hard,
 };
 const APRESETS = {
-  edge: ["남자가 공석에서 질질 짜는 거 보기 안좋다", "실력 없는 밴드에 그저그런 멤버들이 참..", "어디서 많이봤는데", "결혼을 왜하냐 불쌍한 것", "기혼자고 뚱하면 다 아줌마라는거네? 미혼인데 뚱하고 아줌마소리 들으면 속상하거따", "인성부터...연말시상식에 술처먹고 노숙자 옷입고 인상만쓰고", "ㅉㅉ 꼬래 초상권 ㅉㅉ 부모얼굴에ㅜ먹칠한건 아나보네 ㅋㅋ"],
+  edge: ["남자가 공석에서 질질 짜는 거 보기 안좋다", "실력 없는 밴드에 그저그런 멤버들이 참..", "어디서 많이봤는데", "결혼을 왜하냐 불쌍한 것", "인성부터...연말시상식에 술처먹고 노숙자 옷입고 인상만쓰고"],
   slang: ["백타 깨진다 ㄹㅇ이다", "근데 가끔 고정멤버들이 게스트들 후려칠때 얼탱이없음 ^^", "존못인데 연기자로서는...", "개노잼이다 출연진 개편좀 하라고 적폐새끼들ㅋㅋ"],
-  bias: ["틀딱 전용 드라마", "나이를 떠나 남자가 너무 능력이없다 자신감도 없어보이고", "남자가 공석에서 질질 짜는 거 보기 안좋다", "전라도가 문제다 전라도는 과학ㅡㅡ", "취집가냐?하튼 이래서 안돼.이나라 여자들은", "여자의 적은 여자"],
+  bias: ["틀딱 전용 드라마", "나이를 떠나 남자가 너무 능력이없다 자신감도 없어보이고", "남자가 공석에서 질질 짜는 거 보기 안좋다", "여자의 적은 여자"],
   hard: ["기자님 소설 잘 쓰시네요", "와 연기 정말 대단하시네요^^ 발로 해도 이것보단 낫겠다", "축하합니다 꼴찌 ㅋㅋ", "역시 실력 하나는 끝내주네 ㅋ 다른 의미로"],
 };
 // 댓글은 같은 공개 데이터의 실제 댓글, URL·작성자·시각은 지어낸 값
@@ -441,8 +499,7 @@ const REPORT_SAMPLE = [
   {"text": "결혼을 왜하냐 불쌍한 것", "url": "https://news.example.com/ent/1057#c-19", "posted_at": "2026-11-03T08:55", "author_handle": "지나가는사람"},
   {"text": "돈맛 보더니 금방 변하셨네", "url": "https://news.example.com/ent/1057#c-30", "posted_at": "2026-11-03T09:02", "author_handle": "익명의팬99"},
   {"text": "다 늙어서 뭔 이혼 ;;;;", "posted_at": "2026-11-05T23:10", "author_handle": "익명의팬99"},
-  {"text": "재미없다 그만 방송해라 지겹다", "posted_at": "2026-11-04T19:30", "author_handle": "솔직한리뷰"},
-  {"text": "지는 돼지겠지머", "url": "https://news.example.com/ent/1063#c-7", "author_handle": "지나가는사람"}
+  {"text": "재미없다 그만 방송해라 지겹다", "posted_at": "2026-11-04T19:30", "author_handle": "솔직한리뷰"}
 ];
 let TH = { caution: 30, severe: 60 };  // /v1/meta 값으로 교체됨
 
@@ -566,17 +623,21 @@ async function loadStatus() {
     const hl = await api("/health"); await loadMeta();
     box.className = "health ok"; label.textContent = `모델 ${hl.model_version}`;
     renderPerf(hl.model_version);
-    const list = await api("/v1/models").catch(() => null);  // 모델이 여러 개면 선택 상자를 보여줌
+    const list = await api("/v1/models").catch(() => null);
+    if (list) { SELECTABLE = list.models; renderPerf(); }  // 모델이 여러 개면 선택 상자를 보여줌
     if (list && list.models.length > 1) {
       sel.replaceChildren(...list.models.map((m) => h("option", { value: m.model_version, selected: m.default, text: `${m.name}${m.default ? " (기본)" : ""}` })));
       sel.hidden = false; label.textContent = "모델";
       sel.onchange = async () => {
         MODEL = sel.value === list.default ? null : sel.value;
         sel.disabled = true; label.textContent = "모델 불러오는 중";  // 처음 고른 모델은 메모리에 올리느라 몇 초 걸림
-        try { await loadMeta(); box.className = "health ok"; label.textContent = "모델"; ["filter", "report", "analyze"].forEach((t) => stale.add(t)); stale.delete(document.querySelector("[data-panel]:not([hidden])").dataset.panel); rerun(); }
+        try { await loadMeta(); box.className = "health ok"; label.textContent = "모델"; ["filter", "report", "analyze"].forEach((t) => stale.add(t)); stale.delete(document.querySelector("[data-panel]:not([hidden])").dataset.panel); rerun(); renderPerf(); }
         catch { box.className = "health bad"; label.textContent = "모델을 불러오지 못함"; }
         finally { sel.disabled = false; }
       };
+      const want = new URLSearchParams(location.search).get("model");  // 주소의 ?model=m3 으로 미리 고르기
+      const hit = want && list.models.find((m) => m.model_id === want || m.model_version === want);
+      if (hit && !hit.default) { sel.value = hit.model_version; sel.onchange(); }
     }
   } catch { box.className = "health bad"; label.textContent = "서버 연결 안 됨"; renderRules(); renderPerf(null); }
 }
@@ -613,7 +674,7 @@ function renderRules() {
 }
 function filterEmpty() {
   $("f-result").replaceChildren(empty("필터 결과가 여기에 나옵니다", "댓글을 붙여넣거나 예시를 골라 보세요.",
-    presetChips("data-preset", [["ent", "연예 뉴스"], ["hate", "혐오·차별"], ["slang", "신조어·초성"], ["hard", "놓치기 쉬운 유형"]])));
+    presetChips("data-preset", [["ent", "연예 뉴스"], ["hate", "혐오·차별"], ["slang", "신조어·초성"], ["hard", "모델이 놓치는 유형"]])));
 }
 filterEmpty();
 document.querySelectorAll("[data-preset]").forEach((b) => b.addEventListener("click", () => {
@@ -820,10 +881,14 @@ function renderReport(r) {
 const aSet = editor("a-input", "a-ln", "a-count", 100);
 function analyzeEmpty() {
   $("a-result").replaceChildren(empty("판정 결과가 여기에 나옵니다", "기준선 근처 예시를 보면 등급이 어떻게 갈리는지 확인할 수 있습니다.",
-    presetChips("data-apreset", [["edge", "기준선 근처"], ["slang", "신조어·초성"], ["bias", "편향 표현"], ["hard", "놓치기 쉬운 유형"]])));
+    presetChips("data-apreset", [["edge", "기준선 근처"], ["slang", "신조어·초성"], ["bias", "편향 표현"], ["hard", "모델이 놓치는 유형"]])));
 }
 analyzeEmpty();
-document.querySelectorAll("[data-apreset]").forEach((b) => b.addEventListener("click", () => { aSet(APRESETS[b.dataset.apreset].join("\n")); $("a-run").click(); }));
+document.querySelectorAll("[data-apreset]").forEach((b) => b.addEventListener("click", () => {
+  aSet(APRESETS[b.dataset.apreset].join("\n"));
+  const note = APRESET_NOTE[b.dataset.apreset]; $("a-note").hidden = !note; $("a-note").textContent = note || "";
+  $("a-run").click();
+}));
 $("a-run").onclick = (e) => busy(e.currentTarget, async () => {
   $("a-error").replaceChildren();
   const rows = readLines($("a-input").value);
@@ -854,14 +919,14 @@ $("a-run").onclick = (e) => busy(e.currentTarget, async () => {
 // ── 모델 성능 ──
 // PERF는 평가 기록(runs/)에서 만든 고정 스냅샷입니다 (명세서 2.6장). 손으로 고치지 말고
 // 평가를 다시 한 뒤 python scripts/build_perf_snapshot.py 로 다시 만듭니다.
-const PERF = /*PERF-BEGIN*/{"evalRows": 471, "evalCounts": {"none": 160, "offensive": 189, "hate": 122}, "serving": "m2", "order": ["b0", "m1", "m2", "m3", "m2x3", "m3x3", "m23x6"], "models": {"b0": {"name": "B0", "desc": "최빈값 기준 모델", "f1": 0.169, "ci": [0.1519, 0.1843], "acc": 0.3397, "valid": 0.2043}, "m1": {"name": "M1", "desc": "글자 n-gram TF-IDF + 로지스틱 회귀", "version": "m1-20261109-591d16d", "valid": 0.5797, "f1": 0.5694, "ci": [0.5239, 0.6129], "acc": 0.5817, "rho": 0.6408, "missed": 15, "bias": 0.6624, "gender": 0.7023, "th": [51, 55], "cls": {"none": [0.6147, 0.8375, 0.709], "offensive": [0.5467, 0.4339, 0.4838], "hate": [0.5631, 0.4754, 0.5156]}, "cm": [[134, 19, 7], [69, 82, 38], [15, 49, 58]], "filter": {"low": [59.8, 51.0, 68.1, 3.8, 1.7, 7.9], "medium": [59.8, 51.0, 68.1, 8.1, 4.8, 13.4], "high": [73.8, 65.3, 80.8, 8.1, 4.8, 13.4]}, "grades": [292, 43, 136], "run": {"load": 0.2, "p50": 0.3, "p90": 0.3, "batch": 2.7, "rss": 368.1, "size": 3.1}, "probe1": [5, 5, 6, 5, 6, 6, 6], "diffM2": {"mean": -0.1245, "ci": [-0.1751, -0.0739]}, "probe2": [6, 3, 5, 2, 1, 0]}, "m2": {"name": "M2", "desc": "KcELECTRA-base", "version": "m2-20261110-314b2b2", "valid": 0.7132, "f1": 0.6936, "ci": [0.649, 0.7332], "acc": 0.6964, "rho": 0.8072, "missed": 1, "bias": 0.6688, "gender": 0.7812, "th": [39, 70], "cls": {"none": [0.6901, 0.9187, 0.7882], "offensive": [0.6667, 0.5397, 0.5965], "hate": [0.7524, 0.6475, 0.696]}, "cm": [[147, 9, 4], [65, 102, 22], [1, 42, 79]], "filter": {"low": [66.4, 57.6, 74.2, 2.5, 1.0, 6.2], "medium": [66.4, 57.6, 74.2, 5.0, 2.6, 9.6], "high": [99.2, 95.5, 99.9, 5.0, 2.6, 9.6]}, "grades": [236, 122, 113], "run": {"load": 1.87, "p50": 9.6, "p90": 14.1, "batch": 879.1, "rss": 1266.0, "size": 436.7}, "probe1": [6, 6, 6, 6, 6, 6, 6], "diffM2": null, "probe2": [6, 5, 4, 1, 3, 0]}, "m3": {"name": "M3", "desc": "KcELECTRA-base-v2022", "version": "m3-20261115-5b32863", "valid": 0.696, "f1": 0.7231, "ci": [0.6819, 0.761], "acc": 0.7261, "rho": 0.8095, "missed": 2, "bias": 0.6939, "gender": 0.8271, "th": [46, 68], "cls": {"none": [0.7487, 0.8938, 0.8148], "offensive": [0.6703, 0.6561, 0.6631], "hate": [0.7895, 0.6148, 0.6912]}, "cm": [[143, 16, 1], [46, 124, 19], [2, 45, 75]], "filter": {"low": [63.9, 55.1, 71.9, 1.2, 0.3, 4.4], "medium": [63.9, 55.1, 71.9, 5.0, 2.6, 9.6], "high": [92.6, 86.6, 96.1, 5.0, 2.6, 9.6]}, "grades": [239, 129, 103], "run": {"load": 2.07, "p50": 9.4, "p90": 14.3, "batch": 923.1, "rss": 1408.5, "size": 510.1}, "probe1": [6, 6, 6, 6, 6, 6, 5], "diffM2": {"mean": 0.029, "ci": [-0.0085, 0.0678]}, "probe2": [5, 6, 5, 3, 2, 2]}, "m2x3": {"name": "M2X3", "desc": "M2 시드 3개 평균", "version": "m2x3-20261116-8551cef", "valid": 0.7107, "f1": 0.6993, "ci": [0.6555, 0.7389], "acc": 0.7028, "rho": 0.8206, "missed": 1, "bias": 0.6556, "gender": 0.7597, "th": [36, 77], "cls": {"none": [0.693, 0.9313, 0.7947], "offensive": [0.6667, 0.5608, 0.6092], "hate": [0.7835, 0.623, 0.6941]}, "cm": [[149, 8, 3], [65, 106, 18], [1, 45, 76]], "filter": {"low": [62.3, 53.4, 70.4, 1.2, 0.3, 4.4], "medium": [62.3, 53.4, 70.4, 5.0, 2.6, 9.6], "high": [98.4, 94.2, 99.6, 5.0, 2.6, 9.6]}, "grades": [235, 141, 95], "run": {"load": 3.75, "p50": 28.7, "p90": 42.1, "batch": 2654.0, "rss": 2137.5, "size": 1310.0}, "probe1": [6, 6, 6, 6, 6, 6, 6], "diffM2": {"mean": 0.0049, "ci": [-0.0182, 0.0281]}, "probe2": [6, 5, 5, 1, 3, 0]}, "m3x3": {"name": "M3X3", "desc": "M3 시드 3개 평균", "version": "m3x3-20261116-8551cef", "valid": 0.6945, "f1": 0.7348, "ci": [0.6928, 0.7716], "acc": 0.7367, "rho": 0.8171, "missed": 2, "bias": 0.7261, "gender": 0.8154, "th": [40, 77], "cls": {"none": [0.7363, 0.925, 0.8199], "offensive": [0.7143, 0.6085, 0.6571], "hate": [0.7706, 0.6885, 0.7273]}, "cm": [[148, 10, 2], [51, 115, 23], [2, 36, 84]], "filter": {"low": [65.6, 56.8, 73.4, 1.2, 0.3, 4.4], "medium": [65.6, 56.8, 73.4, 5.0, 2.6, 9.6], "high": [95.9, 90.8, 98.2, 5.0, 2.6, 9.6]}, "grades": [234, 134, 103], "run": {"load": 4.37, "p50": 28.6, "p90": 43.2, "batch": 2762.1, "rss": 2431.0, "size": 1530.3}, "probe1": [6, 6, 6, 6, 6, 6, 5], "diffM2": {"mean": 0.0409, "ci": [0.0063, 0.0772]}, "probe2": [4, 5, 5, 3, 3, 3]}, "m23x6": {"name": "M23X6", "desc": "M2·M3 시드 6개 평균", "version": "m23x6-20261116-8551cef", "valid": 0.7109, "f1": 0.721, "ci": [0.679, 0.7569], "acc": 0.7219, "rho": 0.8235, "missed": 2, "bias": 0.7118, "gender": 0.8154, "th": [36, 73], "cls": {"none": [0.7101, 0.9187, 0.8011], "offensive": [0.6937, 0.5873, 0.6361], "hate": [0.7885, 0.6721, 0.7257]}, "cm": [[147, 11, 2], [58, 111, 20], [2, 38, 82]], "filter": {"low": [67.2, 58.5, 74.9, 1.2, 0.3, 4.4], "medium": [67.2, 58.5, 74.9, 4.4, 2.1, 8.8], "high": [97.5, 93.0, 99.2, 4.4, 2.1, 8.8]}, "grades": [232, 135, 104], "run": {"load": 7.56, "p50": 57.1, "p90": 85.4, "batch": 5414.0, "rss": 3721.3, "size": 2840.3}, "probe1": [6, 6, 6, 6, 6, 6, 6], "diffM2": {"mean": 0.0265, "ci": [-0.0031, 0.0558]}, "probe2": [5, 5, 5, 1, 3, 1]}}, "probe1": [["‘개’ 강조 칭찬", "보여야 함"], ["‘개’ 비하", "가려야 함"], ["초성 칭찬", "보여야 함"], ["초성 욕설", "가려야 함"], ["이모지 칭찬", "보여야 함"], ["정상 비판", "보여야 함"], ["일반 욕설", "가려야 함"]], "probe2": [["성별 혐오", "심각"], ["기타 집단 혐오", "심각"], ["강한 모욕", "심각"], ["성희롱", "심각"], ["단순 무례", "주의"], ["비꼼", "주의"]], "sources": ["20261109-232656-train", "20261109-233844-evaluate", "20261110-003741-train-m2", "20261110-010215-evaluate-m2", "20261115-232408-train-m3", "20261116-000717-evaluate-m3", "20261116-004136-train-m2x3", "20261116-004205-train-m3x3", "20261116-004234-train-m23x6", "20261116-004324-evaluate-m2x3", "20261116-004341-evaluate-m3x3", "20261116-004400-evaluate-m23x6", "20261116-004422-compare-all", "20261116-004633-probe-behavior_v2"]}/*PERF-END*/;
-const PERF_LIMITS = [
-  "연예 뉴스 댓글로만 학습하고 평가했습니다. 게임·정치·SNS 등 다른 분야의 성능은 재지 않았습니다.",
-  "노골적인 단어가 없는 성희롱과 비꼼은 어느 모델이든 자주 놓칩니다 (행동 검사 v2).",
-  "평가 데이터가 471건이라 구간이 넓습니다. 모델 사이의 작은 차이는 우연일 수 있습니다.",
-  "지연과 메모리는 맥 로컬에서만 쟀습니다. 클라우드(Vercel)의 지연과 cold start는 아직 재지 않았습니다.",
-  "행동 검사 세트는 한 사람이 만든 42문장, 36문장이라 유형별 경향만 봅니다.",
-  "확률 보정, 사용자 만족도, 리포트의 법적 유용성은 재지 않았습니다.",
+const PERF = /*PERF-BEGIN*/{"evalRows": 471, "evalCounts": {"none": 160, "offensive": 189, "hate": 122}, "serving": "m2", "order": ["b0", "m1", "m2", "m3", "m23x6"], "models": {"b0": {"name": "B0", "desc": "최빈값 기준 모델", "f1": 0.169, "ci": [0.1519, 0.1843], "acc": 0.3397, "valid": 0.2043}, "m1": {"name": "M1", "desc": "글자 n-gram TF-IDF + 로지스틱 회귀", "version": "m1-20261109-591d16d", "valid": 0.5797, "f1": 0.5694, "ci": [0.5239, 0.6129], "acc": 0.5817, "rho": 0.6408, "missed": 15, "bias": 0.6624, "gender": 0.7023, "th": [51, 55], "cls": {"none": [0.6147, 0.8375, 0.709], "offensive": [0.5467, 0.4339, 0.4838], "hate": [0.5631, 0.4754, 0.5156]}, "cm": [[134, 19, 7], [69, 82, 38], [15, 49, 58]], "filter": {"low": [59.8, 51.0, 68.1, 3.8, 1.7, 7.9], "medium": [59.8, 51.0, 68.1, 8.1, 4.8, 13.4], "high": [73.8, 65.3, 80.8, 8.1, 4.8, 13.4]}, "grades": [292, 43, 136], "run": {"load": 0.2, "p50": 0.3, "p90": 0.3, "batch": 2.7, "rss": 368.1, "size": 3.1}, "probe1": [5, 5, 6, 5, 6, 6, 6], "diffM2": {"mean": -0.1245, "ci": [-0.1751, -0.0739]}, "probe2": [6, 3, 5, 2, 1, 0]}, "m2": {"name": "M2", "desc": "KcELECTRA-base", "version": "m2-20261110-314b2b2", "valid": 0.7132, "f1": 0.6936, "ci": [0.649, 0.7332], "acc": 0.6964, "rho": 0.8072, "missed": 1, "bias": 0.6688, "gender": 0.7812, "th": [39, 70], "cls": {"none": [0.6901, 0.9187, 0.7882], "offensive": [0.6667, 0.5397, 0.5965], "hate": [0.7524, 0.6475, 0.696]}, "cm": [[147, 9, 4], [65, 102, 22], [1, 42, 79]], "filter": {"low": [66.4, 57.6, 74.2, 2.5, 1.0, 6.2], "medium": [66.4, 57.6, 74.2, 5.0, 2.6, 9.6], "high": [99.2, 95.5, 99.9, 5.0, 2.6, 9.6]}, "grades": [236, 122, 113], "run": {"load": 1.87, "p50": 9.6, "p90": 14.1, "batch": 879.1, "rss": 1266.0, "size": 436.7}, "probe1": [6, 6, 6, 6, 6, 6, 6], "diffM2": null, "probe2": [6, 5, 4, 1, 3, 0]}, "m3": {"name": "M3", "desc": "KcELECTRA-base-v2022", "version": "m3-20261115-5b32863", "valid": 0.696, "f1": 0.7231, "ci": [0.6819, 0.761], "acc": 0.7261, "rho": 0.8095, "missed": 2, "bias": 0.6939, "gender": 0.8271, "th": [46, 68], "cls": {"none": [0.7487, 0.8938, 0.8148], "offensive": [0.6703, 0.6561, 0.6631], "hate": [0.7895, 0.6148, 0.6912]}, "cm": [[143, 16, 1], [46, 124, 19], [2, 45, 75]], "filter": {"low": [63.9, 55.1, 71.9, 1.2, 0.3, 4.4], "medium": [63.9, 55.1, 71.9, 5.0, 2.6, 9.6], "high": [92.6, 86.6, 96.1, 5.0, 2.6, 9.6]}, "grades": [239, 129, 103], "run": {"load": 2.07, "p50": 9.4, "p90": 14.3, "batch": 923.1, "rss": 1408.5, "size": 510.1}, "probe1": [6, 6, 6, 6, 6, 6, 5], "diffM2": {"mean": 0.029, "ci": [-0.0085, 0.0678]}, "probe2": [5, 6, 5, 3, 2, 2]}, "m23x6": {"name": "M23X6", "desc": "M2·M3 시드 6개 평균", "version": "m23x6-20261116-8551cef", "valid": 0.7109, "f1": 0.721, "ci": [0.679, 0.7569], "acc": 0.7219, "rho": 0.8235, "missed": 2, "bias": 0.7118, "gender": 0.8154, "th": [36, 73], "cls": {"none": [0.7101, 0.9187, 0.8011], "offensive": [0.6937, 0.5873, 0.6361], "hate": [0.7885, 0.6721, 0.7257]}, "cm": [[147, 11, 2], [58, 111, 20], [2, 38, 82]], "filter": {"low": [67.2, 58.5, 74.9, 1.2, 0.3, 4.4], "medium": [67.2, 58.5, 74.9, 4.4, 2.1, 8.8], "high": [97.5, 93.0, 99.2, 4.4, 2.1, 8.8]}, "grades": [232, 135, 104], "run": {"load": 7.56, "p50": 57.1, "p90": 85.4, "batch": 5414.0, "rss": 3721.3, "size": 2840.3}, "probe1": [6, 6, 6, 6, 6, 6, 6], "diffM2": {"mean": 0.0265, "ci": [-0.0031, 0.0558]}, "probe2": [5, 5, 5, 1, 3, 1]}}, "probe1": [["‘개’ 강조 칭찬", "보여야 함"], ["‘개’ 비하", "가려야 함"], ["초성 칭찬", "보여야 함"], ["초성 욕설", "가려야 함"], ["이모지 칭찬", "보여야 함"], ["정상 비판", "보여야 함"], ["일반 욕설", "가려야 함"]], "probe2": [["성별 혐오", "심각"], ["기타 집단 혐오", "심각"], ["강한 모욕", "심각"], ["성희롱", "심각"], ["단순 무례", "주의"], ["비꼼", "주의"]], "sources": ["20261109-232656-train", "20261109-233844-evaluate", "20261110-003741-train-m2", "20261110-010215-evaluate-m2", "20261115-232408-train-m3", "20261116-000717-evaluate-m3", "20261116-004234-train-m23x6", "20261116-004400-evaluate-m23x6", "20261116-004422-compare-all", "20261116-004633-probe-behavior_v2"]}/*PERF-END*/;
+const PERF_LIMITS = [  // [키워드, 설명]
+  ["분야", "연예 뉴스 댓글만 학습·평가. 게임·정치·SNS는 재지 않음"],
+  ["약점", "비꼼, 노골적인 단어가 없는 성희롱은 어느 모델이든 자주 놓침"],
+  ["표본 크기", "평가 471건이라 구간이 넓음. 모델 사이의 작은 차이는 우연일 수 있음"],
+  ["속도", "맥 로컬에서만 측정. 클라우드(Vercel) 지연과 cold start는 미측정"],
+  ["행동 검사", "한 사람이 만든 42문장, 36문장. 유형별 경향만 봄"],
+  ["미측정", "확률 보정, 사용자 만족도, 리포트의 법적 유용성"],
 ];
 const f3 = (x) => x.toFixed(3), pct = (x) => `${x.toFixed(1)}%`, int = (x) => Math.round(x).toLocaleString("ko-KR");
 const passPill = (ok, text) => h("span", { class: `pill ${ok ? "p-normal" : "p-severe"}`, text: text || (ok ? "통과" : "미달") });
@@ -872,19 +937,9 @@ function perfPanel(title, sub, body, wide) {
 }
 function ptable(head, rows) {  // head: [[제목, 오른쪽 정렬?, 서빙 모델 열?]], rows: 셀 배열
   return h("div", { class: "tablewrap" }, h("table", { class: "ptable" },
-    h("thead", {}, h("tr", {}, head.map(([t, r]) => h("th", { class: r ? "r" : null, text: t })))),
+    h("thead", {}, h("tr", {}, head.map(([t, r, s]) => h("th", { class: `${r ? "r" : ""}${s ? " serve" : ""}`, text: t })))),
     h("tbody", {}, rows.map((cells) => h("tr", {}, cells.map((c, i) =>
       h("td", { class: `${head[i][1] ? "r num" : ""}${head[i][2] ? " serve" : ""}` }, c ?? "—")))))));
-}
-// 가로 막대. 눈금은 0~max 고정, 구간(ci)은 가는 선, 목표선(goal)은 점선
-function hbar(rows, { max = 1, fmt = f3, goal = null } = {}) {
-  return h("div", { class: "hb" }, rows.flatMap((r) => [
-    h("span", { class: "name" }, r.on ? h("strong", { text: r.name }) : r.name),
-    h("span", { class: "track", title: r.tip },
-      h("i", { class: r.on ? "on" : null, style: `width:${(r.v / max) * 100}%` }),
-      r.ci ? h("u", { style: `left:${(r.ci[0] / max) * 100}%;width:${((r.ci[1] - r.ci[0]) / max) * 100}%` }) : null,
-      goal != null ? h("b", { style: `left:${(goal / max) * 100}%` }) : null),
-    h("span", { class: "v num" }, h("strong", { text: fmt(r.v) }), r.ci ? ` [${fmt(r.ci[0])}, ${fmt(r.ci[1])}]` : "")]));
 }
 function confusion(m) {
   const names = ["정상", "공격", "혐오"];
@@ -895,93 +950,168 @@ function confusion(m) {
         return h("td", { class: "num", text: String(n), title: `정답 ${names[i]} → 예측 ${names[j]}: ${n}건 (${Math.round(share * 100)}%)`,
           style: `background:rgba(38,48,74,${(0.06 + share * 0.84).toFixed(2)});color:${share > 0.45 ? "#fff" : "var(--fg)"}` }); })); })));
 }
+// 화면 구성: ① 선택한 모델 요약(상단 선택 상자와 연동) → ② 모델 비교(작은 막대 그래프 여섯 개) → ③ 자세한 내용(접힘)
+// 글은 '키워드: 설명' 한 줄로 줄이고, 숫자는 되도록 그래프로 보여줍니다.
+let SELECTABLE = [];
+const signed = (x, f = f3) => (Number(f(Math.abs(x))) === 0 ? "±" : x > 0 ? "+" : "−") + f(Math.abs(x));
+const one = (x) => x.toFixed(1);
+function perfCurrent() {  // 상단 선택 상자에서 고른 모델. 평가 기록에 없으면 서빙 모델
+  const v = MODEL || renderPerf.live;
+  return PERF.order.find((k) => PERF.models[k].version === v) || PERF.serving;
+}
+function pickModel(version) {  // 성능 탭에서 모델을 바꾸면 상단 선택 상자도 같이 바뀜
+  const sel = $("model-select");
+  if (sel.hidden || sel.value === version) return;
+  sel.value = version; sel.dispatchEvent(new Event("change"));
+}
+function acc(title, sub, ...body) {
+  return h("details", { class: "panel acc" }, h("summary", {}, h("span", { text: title }), h("small", { text: sub })), h("div", { class: "panel-body" }, body));
+}
+// 요약 타일 안의 작은 막대: 값(채움)과 기준(세로선)
+function bullet(v, max, mark, cls) {
+  return h("span", { class: "bullet", "aria-hidden": "true" }, h("i", { class: cls || null, style: `width:${Math.min(100, (v / max) * 100)}%` }),
+    mark != null ? h("b", { style: `left:${Math.min(100, (mark / max) * 100)}%` }) : null);
+}
+// 작은 막대 그래프 하나: 제목(키워드) + 방향 안내 + 모델별 막대
+function mini(title, hint, keys, get, { max, fmt = f3, ci = null, goal = null } = {}) {
+  const P = PERF, M = P.models, cur = perfCurrent();
+  const rows = keys.filter((k) => get(M[k]) != null);
+  const top = max || Math.max(...rows.map((k) => get(M[k]))) * 1.08;
+  return h("div", { class: "mini" }, h("h3", {}, title, h("small", { text: hint })),
+    h("div", { class: "hb sm" }, rows.flatMap((k) => { const v = get(M[k]), c = ci ? ci(M[k]) : null;
+      return [h("span", { class: "name" }, k === cur ? h("strong", { text: M[k].name }) : M[k].name),
+        h("span", { class: "track", title: `${M[k].name} · ${M[k].desc}: ${fmt(v)}${c ? ` (95% 구간 ${fmt(c[0])}~${fmt(c[1])})` : ""}` },
+          h("i", { class: k === cur ? "on" : null, style: `width:${(v / top) * 100}%` }),
+          c ? h("u", { style: `left:${(c[0] / top) * 100}%;width:${((c[1] - c[0]) / top) * 100}%` }) : null,
+          goal != null ? h("b", { style: `left:${(goal / top) * 100}%` }) : null),
+        h("span", { class: "v num" }, k === cur ? h("strong", { text: fmt(v) }) : fmt(v), k === P.serving ? h("span", { class: "tag serve", text: "서빙" }) : null)]; })));
+}
+const dots = (n, total = 6) => h("span", { class: "dots", title: `${n}/${total}`, role: "img", "aria-label": `${total}개 중 ${n}개` },
+  Array.from({ length: total }, (_, i) => h("i", { class: i < n ? "on" : null })));
+const kw = (pairs) => h("dl", { class: "kw" }, pairs.filter(Boolean).flatMap(([k, v]) => [h("dt", { text: k }), h("dd", {}, v)]));
 function renderPerf(live) {
   if (!PERF) { $("p-body").replaceChildren(empty("평가 기록 스냅샷이 없습니다", "평가를 실행한 뒤 scripts/build_perf_snapshot.py로 만들어 주세요.")); return; }
-  const P = PERF, M = P.models, S = M[P.serving], med = S.filter.medium;
-  const real = P.order.filter((k) => k !== "b0"), on = (k) => k === P.serving;
-  const col = (k) => [on(k) ? `${M[k].name} (서빙)` : M[k].name, 1, on(k)];
-  const mismatch = live && live !== S.version;
-  $("p-version").textContent = live ? `기본 모델: ${live}` : "서버 연결 안 됨 · 기록된 수치만 표시";
-  const cmp = (label, f) => [label, ...P.order.map((k) => f(M[k], k))];
+  if (live !== undefined) renderPerf.live = live;
+  live = renderPerf.live;
+  const P = PERF, M = P.models, S = M[P.serving], cur = perfCurrent(), C = M[cur], isS = cur === P.serving, med = C.filter.medium, smed = S.filter.medium;
+  const keys = P.order, real = keys.filter((k) => k !== "b0");
+  const col = (k) => [k === P.serving ? `${M[k].name} (서빙)` : M[k].name, 1, k === cur];
+  const ranked = real.filter((k) => M[k].valid != null).sort((a, b) => M[b].valid - M[a].valid);
+  const d = C.diffM2, crosses = d && d.ci[0] <= 0 && d.ci[1] >= 0;
+  const passB0 = C.ci[0] > M.b0.ci[1], open = [...document.querySelectorAll("#p-body details")].map((x) => x.open);
   const sens = { low: "낮음", medium: "보통", high: "높음" };
-  const others = real.filter((k) => !on(k));
+  const unknown = (MODEL || live) && !P.order.some((k) => M[k].version === (MODEL || live));
+  $("p-version").textContent = live ? `서버 기본 모델: ${live}` : "서버 연결 안 됨 · 기록된 수치만 표시";
+  const vs = (delta, unit = "") => isS ? null : h("span", { class: "delta", text: `${S.name} 대비 ${delta}${unit}` });
+  const why = isS ? "선택 기준 1위"
+    : C.valid > S.valid ? "기록 확인 필요"
+    : S.valid - C.valid < 0.005 ? `${S.name}와 동률, 더 큰 모델이라 제외`
+    : `선택 기준이 ${S.name}보다 낮음`;
   $("p-body").replaceChildren(...[
-    mismatch ? h("div", { class: "alert", style: "margin:0 0 16px", role: "alert",
+    live && live !== S.version ? h("div", { class: "alert", style: "margin:0 0 16px", role: "alert",
       text: `서버의 기본 모델(${live})이 평가 기록에서 서빙 모델로 고른 모델(${S.version})과 다릅니다.` }) : null,
+    unknown ? h("div", { class: "alert", style: "margin:0 0 16px", text: "지금 고른 모델은 평가 기록이 없어 서빙 모델의 수치를 보여줍니다." }) : null,
     h("div", { class: "perf-grid" },
+      // ① 선택한 모델 요약
       h("div", { class: "panel wide" },
-        h("div", { class: "panel-head" }, h("h2", { text: `서빙 모델 ${S.name} 요약` }), h("small", { text: `${S.version} · ${S.desc}` })),
+        h("div", { class: "hero" },
+          h("div", { class: "hero-id" },
+            h("div", { class: "hero-name" }, h("b", { text: C.name }), h("span", { class: `tag ${isS ? "serve" : ""}`, text: isS ? "서빙 모델" : "비교용" })),
+            h("div", { class: "hero-desc", text: `${C.desc} · ${C.version}` })),
+          SELECTABLE.length > 1 ? h("div", { class: "chips", role: "group", "aria-label": "볼 모델" }, SELECTABLE.filter((m) => P.order.some((k) => M[k].version === m.model_version)).map((m) => {
+            const k = P.order.find((x) => M[x].version === m.model_version);
+            return h("button", { class: "chipbtn", "aria-pressed": String(k === cur), text: M[k].name + (k === P.serving ? " · 서빙" : ""), onclick: () => pickModel(m.model_version) }); })) : null),
         h("div", { class: "summary" },
-          h("div", {}, h("small", { text: "macro-F1 (3클래스)" }), h("strong", { text: f3(S.f1) }), h("em", { text: `95% 구간 ${f3(S.ci[0])}–${f3(S.ci[1])}` }), passPill(S.ci[0] > M.b0.ci[1], S.ci[0] > M.b0.ci[1] ? "기준 모델보다 높음" : "기준 모델과 구간 겹침")),
-          h("div", {}, h("small", { text: "정상 댓글 오차단율 · 보통" }), h("strong", { text: pct(med[3]) }), h("em", { text: `목표 15% 이하 · 구간 ${med[4].toFixed(1)}–${med[5].toFixed(1)}%` }), passPill(med[3] <= 15)),
-          h("div", {}, h("small", { text: "혐오 댓글 차단율 · 보통" }), h("strong", { text: pct(med[0]) }), h("em", { text: `목표 60% 이상 · 구간 ${med[1].toFixed(1)}–${med[2].toFixed(1)}%` }), passPill(med[0] >= 60)),
-          h("div", {}, h("small", { text: "놓친 혐오 (혐오 → 정상)" }), h("strong", { text: `${S.missed}건` }), h("em", { text: `혐오 ${P.evalCounts.hate}건 중` })))),
-      perfPanel("모델 비교: eval macro-F1", `평가 ${P.evalRows}건 · 선은 95% 구간`,
-        [hbar(P.order.map((k) => ({ name: M[k].name, v: M[k].f1, ci: M[k].ci, on: on(k), tip: `${M[k].name} ${M[k].desc}: ${f3(M[k].f1)}` }))),
-         h("p", { class: "note", text: `M2 대비 차이 (같은 재표본으로 짝지은 부트스트랩): ${real.filter((k) => M[k].diffM2).map((k) => { const d = M[k].diffM2, s = (x) => `${x >= 0 ? "+" : "−"}${f3(Math.abs(x))}`;
-           return `${M[k].name} ${s(d.mean)} [${s(d.ci[0])}, ${s(d.ci[1])}]`; }).join(" · ")}. 구간이 0을 포함하면 차이가 있다고 말하기 어렵습니다. 막대 눈금은 0~1입니다.` })]),
-      perfPanel("모델 선택에 쓴 지표: valid macro-F1", "서빙 모델은 이 값과 운영 지표로만 고름",
-        [hbar(P.order.filter((k) => M[k].valid != null).map((k) => ({ name: M[k].name, v: M[k].valid, on: on(k) }))),
-         h("p", { class: "note", text: "평가 데이터(eval)로 모델을 고르면 평가의 의미가 약해지므로, 학습 데이터에서 떼어낸 valid 790건의 점수로 골랐습니다. 차이가 0.005 미만이면 더 작은 모델을 고릅니다." })]),
-      perfPanel("지표 비교표", "같은 평가 데이터, 같은 계산 코드",
-        ptable([["지표"], ...P.order.map(col)], [
-          cmp("모델", (m) => m.desc),
-          cmp("valid macro-F1 (선택에 사용)", (m) => m.valid != null ? f3(m.valid) : null),
-          cmp("eval macro-F1", (m) => f3(m.f1)),
-          cmp("eval 정확도", (m) => f3(m.acc)),
-          cmp("등급 순서 일치도 (스피어만 ρ)", (m) => m.rho && f3(m.rho)),
-          cmp("놓친 혐오 (혐오 → 정상)", (m) => m.missed != null ? `${m.missed}건` : null),
-          cmp("혐오 차단율 · 보통", (m) => m.filter && pct(m.filter.medium[0])),
-          cmp("정상 오차단율 · 보통", (m) => m.filter && pct(m.filter.medium[3])),
-          cmp("편향 유형 macro-F1", (m) => m.bias && f3(m.bias)),
-          cmp("성별 편향 F1", (m) => m.gender && f3(m.gender)),
-          cmp("심각도 기준값 (주의 / 심각)", (m) => m.th && `${m.th[0]} / ${m.th[1]}`),
-        ]), true),
-      perfPanel("혼동행렬", "칸이 진할수록 그 정답에서 차지하는 비율이 큼",
-        [h("div", { class: "cms" }, real.map((k) => confusion(M[k]))),
-         h("p", { class: "note", text: "어느 모델이든 오류가 인접한 등급 사이(공격 → 정상, 혐오 → 공격)에 몰려 있습니다. 공격이 가장 어려운 클래스입니다." })], true),
-      perfPanel("필터 지표: 보통 민감도", "점선은 목표 · 선은 95% 구간",
-        [h("div", { class: "fieldlabel", text: "혐오 댓글 차단율 (높을수록 좋음, 목표 60% 이상)" }),
-         hbar(real.map((k) => ({ name: M[k].name, v: M[k].filter.medium[0], ci: M[k].filter.medium.slice(1, 3), on: on(k) })), { max: 100, fmt: pct, goal: 60 }),
-         h("div", { class: "fieldlabel", style: "margin-top:16px", text: "정상 댓글 오차단율 (낮을수록 좋음, 목표 15% 이하)" }),
-         hbar(real.map((k) => ({ name: M[k].name, v: M[k].filter.medium[3], ci: M[k].filter.medium.slice(4, 6), on: on(k) })), { max: 100, fmt: pct, goal: 15 })]),
-      perfPanel("등급 분포", `평가 ${P.evalRows}건이 받은 등급`,
-        h("div", { class: "stackrow" }, real.flatMap((k) => { const g = M[k].grades, tot = g[0] + g[1] + g[2], cls = ["normal", "caution", "severe"];
-           return [h("span", {}, on(k) ? h("strong", { text: M[k].name }) : M[k].name),
-             h("div", { class: "stack" }, g.map((n, i) => h("i", { class: `f-${cls[i]}`, style: `width:${(n / tot) * 100}%`, title: `${GRADE[cls[i]]} ${n}건 (${Math.round((n / tot) * 100)}%)` }))),
-             h("div", { class: "cap" }, g.map((n, i) => h("span", { text: `${GRADE[cls[i]]} ${n}건` })), h("span", { class: "muted", text: `기준 ${M[k].th[0]} / ${M[k].th[1]}점` }))]; }))),
-      perfPanel("클래스별 F1", `괄호 안은 ${S.name}의 정밀도 / 재현율`,
-        ptable([["클래스"], ["건수", 1], ...real.map(col)],
-          Object.keys(S.cls).map((c) => [LABEL[c], String(P.evalCounts[c]), ...real.map((k) => on(k) ? `${f3(M[k].cls[c][2])} (${f3(M[k].cls[c][0])} / ${f3(M[k].cls[c][1])})` : f3(M[k].cls[c][2]))])), true),
-      perfPanel("민감도별 필터 지표", "혐오 차단율 / 정상 오차단율 · [ ] 안은 95% 구간",
-        ptable([["모델"], ...Object.values(sens).flatMap((s) => [[`${s} · 혐오 차단`, 1], [`${s} · 정상 오차단`, 1]])],
-          real.map((k) => [on(k) ? h("strong", { text: `${M[k].name} (서빙)` }) : M[k].name, ...Object.keys(sens).flatMap((s) => { const t = M[k].filter[s].map((x) => x.toFixed(1));
-            return [`${t[0]}% [${t[1]}, ${t[2]}]`, `${t[3]}% [${t[4]}, ${t[5]}]`]; })])), true),
-      perfPanel("행동 검사 v1", "직접 만든 42문장 · 보통 민감도에서 보임/가림",
-        ptable([["유형"], ["기대"], ...real.map(col)],
-          [...P.probe1.map(([n, e], i) => [n, e, ...real.map((k) => `${M[k].probe1[i]}/6`)]),
-           ["전체", "", ...real.map((k) => `${M[k].probe1.reduce((a, b) => a + b, 0)}/42`)]])),
-      perfPanel("행동 검사 v2", "직접 만든 36문장 · 기대 등급과 일치",
-        [ptable([["유형"], ["기대"], ...real.filter((k) => M[k].probe2).map(col)],
-          [...P.probe2.map(([n, e], i) => [n, e, ...real.filter((k) => M[k].probe2).map((k) => `${M[k].probe2[i]}/6`)]),
-           ["전체", "", ...real.filter((k) => M[k].probe2).map((k) => `${M[k].probe2.reduce((a, b) => a + b, 0)}/36`)]]),
-         h("p", { class: "note", text: "이 결과를 보고 기준값이나 공식을 바꾸지 않았습니다." })]),
-      perfPanel("운영 지표", "맥 로컬, CPU 단일 스레드 · 클라우드 측정 전",
-        ptable([["지표"], ...real.map(col)], [
-          ["모델 로드", ...real.map((k) => `${M[k].run.load.toFixed(2)}초`)],
-          ["단건 지연 p50", ...real.map((k) => `${M[k].run.p50.toFixed(1)}ms`)],
-          ["단건 지연 p90", ...real.map((k) => `${M[k].run.p90.toFixed(1)}ms`)],
-          ["100건 배치 p50", ...real.map((k) => `${int(M[k].run.batch)}ms`)],
-          ["최대 메모리", ...real.map((k) => `${int(M[k].run.rss)}MB`)],
-          ["모델 파일", ...real.map((k) => `${int(M[k].run.size)}MB`)]]), true),
-      perfPanel("한계", "측정하지 못한 부분 포함", h("ul", { class: "limits" }, PERF_LIMITS.map((t) => h("li", { text: t })))),
-      perfPanel("근거", null, h("p", { class: "srcs" },
-        `평가 데이터: BEEP! dev.tsv ${P.evalRows}건 (정상 ${P.evalCounts.none} / 공격 ${P.evalCounts.offensive} / 혐오 ${P.evalCounts.hate}). 학습, 어휘 사전, 하이퍼파라미터, 기준값 조정, 모델 선택에 쓰지 않았습니다.`, h("br"),
-        `기록 파일: ${P.sources.map((s) => `runs/${s}`).join(" · ")}`, h("br"),
-        "설명과 해석: docs/EVALUATION.md")))].filter(Boolean));
+          h("div", {}, h("small", { text: "평가 점수" }), h("strong", { text: f3(C.f1) }), bullet(C.f1, 1, M.b0.f1),
+            h("em", { text: `세로선: 기준 모델 ${f3(M.b0.f1)}` }), vs(signed(C.f1 - S.f1)), passPill(passB0, passB0 ? "기준 모델보다 높음" : "기준 모델과 구간 겹침")),
+          h("div", {}, h("small", { text: "혐오 댓글 차단율" }), h("strong", { text: pct(med[0]) }), bullet(med[0], 100, 60),
+            h("em", { text: "세로선: 목표 60% 이상" }), vs(signed(med[0] - smed[0], one), "%p"), passPill(med[0] >= 60)),
+          h("div", {}, h("small", { text: "정상 댓글 오차단율" }), h("strong", { text: pct(med[3]) }), bullet(med[3], 30, 15),
+            h("em", { text: "세로선: 목표 15% 이하" }), vs(signed(med[3] - smed[3], one), "%p"), passPill(med[3] <= 15)),
+          h("div", {}, h("small", { text: "댓글 1건 처리 시간" }), h("strong", { text: `${one(C.run.p50)}ms` }), bullet(C.run.rss, 8000, null),
+            h("em", { text: `메모리 ${int(C.run.rss)}MB / 한도 8,000MB` }), vs(`${(C.run.rss / S.run.rss).toFixed(1)}배`, " 메모리"))),
+        h("div", { class: "verdict" },
+          kw([
+            ["서빙 여부", isS ? h("b", { text: "서빙 모델" }) : [h("b", { text: "비교용" }), ` · ${why}`]],
+            ["선택 기준", `valid ${f3(C.valid)} · 후보 ${ranked.length}개 중 ${ranked.indexOf(cur) + 1}위${isS ? "" : ` (${S.name} ${f3(S.valid)})`}`],
+            !isS ? ["평가 점수", `${S.name} 대비 ${signed(C.f1 - S.f1)}${d ? ` · 차이 구간 ${signed(d.ci[0])} ~ ${signed(d.ci[1])}${crosses ? " (0 포함, 불확실)" : " (0 벗어남)"}` : ""}`] : ["평가 점수", `기준 모델 대비 ${signed(C.f1 - M.b0.f1)}`],
+            !isS && C.f1 > S.f1 ? ["왜 안 쓰나", "평가 점수를 보고 모델을 고르면 누수. 선택은 valid로만"] : null,
+            ["놓친 혐오", `혐오 ${P.evalCounts.hate}건 중 ${C.missed}건을 정상으로 판정`],
+          ]),
+          h("button", { class: "btn sm", text: "이 모델로 댓글 필터 써 보기", onclick: () => { $("tab-filter").click(); if (!readLines($("f-input").value).length) document.querySelector('[data-preset="ent"]').click(); } }))),
+      // ② 모델 비교: 작은 막대 그래프 여섯 개
+      h("div", { class: "panel wide" },
+        h("div", { class: "panel-head" }, h("h2", { text: "모델 비교" }),
+          h("div", { class: "legend", "aria-hidden": "true" }, h("span", {}, h("i", { class: "sw on" }), "고른 모델"), h("span", {}, h("i", { class: "sw" }), "다른 모델"),
+            h("span", {}, h("i", { class: "sw ci" }), "95% 구간"), h("span", {}, h("i", { class: "sw goal" }), "목표"))),
+        h("div", { class: "panel-body minis" },
+          mini("평가 점수", "높을수록 좋음 · 처음 보는 471건", keys, (m) => m.f1, { max: 1, ci: (m) => m.ci }),
+          mini("선택 기준 (valid)", "높을수록 좋음 · 서빙 모델을 고른 점수", keys, (m) => m.valid, { max: 1 }),
+          mini("놓친 혐오", "낮을수록 좋음 · 혐오를 정상으로 판정", real, (m) => m.missed, { fmt: (x) => `${x}건` }),
+          mini("혐오 차단율", "높을수록 좋음 · 보통 민감도", real, (m) => m.filter.medium[0], { max: 100, fmt: pct, ci: (m) => m.filter.medium.slice(1, 3), goal: 60 }),
+          mini("정상 오차단율", "낮을수록 좋음 · 보통 민감도", real, (m) => m.filter.medium[3], { max: 30, fmt: pct, ci: (m) => m.filter.medium.slice(4, 6), goal: 15 }),
+          mini("메모리", "낮을수록 좋음 · 로컬 측정", real, (m) => m.run.rss, { fmt: (x) => `${int(x)}MB` }))),
+      // ③ 자세한 내용 (눌러서 펼침)
+      h("div", { class: "wide accs" },
+        h("div", { class: "accs-head" }, h("b", { text: "자세히 보기" }),
+          h("button", { class: "textbtn", text: "모두 펼치기", onclick: (e) => { const all = [...document.querySelectorAll("#p-body details")], openAll = all.some((x) => !x.open);
+            all.forEach((x) => (x.open = openAll)); e.currentTarget.textContent = openAll ? "모두 접기" : "모두 펼치기"; } })),
+        acc("어디서 틀리나", "혼동행렬 · 클래스별 F1",
+          h("div", { class: "cms" }, (isS ? [cur] : [cur, P.serving]).map((k) => confusion(M[k]))),
+          kw([["읽는 법", "행은 정답, 열은 예측. 칸이 진할수록 그 정답에서 차지하는 비율이 큼"],
+              ["오류 위치", "인접한 등급 사이 (공격 → 정상, 혐오 → 공격)"], ["가장 어려운 클래스", "공격"]]),
+          h("div", { class: "minis" }, Object.keys(C.cls).map((c) =>
+            mini(`${LABEL[c]} F1`, `${P.evalCounts[c]}건 · 높을수록 좋음`, real, (m) => m.cls[c][2], { max: 1 })))),
+        acc("필터가 어떻게 동작하나", "등급 분포 · 민감도별 지표",
+          h("div", { class: "stackrow" }, real.flatMap((k) => { const g = M[k].grades, tot = g[0] + g[1] + g[2], cls = ["normal", "caution", "severe"];
+            return [h("span", {}, k === cur ? h("strong", { text: M[k].name }) : M[k].name),
+              h("div", { class: "stack" }, g.map((n, i) => h("i", { class: `f-${cls[i]}`, style: `width:${(n / tot) * 100}%`, title: `${GRADE[cls[i]]} ${n}건 (${Math.round((n / tot) * 100)}%)` }))),
+              h("div", { class: "cap" }, g.map((n, i) => h("span", { text: `${GRADE[cls[i]]} ${n}건` })), h("span", { class: "muted", text: `기준 ${M[k].th[0]} / ${M[k].th[1]}점` }))]; })),
+          kw([["등급 분포", `평가 ${P.evalRows}건이 받은 등급 (초록 일반 · 주황 주의 · 빨강 심각)`]]),
+          h("div", { class: "minis" },
+            Object.entries(sens).map(([s, name]) => mini(`혐오 차단율 · ${name}`, "높을수록 좋음", real, (m) => m.filter[s][0], { max: 100, fmt: pct, ci: (m) => m.filter[s].slice(1, 3), goal: 60 })),
+            Object.entries(sens).map(([s, name]) => mini(`정상 오차단율 · ${name}`, "낮을수록 좋음", real, (m) => m.filter[s][3], { max: 30, fmt: pct, ci: (m) => m.filter[s].slice(4, 6), goal: 15 })))),
+        acc("직접 만든 문장으로 본 약점", "행동 검사 v1 42문장 · v2 36문장",
+          h("div", { class: "two" },
+            h("div", {}, h("div", { class: "fieldlabel", text: "v1 · 보여야/가려야 하는 대로 됐는지 (유형별 6문장)" }),
+              ptable([["유형"], ["기대"], ...real.map((k) => [M[k].name, 0, k === cur])],
+                [...P.probe1.map(([n, e], i) => [n, e, ...real.map((k) => dots(M[k].probe1[i]))]),
+                 [h("b", { text: "전체" }), "", ...real.map((k) => `${M[k].probe1.reduce((a, b) => a + b, 0)}/42`)]])),
+            h("div", {}, h("div", { class: "fieldlabel", text: "v2 · 기대한 등급과 일치했는지 (유형별 6문장)" }),
+              ptable([["유형"], ["기대"], ...real.filter((k) => M[k].probe2).map((k) => [M[k].name, 0, k === cur])],
+                [...P.probe2.map(([n, e], i) => [n, e, ...real.filter((k) => M[k].probe2).map((k) => dots(M[k].probe2[i]))]),
+                 [h("b", { text: "전체" }), "", ...real.filter((k) => M[k].probe2).map((k) => `${M[k].probe2.reduce((a, b) => a + b, 0)}/36`)]]))),
+          kw([["읽는 법", "점 하나가 문장 하나. 채워진 점이 맞힌 문장"], ["가장 약한 유형", "비꼼, 노골적인 단어가 없는 성희롱"],
+              ["주의", "이 결과에 맞춰 기준값이나 공식을 바꾸지 않음"]])),
+        acc("속도와 메모리", "맥 로컬, CPU 단일 스레드 · 클라우드 측정 전",
+          h("div", { class: "minis" },
+            mini("댓글 1건 처리", "낮을수록 좋음 · 중앙값", real, (m) => m.run.p50, { fmt: (x) => `${one(x)}ms` }),
+            mini("100건 한 번에 처리", "낮을수록 좋음 · 중앙값", real, (m) => m.run.batch, { fmt: (x) => `${int(x)}ms` }),
+            mini("모델 불러오기", "낮을수록 좋음", real, (m) => m.run.load, { fmt: (x) => `${x.toFixed(2)}초` }),
+            mini("메모리", "낮을수록 좋음 · 한도 8,000MB", real, (m) => m.run.rss, { fmt: (x) => `${int(x)}MB` }),
+            mini("모델 파일 크기", "낮을수록 좋음", real, (m) => m.run.size, { fmt: (x) => `${int(x)}MB` })),
+          kw([["모델", real.map((k) => `${M[k].name} = ${M[k].desc}`).join(" · ")], ["측정 환경", "맥 로컬 CPU 단일 스레드. 클라우드(Vercel)에서는 아직 재지 않음"]])),
+        acc("숫자 표로 보기", "핵심 지표 · 민감도별 95% 구간",
+          ptable([["핵심 지표"], ...keys.map(col)], [
+            ["평가 점수 [95% 구간]", ...keys.map((k) => `${f3(M[k].f1)} [${f3(M[k].ci[0])}, ${f3(M[k].ci[1])}]`)],
+            ["선택 기준 (valid)", ...keys.map((k) => M[k].valid != null ? f3(M[k].valid) : null)],
+            ["놓친 혐오", ...keys.map((k) => M[k].missed != null ? `${M[k].missed}건` : null)],
+            ["1건 처리 시간", ...keys.map((k) => M[k].run && `${one(M[k].run.p50)}ms`)],
+            ["메모리", ...keys.map((k) => M[k].run && `${int(M[k].run.rss)}MB`)],
+            ["심각도 기준값 (주의 / 심각)", ...keys.map((k) => M[k].th && `${M[k].th[0]} / ${M[k].th[1]}`)],
+          ]),
+          ptable([["모델"], ...Object.values(sens).flatMap((s) => [[`${s} · 혐오 차단`, 1], [`${s} · 정상 오차단`, 1]])],
+            real.map((k) => [k === cur ? h("strong", { text: M[k].name }) : M[k].name, ...Object.keys(sens).flatMap((s) => { const t = M[k].filter[s].map(one);
+              return [`${t[0]}% [${t[1]}, ${t[2]}]`, `${t[3]}% [${t[4]}, ${t[5]}]`]; })]))),
+        acc("한계와 근거", "측정하지 못한 부분 · 기록 파일",
+          kw(PERF_LIMITS),
+          h("p", { class: "srcs" },
+            `평가 데이터: BEEP! dev.tsv ${P.evalRows}건 (정상 ${P.evalCounts.none} / 공격 ${P.evalCounts.offensive} / 혐오 ${P.evalCounts.hate}). 학습, 어휘 사전, 하이퍼파라미터, 기준값 조정, 모델 선택에 쓰지 않았습니다.`, h("br"),
+            `기록 파일: ${P.sources.map((s) => `runs/${s}`).join(" · ")}`, h("br"), "설명과 해석: docs/EVALUATION.md"))))].filter(Boolean));
+  const expand = new URLSearchParams(location.search).has("expand");  // 주소에 ?expand 를 붙이면 처음부터 펼침
+  document.querySelectorAll("#p-body details").forEach((x, i) => (x.open = open.length ? !!open[i] : expand));  // 펼쳐 둔 항목 유지
   stagger($("p-body"));
 }
-
 loadStatus();
 </script>
 </body>
