@@ -2,6 +2,9 @@
 
 python -m commentguard.compare <M1 폴더> <M2 폴더>
     → runs/<run_id>/comparison.json
+python -m commentguard.compare --all <모델 폴더 ...>
+    여러 모델을 한 번에 비교하고 명세서 4.5장 규칙으로 서빙 모델을 고릅니다 (후보: m2, m3, m4, ens)
+    → runs/<run_id>-compare-all/comparison.json
     - eval macro-F1과 짝지은 부트스트랩 차이(M2 - M1), 서비스 지표, 행동 검사
     - CPU 지연시간·메모리·로드 시간·산출물 크기 (모델마다 별도 프로세스에서 측정)
 """
@@ -49,7 +52,8 @@ def measure(model_dir: str) -> dict[str, Any]:
         s = time.perf_counter(); model.predict_proba(texts); batch.append((time.perf_counter() - s) * 1000)
     rss = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     rss_mb = rss / 1024 / 1024 if sys.platform == "darwin" else rss / 1024  # macOS는 바이트, 리눅스는 KB
-    size = sum(p.stat().st_size for p in Path(model_dir).iterdir() if p.is_file())
+    size = model.card.get("artifact_bytes") if model.card.get("model_id") == "ens" else \
+        sum(p.stat().st_size for p in Path(model_dir).iterdir() if p.is_file())
     return {"load_seconds": round(load_s, 2), "latency_ms_single_p50": round(float(np.median(single)), 1),
             "latency_ms_single_p90": round(float(np.percentile(single, 90)), 1),
             "latency_ms_batch100_p50": round(float(np.median(batch)), 1),
@@ -127,7 +131,85 @@ def main(argv: list[str]) -> int:
     return 0
 
 
+# 명세서 4.5장 (M3·M4·ENS 결과를 보기 전에 확정)
+CANDIDATES = ("m2", "m3", "m4", "ens")
+LIMITS = {"single_p50_ms": 500, "batch100_p50_ms": 12_000, "peak_rss_mb": 8_000}
+TIE = 0.005
+
+
+def select_serving(models: dict[str, dict[str, Any]]) -> dict[str, Any]:
+    """운영 조건을 통과한 후보 중 valid macro-F1이 가장 높은 모델. 0.005 미만 차이는 동률로 보고 작은 모델."""
+    table = {}
+    for k in CANDIDATES:
+        if k not in models:
+            continue
+        r = models[k]["runtime_cpu"]
+        checks = {"single_p50_le_500ms": r["latency_ms_single_p50"] <= LIMITS["single_p50_ms"],
+                  "batch100_p50_le_12000ms": r["latency_ms_batch100_p50"] <= LIMITS["batch100_p50_ms"],
+                  "peak_rss_le_8000mb": r["peak_rss_mb"] <= LIMITS["peak_rss_mb"]}
+        table[k] = {"valid_hate_macro_f1": models[k]["valid_hate_macro_f1"], "artifact_mb": r["artifact_mb"],
+                    "checks": checks, "eligible": all(checks.values())}
+    ok = {k: v for k, v in table.items() if v["eligible"]}
+    best = max(v["valid_hate_macro_f1"] for v in ok.values())
+    tied = [k for k, v in ok.items() if best - v["valid_hate_macro_f1"] < TIE]
+    chosen = min(tied, key=lambda k: ok[k]["artifact_mb"])
+    return {"rule": "명세서 4.5장: 운영 조건(p50<=500ms, 100건 배치<=12000ms, 메모리<=8000MB)을 통과한 후보 중 valid macro-F1 최고, "
+                    "차이 0.005 미만은 동률로 보고 작은 모델", "candidates": table, "best_valid": best, "tied": tied,
+            "serving_model": chosen}
+
+
+def main_all(argv: list[str]) -> int:
+    dirs = [Path(a) for a in argv]
+    ev_cfg = yaml.safe_load(open(REPO_ROOT / "configs" / "train.yaml", encoding="utf-8"))["evaluation"]
+    eval_path = PROCESSED_DIR / "eval.tsv"
+    try:
+        with run_step("compare", suffix="all", config={"models": [rel(d) for d in dirs], "bootstrap": ev_cfg, "limits": LIMITS},
+                      inputs=[eval_path, PROBE_PATH, *[d / "model_card.json" for d in dirs]]) as run:
+            check_manifest()
+            df, probe_df = read_tsv(eval_path), read_tsv(PROBE_PATH)
+            y = df["hate"].to_numpy()
+            out: dict[str, Any] = {"eval_rows": len(df), "models": {}}
+            preds = {}
+            for d in dirs:
+                model = model_store.load_cached(d)
+                key = model.card.get("model_id", "m1")
+                hp, _ = model.predict_proba(list(df["comments"]))
+                preds[key] = np.array(CLASSES)[hp.argmax(1)]
+                scores = scores_from_probs(hp)
+                probe = run_probe(model, probe_df)
+                out["models"][key] = {
+                    "model_version": model.version,
+                    "valid_hate_macro_f1": (model.card.get("valid_metrics") or {}).get(f"{key}_hate_macro_f1"),
+                    "eval_hate_macro_f1": round(macro_f1(y, preds[key], CLASSES), 4),
+                    "eval_accuracy": round(float((preds[key] == y).mean()), 4),
+                    "thresholds": {"caution": model.severity.caution, "severe": model.severity.severe},
+                    "eval_filter_medium": filter_rates(scores, y, model.severity)["medium"],
+                    "probe": {k: probe[k] for k in ("accuracy", "ok_false_block_rate", "toxic_miss_rate", "by_category")},
+                }
+            if "m2" in preds:  # 지금 서빙 모델(M2) 대비 차이
+                out["minus_m2_macro_f1"] = {k: paired_bootstrap(y, preds["m2"], p, ev_cfg["bootstrap_iters"], ev_cfg["bootstrap_seed"])
+                                            for k, p in preds.items() if k != "m2"}
+            for d, key in zip(dirs, list(out["models"])):  # 메모리를 섞지 않도록 별도 프로세스
+                res = subprocess.run([sys.executable, "-m", "commentguard.compare", "--measure", str(d)],
+                                     capture_output=True, text=True, check=True, cwd=REPO_ROOT)
+                out["models"][key]["runtime_cpu"] = json.loads(res.stdout.strip().splitlines()[-1])
+            out["selection"] = select_serving(out["models"])
+            path = run.dir / "comparison.json"
+            path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+            run.outputs.append(rel(path))
+            run.model_version = ",".join(m["model_version"] for m in out["models"].values())
+    except Exception as e:
+        print(f"[compare] 실패: {type(e).__name__}: {e}", file=sys.stderr)
+        return 1
+    print(json.dumps({k: {kk: v[kk] for kk in ("valid_hate_macro_f1", "eval_hate_macro_f1", "eval_filter_medium", "runtime_cpu")}
+                          | {"probe_acc": v["probe"]["accuracy"]} for k, v in out["models"].items()}
+                     | {"minus_m2": out.get("minus_m2_macro_f1"), "selection": out["selection"]}, ensure_ascii=False, indent=1))
+    return 0
+
+
 if __name__ == "__main__":
+    if sys.argv[1:2] == ["--all"]:
+        sys.exit(main_all(sys.argv[2:]))
     if len(sys.argv) == 3 and sys.argv[1] == "--measure":
         print(json.dumps(measure(sys.argv[2])))
         sys.exit(0)

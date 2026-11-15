@@ -88,7 +88,31 @@ def load_any(model_dir: str | Path):
     if card.get("model_id") in TRANSFORMER_IDS:
         from commentguard.m2 import load_m2
         return load_m2(model_dir)
+    if card.get("model_id") == "ens":
+        from commentguard.ensemble import load_ensemble
+        return load_ensemble(model_dir)
     return load_local(model_dir)
+
+
+_CACHE: dict[str, Any] = {}
+
+
+def load_cached(model_dir: str | Path):
+    """같은 폴더는 한 번만 메모리에 올립니다 (여러 모델 서빙, 앙상블이 구성 모델을 같이 씀)."""
+    key = str(Path(model_dir).resolve())
+    if key not in _CACHE:
+        _CACHE[key] = load_any(model_dir)
+    return _CACHE[key]
+
+
+def local_candidates() -> list[Path]:
+    """models/LATEST* 가 가리키는 로컬 모델 폴더 (화면의 모델 선택용, 명세서 4.6장)."""
+    out = []
+    for pointer in sorted(MODELS_DIR.glob("LATEST*")):
+        d = MODELS_DIR / pointer.read_text().strip()
+        if (d / "model_card.json").is_file() and d not in out:
+            out.append(d)
+    return out
 
 
 def latest_dir(model_id: str = "m1") -> Path:

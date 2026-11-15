@@ -62,10 +62,14 @@
   .health { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--fg-3); white-space: nowrap; }
   .health i { width: 7px; height: 7px; border-radius: 50%; background: var(--line-strong); }
   .health.ok i { background: var(--ok); } .health.bad i { background: var(--bad); }
+  /* 모델이 여러 개일 때만 보이는 선택 상자 */
+  .health select { font: inherit; font-size: 12.5px; font-weight: 600; color: var(--fg); background: var(--surface); border: 1px solid var(--line-strong);
+                   border-radius: 8px; padding: 5px 8px; max-width: 280px; cursor: pointer; }
+  .health select:disabled { opacity: .6; cursor: progress; }
   @media (max-width: 720px) {
     .topbar-in { height: auto; flex-wrap: wrap; padding-block: 10px; gap: 10px; }
     .tabs { order: 3; width: 100%; } .tabs button { flex: 1; padding-inline: 6px; }
-    .health span { display: none; }
+    .health span { display: none; } .health select { max-width: 190px; }
   }
 
   /* 작업 화면 */
@@ -238,7 +242,7 @@
   .panel-head small { font-size: 12px; color: var(--fg-3); font-weight: 400; text-align: right; }
   .summary em { display: block; font-style: normal; font-size: 12px; color: var(--fg-3); margin-top: 2px; }
   .summary .pill { margin-top: 6px; }
-  .hb { display: grid; grid-template-columns: 32px minmax(0, 1fr) auto; gap: 10px 12px; align-items: center; font-size: 13px; }
+  .hb { display: grid; grid-template-columns: 36px minmax(0, 1fr) auto; gap: 10px 12px; align-items: center; font-size: 13px; }
   .hb .track { position: relative; height: 10px; background: var(--subtle); border-radius: 4px; }
   .hb .track i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 0 4px 4px 0; background: #8f9bbd; transform-origin: left center; animation: grow .7s var(--ease) both; }
   .hb .track i.on { background: var(--primary); }
@@ -247,7 +251,7 @@
   .hb .v { color: var(--fg-2); white-space: nowrap; } .hb .v strong { color: var(--fg); }
   .ptable th.r, .ptable td.r { text-align: right; }
   .ptable .serve { font-weight: 700; }
-  .cms { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .cms { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 20px; }
   @media (max-width: 560px) { .cms { grid-template-columns: 1fr; } }
   .cm { width: auto; border-collapse: separate; border-spacing: 2px; font-size: 12.5px; }
   .cm th { background: none; border: 0; padding: 4px 6px; text-align: center; }
@@ -256,7 +260,7 @@
   .cm caption { caption-side: top; text-align: left; font-weight: 700; font-size: 13px; padding-bottom: 6px; }
   .stack { display: flex; gap: 2px; height: 14px; }
   .stack i { display: block; height: 100%; border-radius: 3px; min-width: 2px; }
-  .stackrow { display: grid; grid-template-columns: 32px minmax(0, 1fr); gap: 6px 12px; align-items: center; font-size: 13px; }
+  .stackrow { display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 6px 12px; align-items: center; font-size: 13px; }
   .stackrow .cap { grid-column: 2; display: flex; gap: 6px 14px; flex-wrap: wrap; font-size: 12px; color: var(--fg-2); margin-bottom: 8px; }
   .limits { margin: 0; padding-left: 18px; font-size: 13px; color: var(--fg-2); display: grid; gap: 6px; }
   .srcs { font-size: 12px; color: var(--fg-3); margin: 0; line-height: 1.8; overflow-wrap: anywhere; }
@@ -279,7 +283,7 @@
       <button role="tab" id="tab-perf" data-tab="perf" aria-selected="false">모델 성능</button>
     </nav>
     <div class="spacer"></div>
-    <div class="health" id="health" title="모델 상태"><i></i><span>연결 확인 중</span></div>
+    <div class="health" id="health" title="모델 상태"><i></i><span>연결 확인 중</span><select id="model-select" hidden aria-label="판정에 쓸 모델"></select></div>
   </div>
 </header>
 
@@ -380,7 +384,7 @@
     <div class="intro">
       <div>
         <h1>모델 성능</h1>
-        <p>학습과 조정에 쓰지 않은 평가 데이터 471건으로 잰 결과입니다. 기준 모델(B0), 처음 계획한 모델(M1), 지금 서빙하는 모델(M2)을 같은 데이터와 같은 계산으로 비교합니다.</p>
+        <p>학습과 조정에 쓰지 않은 평가 데이터 471건으로 잰 결과입니다. 기준 모델(B0)과 학습한 모델들을 같은 데이터와 같은 계산으로 비교합니다.</p>
       </div>
       <div class="formula" id="p-version"></div>
     </div>
@@ -473,7 +477,9 @@ function editor(inputId, lnId, countId, max) {
   sync();
   return (v) => { if (v != null) ta.value = v; sync(); };
 }
+let MODEL = null;  // 선택한 모델 버전. null이면 서버의 기본 모델
 async function api(path, body, { raw = false } = {}) {
+  if (MODEL && path.startsWith("/v1/") && !path.startsWith("/v1/models")) path += `${path.includes("?") ? "&" : "?"}model=${encodeURIComponent(MODEL)}`;
   const res = await fetch(path, body === undefined ? {} : { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
   if (res.status === 422) { const d = await res.json(); const e = new Error("입력값을 확인해 주세요"); e.detail = d.detail || []; throw e; }
   if (!res.ok) throw new Error(`서버에서 처리하지 못했습니다 (${res.status}). 잠시 후 다시 시도해 주세요.`);
@@ -546,22 +552,48 @@ const moveTab = slider(document.querySelector(".tabs"), (b) => b.getAttribute("a
 const moveSens = slider($("f-sens"), (b) => b.getAttribute("aria-pressed") === "true");
 
 // ── 상태, 탭 ──
-async function loadStatus() {
-  const box = $("health");
-  try {
-    const hl = await api("/health"); const meta = await api("/v1/meta");
-    if (meta.severity?.thresholds) TH = meta.severity.thresholds;
-    box.className = "health ok"; box.lastChild.textContent = `모델 ${hl.model_version}`;
-    $("a-formula").textContent = `심각도 = 100 × (혐오 + ½ × 공격) · 주의 ${TH.caution}점, 심각 ${TH.severe}점부터`;
-    renderPerf(hl.model_version);
-  } catch { box.className = "health bad"; box.lastChild.textContent = "서버 연결 안 됨"; renderPerf(null); }
+// 기준값과 공식 안내는 선택한 모델의 값으로 표시
+async function loadMeta() {
+  const meta = await api("/v1/meta");
+  if (meta.severity?.thresholds) TH = meta.severity.thresholds;
+  $("a-formula").textContent = `심각도 = 100 × (혐오 + ½ × 공격) · 주의 ${TH.caution}점, 심각 ${TH.severe}점부터`;
   renderRules();
+  return meta;
+}
+async function loadStatus() {
+  const box = $("health"), label = box.querySelector("span"), sel = $("model-select");
+  try {
+    const hl = await api("/health"); await loadMeta();
+    box.className = "health ok"; label.textContent = `모델 ${hl.model_version}`;
+    renderPerf(hl.model_version);
+    const list = await api("/v1/models").catch(() => null);  // 모델이 여러 개면 선택 상자를 보여줌
+    if (list && list.models.length > 1) {
+      sel.replaceChildren(...list.models.map((m) => h("option", { value: m.model_version, selected: m.default, text: `${m.name}${m.default ? " (기본)" : ""}` })));
+      sel.hidden = false; label.textContent = "모델";
+      sel.onchange = async () => {
+        MODEL = sel.value === list.default ? null : sel.value;
+        sel.disabled = true; label.textContent = "모델 불러오는 중";  // 처음 고른 모델은 메모리에 올리느라 몇 초 걸림
+        try { await loadMeta(); box.className = "health ok"; label.textContent = "모델"; ["filter", "report", "analyze"].forEach((t) => stale.add(t)); stale.delete(document.querySelector("[data-panel]:not([hidden])").dataset.panel); rerun(); }
+        catch { box.className = "health bad"; label.textContent = "모델을 불러오지 못함"; }
+        finally { sel.disabled = false; }
+      };
+    }
+  } catch { box.className = "health bad"; label.textContent = "서버 연결 안 됨"; renderRules(); renderPerf(null); }
+}
+// 모델을 바꾸면 지금 보고 있는 탭의 결과를 같은 입력으로 다시 계산. 나머지 탭은 열 때 다시 계산
+const stale = new Set();
+function rerun() {
+  const tab = document.querySelector("[data-panel]:not([hidden])").dataset.panel;
+  if (tab === "filter" && readLines($("f-input").value).length) $("f-run").click();
+  if (tab === "analyze" && readLines($("a-input").value).length) $("a-run").click();
+  if (tab === "report" && lastReq) $("r-run").click();
 }
 document.querySelectorAll(".tabs button").forEach((b) => b.addEventListener("click", () => {
   document.querySelectorAll(".tabs button").forEach((x) => x.setAttribute("aria-selected", x === b));
   moveTab();
   document.querySelectorAll("[data-panel]").forEach((p) => (p.hidden = p.dataset.panel !== b.dataset.tab));
   history.replaceState(null, "", `#${b.dataset.tab}`);
+  if (stale.delete(b.dataset.tab)) rerun();  // 다른 탭에서 모델을 바꿨으면 이 탭도 다시 계산
 }));
 // 주소의 #탭이름으로 바로 열기 (예: /#perf)
 if (location.hash.length > 1) document.querySelector(`.tabs [data-tab="${CSS.escape(location.hash.slice(1))}"]`)?.click();
@@ -618,7 +650,7 @@ function renderFilter(data) {
       h("div", {}, h("small", { text: "가림" }), h("strong", { class: "num", style: s.hide ? "color:var(--bad)" : "", text: String(s.hide) }))),
     h("div", { class: "split", "aria-hidden": "true" }, h("i", { style: `width:${w("show")};background:var(--line-strong)` }), h("i", { style: `width:${w("blur")};background:var(--warn)` }), h("i", { style: `width:${w("hide")};background:var(--bad)` })),
     h("div", { class: "comments-head" }, h("span", {}, h("b", { text: "댓글 " }), h("span", { class: "num muted", text: String(n) })),
-      h("span", { class: "muted", text: `민감도 ${SENS[data.sensitivity]} · 아이디는 미리보기용 예시` })),
+      h("span", { class: "muted", text: `${data.model_version} · 민감도 ${SENS[data.sensitivity]} · 아이디는 미리보기용 예시` })),
     h("div", {}, data.results.map((r) => commentRow(Number(r.id), r))));
   stagger($("f-result"));
 }
@@ -820,55 +852,29 @@ $("a-run").onclick = (e) => busy(e.currentTarget, async () => {
 });
 
 // ── 모델 성능 ──
-// 평가 기록(runs/)에서 옮긴 고정 스냅샷 (명세서 2.6장). 평가를 다시 하면 이 값도 함께 고칩니다.
-// 근거: runs/20261109-232715-evaluate, 20261110-010215-evaluate-m2, 20261110-010228-compare,
-//       20261110-003059-probe, 20261110-010956-probe-behavior_v2 (docs/EVALUATION.md)
-const PERF = {
-  evalRows: 471, evalCounts: { none: 160, offensive: 189, hate: 122 },
-  serving: "m2",
-  diff: { mean: 0.125, ci: [0.074, 0.175] },  // M2 − M1 eval macro-F1, 짝지은 부트스트랩 1,000회
-  models: {
-    b0: { name: "B0", desc: "최빈값 기준 모델", valid: 0.204, f1: 0.169, ci: [0.152, 0.184], acc: 0.340 },
-    m1: { name: "M1", desc: "글자 n-gram TF-IDF + 로지스틱 회귀", version: "m1-20261109-591d16d",
-      valid: 0.580, f1: 0.569, ci: [0.524, 0.613], acc: 0.582, rho: 0.641, missed: 15, bias: 0.662, gender: 0.702, th: [51, 55],
-      cls: { none: [0.615, 0.838, 0.709], offensive: [0.547, 0.434, 0.484], hate: [0.563, 0.475, 0.516] },
-      cm: [[134, 19, 7], [69, 82, 38], [15, 49, 58]],
-      filter: { low: [59.8, 51.0, 68.1, 3.8, 1.7, 7.9], medium: [59.8, 51.0, 68.1, 8.1, 4.8, 13.4], high: [73.8, 65.3, 80.8, 8.1, 4.8, 13.4] },
-      grades: [292, 43, 136],
-      run: { load: "0.29초", p50: "0.4ms", p90: "0.5ms", batch: "4.1ms", rss: "368MB", size: "3.1MB" } },
-    m2: { name: "M2", desc: "KcELECTRA-base 미세조정", version: "m2-20261110-314b2b2",
-      valid: 0.713, f1: 0.694, ci: [0.649, 0.733], acc: 0.696, rho: 0.807, missed: 1, bias: 0.669, gender: 0.781, th: [39, 70],
-      cls: { none: [0.690, 0.919, 0.788], offensive: [0.667, 0.540, 0.597], hate: [0.752, 0.648, 0.696] },
-      cm: [[147, 9, 4], [65, 102, 22], [1, 42, 79]],
-      filter: { low: [66.4, 57.6, 74.2, 2.5, 1.0, 6.3], medium: [66.4, 57.6, 74.2, 5.0, 2.6, 9.6], high: [99.2, 95.5, 99.9, 5.0, 2.6, 9.6] },
-      grades: [236, 122, 113],
-      run: { load: "2.94초", p50: "13.6ms", p90: "20.1ms", batch: "1,285ms", rss: "1,266MB", size: "437MB" } },
-  },
-  probe1: [["‘개’ 강조 칭찬", "보여야 함", 5, 6], ["‘개’ 비하", "가려야 함", 5, 6], ["초성 칭찬", "보여야 함", 6, 6], ["초성 욕설", "가려야 함", 5, 6],
-           ["이모지 칭찬", "보여야 함", 6, 6], ["정상 비판", "보여야 함", 6, 6], ["일반 욕설", "가려야 함", 6, 6]],
-  probe2: [["성별 혐오", "심각", 6, 6], ["기타 집단 혐오", "심각", 3, 5], ["강한 모욕", "심각", 5, 4], ["성희롱", "심각", 2, 1],
-           ["단순 무례", "주의", 1, 3], ["비꼼", "주의", 0, 0]],
-  limits: [
-    "연예 뉴스 댓글로만 학습하고 평가했습니다. 게임·정치·SNS 등 다른 분야의 성능은 재지 않았습니다.",
-    "노골적인 단어가 없는 성희롱과 비꼼을 자주 놓칩니다 (행동 검사 v2: 성희롱 1/6, 비꼼 0/6).",
-    "평가 데이터가 471건이라 구간이 넓습니다. 편향 하위 그룹은 60여 건씩이라 더 불확실합니다.",
-    "지연과 메모리는 맥 로컬에서만 쟀습니다. 클라우드(Vercel)의 지연과 cold start는 아직 재지 않았습니다.",
-    "행동 검사 세트는 한 사람이 만든 42문장, 36문장이라 유형별 경향만 봅니다.",
-    "확률 보정, 사용자 만족도, 리포트의 법적 유용성은 재지 않았습니다.",
-  ],
-};
-const f3 = (x) => x.toFixed(3), pct = (x) => `${x.toFixed(1)}%`;
+// PERF는 평가 기록(runs/)에서 만든 고정 스냅샷입니다 (명세서 2.6장). 손으로 고치지 말고
+// 평가를 다시 한 뒤 python scripts/build_perf_snapshot.py 로 다시 만듭니다.
+const PERF = /*PERF-BEGIN*/null/*PERF-END*/;
+const PERF_LIMITS = [
+  "연예 뉴스 댓글로만 학습하고 평가했습니다. 게임·정치·SNS 등 다른 분야의 성능은 재지 않았습니다.",
+  "노골적인 단어가 없는 성희롱과 비꼼은 어느 모델이든 자주 놓칩니다 (행동 검사 v2).",
+  "평가 데이터가 471건이라 구간이 넓습니다. 모델 사이의 작은 차이는 우연일 수 있습니다.",
+  "지연과 메모리는 맥 로컬에서만 쟀습니다. 클라우드(Vercel)의 지연과 cold start는 아직 재지 않았습니다.",
+  "행동 검사 세트는 한 사람이 만든 42문장, 36문장이라 유형별 경향만 봅니다.",
+  "확률 보정, 사용자 만족도, 리포트의 법적 유용성은 재지 않았습니다.",
+];
+const f3 = (x) => x.toFixed(3), pct = (x) => `${x.toFixed(1)}%`, int = (x) => Math.round(x).toLocaleString("ko-KR");
 const passPill = (ok, text) => h("span", { class: `pill ${ok ? "p-normal" : "p-severe"}`, text: text || (ok ? "통과" : "미달") });
 function perfPanel(title, sub, body, wide) {
   return h("div", { class: `panel${wide ? " wide" : ""}` },
     h("div", { class: "panel-head" }, h("h2", { text: title }), sub ? h("small", { text: sub }) : null),
     h("div", { class: "panel-body" }, body));
 }
-function ptable(head, rows) {  // head: [[text, 오른쪽 정렬?]], rows: 셀 배열 (문자열 또는 노드)
+function ptable(head, rows) {  // head: [[제목, 오른쪽 정렬?, 서빙 모델 열?]], rows: 셀 배열
   return h("div", { class: "tablewrap" }, h("table", { class: "ptable" },
     h("thead", {}, h("tr", {}, head.map(([t, r]) => h("th", { class: r ? "r" : null, text: t })))),
     h("tbody", {}, rows.map((cells) => h("tr", {}, cells.map((c, i) =>
-      h("td", { class: `${head[i][1] ? "r num" : ""}${head[i][2] ? " serve" : ""}` }, c)))))));
+      h("td", { class: `${head[i][1] ? "r num" : ""}${head[i][2] ? " serve" : ""}` }, c ?? "—")))))));
 }
 // 가로 막대. 눈금은 0~max 고정, 구간(ci)은 가는 선, 목표선(goal)은 점선
 function hbar(rows, { max = 1, fmt = f3, goal = null } = {}) {
@@ -890,76 +896,89 @@ function confusion(m) {
           style: `background:rgba(38,48,74,${(0.06 + share * 0.84).toFixed(2)});color:${share > 0.45 ? "#fff" : "var(--fg)"}` }); })); })));
 }
 function renderPerf(live) {
+  if (!PERF) { $("p-body").replaceChildren(empty("평가 기록 스냅샷이 없습니다", "평가를 실행한 뒤 scripts/build_perf_snapshot.py로 만들어 주세요.")); return; }
   const P = PERF, M = P.models, S = M[P.serving], med = S.filter.medium;
-  const snap = S.version, mismatch = live && live !== snap;
-  $("p-version").textContent = live ? `서빙 중: ${live}` : "서버 연결 안 됨 · 기록된 수치만 표시";
-  const order = ["b0", "m1", "m2"], on = (k) => k === P.serving;
-  const cmp = (label, f) => [label, ...order.map((k) => f(M[k]) ?? "—")];
+  const real = P.order.filter((k) => k !== "b0"), on = (k) => k === P.serving;
+  const col = (k) => [on(k) ? `${M[k].name} (서빙)` : M[k].name, 1, on(k)];
+  const mismatch = live && live !== S.version;
+  $("p-version").textContent = live ? `기본 모델: ${live}` : "서버 연결 안 됨 · 기록된 수치만 표시";
+  const cmp = (label, f) => [label, ...P.order.map((k) => f(M[k], k))];
   const sens = { low: "낮음", medium: "보통", high: "높음" };
+  const others = real.filter((k) => !on(k));
   $("p-body").replaceChildren(...[
     mismatch ? h("div", { class: "alert", style: "margin:0 0 16px", role: "alert",
-      text: `지금 서빙 중인 모델(${live})은 아래 수치를 잰 모델(${snap})과 다릅니다. 서빙 모델 기준 요약은 /v1/meta를 확인하세요.` }) : null,
+      text: `서버의 기본 모델(${live})이 평가 기록에서 서빙 모델로 고른 모델(${S.version})과 다릅니다.` }) : null,
     h("div", { class: "perf-grid" },
-      // 한눈에: 사전에 정한 목적 적합 기준
       h("div", { class: "panel wide" },
-        h("div", { class: "panel-head" }, h("h2", { text: `서빙 모델 ${S.name} 요약` }), h("small", { text: `${snap} · ${S.desc}` })),
+        h("div", { class: "panel-head" }, h("h2", { text: `서빙 모델 ${S.name} 요약` }), h("small", { text: `${S.version} · ${S.desc}` })),
         h("div", { class: "summary" },
-          h("div", {}, h("small", { text: "macro-F1 (3클래스)" }), h("strong", { text: f3(S.f1) }), h("em", { text: `95% 구간 ${f3(S.ci[0])}–${f3(S.ci[1])}` }), passPill(true, "기준 모델보다 높음")),
+          h("div", {}, h("small", { text: "macro-F1 (3클래스)" }), h("strong", { text: f3(S.f1) }), h("em", { text: `95% 구간 ${f3(S.ci[0])}–${f3(S.ci[1])}` }), passPill(S.ci[0] > M.b0.ci[1], S.ci[0] > M.b0.ci[1] ? "기준 모델보다 높음" : "기준 모델과 구간 겹침")),
           h("div", {}, h("small", { text: "정상 댓글 오차단율 · 보통" }), h("strong", { text: pct(med[3]) }), h("em", { text: `목표 15% 이하 · 구간 ${med[4].toFixed(1)}–${med[5].toFixed(1)}%` }), passPill(med[3] <= 15)),
           h("div", {}, h("small", { text: "혐오 댓글 차단율 · 보통" }), h("strong", { text: pct(med[0]) }), h("em", { text: `목표 60% 이상 · 구간 ${med[1].toFixed(1)}–${med[2].toFixed(1)}%` }), passPill(med[0] >= 60)),
-          h("div", {}, h("small", { text: "놓친 혐오 (혐오 → 정상)" }), h("strong", { text: `${S.missed}건` }), h("em", { text: `혐오 ${P.evalCounts.hate}건 중 · M1은 ${M.m1.missed}건` })))),
-      perfPanel("모델 비교: macro-F1", "평가 471건 · 선은 95% 구간",
-        [hbar(order.map((k) => ({ name: M[k].name, v: M[k].f1, ci: M[k].ci, on: on(k), tip: `${M[k].name} ${M[k].desc}: ${f3(M[k].f1)}` }))),
-         h("p", { class: "note", text: `M2 − M1 = +${f3(P.diff.mean)} [+${f3(P.diff.ci[0])}, +${f3(P.diff.ci[1])}]. 같은 재표본으로 짝지어 1,000번 계산했고 모두 M2가 높았습니다. 막대 눈금은 0~1입니다.` })]),
-      perfPanel("필터 지표: 보통 민감도", "점선은 목표",
-        [h("div", { class: "fieldlabel", text: "혐오 댓글 차단율 (높을수록 좋음, 목표 60% 이상)" }),
-         hbar(["m1", "m2"].map((k) => ({ name: M[k].name, v: M[k].filter.medium[0], ci: M[k].filter.medium.slice(1, 3), on: on(k) })), { max: 100, fmt: pct, goal: 60 }),
-         h("div", { class: "fieldlabel", style: "margin-top:16px", text: "정상 댓글 오차단율 (낮을수록 좋음, 목표 15% 이하)" }),
-         hbar(["m1", "m2"].map((k) => ({ name: M[k].name, v: M[k].filter.medium[3], ci: M[k].filter.medium.slice(4, 6), on: on(k) })), { max: 100, fmt: pct, goal: 15 }),
-         h("p", { class: "note", text: "M1의 혐오 차단율은 59.8%로 목표에 1건 모자랐습니다. 구간이 60%를 포함해 이 크기의 평가 데이터로는 달성 여부를 판정할 수 없습니다." })]),
+          h("div", {}, h("small", { text: "놓친 혐오 (혐오 → 정상)" }), h("strong", { text: `${S.missed}건` }), h("em", { text: `혐오 ${P.evalCounts.hate}건 중` })))),
+      perfPanel("모델 비교: eval macro-F1", `평가 ${P.evalRows}건 · 선은 95% 구간`,
+        [hbar(P.order.map((k) => ({ name: M[k].name, v: M[k].f1, ci: M[k].ci, on: on(k), tip: `${M[k].name} ${M[k].desc}: ${f3(M[k].f1)}` }))),
+         h("p", { class: "note", text: `M2 대비 차이 (같은 재표본으로 짝지은 부트스트랩): ${real.filter((k) => M[k].diffM2).map((k) => { const d = M[k].diffM2, s = (x) => `${x >= 0 ? "+" : "−"}${f3(Math.abs(x))}`;
+           return `${M[k].name} ${s(d.mean)} [${s(d.ci[0])}, ${s(d.ci[1])}]`; }).join(" · ")}. 구간이 0을 포함하면 차이가 있다고 말하기 어렵습니다. 막대 눈금은 0~1입니다.` })]),
+      perfPanel("모델 선택에 쓴 지표: valid macro-F1", "서빙 모델은 이 값과 운영 지표로만 고름",
+        [hbar(P.order.filter((k) => M[k].valid != null).map((k) => ({ name: M[k].name, v: M[k].valid, on: on(k) }))),
+         h("p", { class: "note", text: "평가 데이터(eval)로 모델을 고르면 평가의 의미가 약해지므로, 학습 데이터에서 떼어낸 valid 790건의 점수로 골랐습니다. 차이가 0.005 미만이면 더 작은 모델을 고릅니다." })]),
       perfPanel("지표 비교표", "같은 평가 데이터, 같은 계산 코드",
-        ptable([["지표"], ["B0", 1], ["M1", 1], ["M2 (서빙)", 1, 1]], [
-          cmp("valid macro-F1 (모델 선택에 사용)", (m) => f3(m.valid)),
+        ptable([["지표"], ...P.order.map(col)], [
+          cmp("모델", (m) => m.desc),
+          cmp("valid macro-F1 (선택에 사용)", (m) => m.valid != null ? f3(m.valid) : null),
           cmp("eval macro-F1", (m) => f3(m.f1)),
           cmp("eval 정확도", (m) => f3(m.acc)),
           cmp("등급 순서 일치도 (스피어만 ρ)", (m) => m.rho && f3(m.rho)),
           cmp("놓친 혐오 (혐오 → 정상)", (m) => m.missed != null ? `${m.missed}건` : null),
+          cmp("혐오 차단율 · 보통", (m) => m.filter && pct(m.filter.medium[0])),
+          cmp("정상 오차단율 · 보통", (m) => m.filter && pct(m.filter.medium[3])),
           cmp("편향 유형 macro-F1", (m) => m.bias && f3(m.bias)),
           cmp("성별 편향 F1", (m) => m.gender && f3(m.gender)),
           cmp("심각도 기준값 (주의 / 심각)", (m) => m.th && `${m.th[0]} / ${m.th[1]}`),
         ]), true),
       perfPanel("혼동행렬", "칸이 진할수록 그 정답에서 차지하는 비율이 큼",
-        [h("div", { class: "cms" }, confusion(M.m1), confusion(M.m2)),
-         h("p", { class: "note", text: "두 모델 모두 오류가 인접한 등급 사이(공격 → 정상, 혐오 → 공격)에 몰려 있습니다. 공격이 가장 어려운 클래스입니다." })], true),
-      perfPanel(`클래스별 지표 (${S.name})`, "정밀도 · 재현율 · F1",
-        ptable([["클래스"], ["건수", 1], ["정밀도", 1], ["재현율", 1], ["F1", 1], ["M1 F1", 1]],
-          Object.entries(S.cls).map(([k, v]) => [LABEL[k], String(P.evalCounts[k]), f3(v[0]), f3(v[1]), f3(v[2]), f3(M.m1.cls[k][2])]))),
-      perfPanel("등급 분포", "평가 471건이 받은 등급",
-        [h("div", { class: "stackrow" }, ["m1", "m2"].flatMap((k) => { const g = M[k].grades, tot = g[0] + g[1] + g[2], cls = ["normal", "caution", "severe"];
+        [h("div", { class: "cms" }, real.map((k) => confusion(M[k]))),
+         h("p", { class: "note", text: "어느 모델이든 오류가 인접한 등급 사이(공격 → 정상, 혐오 → 공격)에 몰려 있습니다. 공격이 가장 어려운 클래스입니다." })], true),
+      perfPanel("필터 지표: 보통 민감도", "점선은 목표 · 선은 95% 구간",
+        [h("div", { class: "fieldlabel", text: "혐오 댓글 차단율 (높을수록 좋음, 목표 60% 이상)" }),
+         hbar(real.map((k) => ({ name: M[k].name, v: M[k].filter.medium[0], ci: M[k].filter.medium.slice(1, 3), on: on(k) })), { max: 100, fmt: pct, goal: 60 }),
+         h("div", { class: "fieldlabel", style: "margin-top:16px", text: "정상 댓글 오차단율 (낮을수록 좋음, 목표 15% 이하)" }),
+         hbar(real.map((k) => ({ name: M[k].name, v: M[k].filter.medium[3], ci: M[k].filter.medium.slice(4, 6), on: on(k) })), { max: 100, fmt: pct, goal: 15 })]),
+      perfPanel("등급 분포", `평가 ${P.evalRows}건이 받은 등급`,
+        h("div", { class: "stackrow" }, real.flatMap((k) => { const g = M[k].grades, tot = g[0] + g[1] + g[2], cls = ["normal", "caution", "severe"];
            return [h("span", {}, on(k) ? h("strong", { text: M[k].name }) : M[k].name),
              h("div", { class: "stack" }, g.map((n, i) => h("i", { class: `f-${cls[i]}`, style: `width:${(n / tot) * 100}%`, title: `${GRADE[cls[i]]} ${n}건 (${Math.round((n / tot) * 100)}%)` }))),
-             h("div", { class: "cap" }, g.map((n, i) => h("span", { text: `${GRADE[cls[i]]} ${n}건` })), h("span", { class: "muted", text: `기준 ${M[k].th[0]} / ${M[k].th[1]}점` }))]; })),
-         h("p", { class: "note", text: "M1은 주의 구간이 51~54점으로 좁아 ‘흐리게’가 거의 쓰이지 않았습니다. M2는 39~69점이라 민감도 단계가 실제로 차이를 만듭니다." })]),
-      perfPanel("민감도별 필터 지표", "[ ] 안은 95% 구간",
-        ptable([["민감도"], ["M1 혐오 차단", 1], ["M1 정상 오차단", 1], ["M2 혐오 차단", 1, 1], ["M2 정상 오차단", 1, 1]],
-          Object.keys(sens).map((k) => [sens[k], ...["m1", "m2"].flatMap((m) => { const f = M[m].filter[k];
-            const t = f.map((x) => x.toFixed(1)); return [`${t[0]}% [${t[1]}, ${t[2]}]`, `${t[3]}% [${t[4]}, ${t[5]}]`]; })])), true),
+             h("div", { class: "cap" }, g.map((n, i) => h("span", { text: `${GRADE[cls[i]]} ${n}건` })), h("span", { class: "muted", text: `기준 ${M[k].th[0]} / ${M[k].th[1]}점` }))]; }))),
+      perfPanel("클래스별 F1", `괄호 안은 ${S.name}의 정밀도 / 재현율`,
+        ptable([["클래스"], ["건수", 1], ...real.map(col)],
+          Object.keys(S.cls).map((c) => [LABEL[c], String(P.evalCounts[c]), ...real.map((k) => on(k) ? `${f3(M[k].cls[c][2])} (${f3(M[k].cls[c][0])} / ${f3(M[k].cls[c][1])})` : f3(M[k].cls[c][2]))])), true),
+      perfPanel("민감도별 필터 지표", "혐오 차단율 / 정상 오차단율 · [ ] 안은 95% 구간",
+        ptable([["모델"], ...Object.values(sens).flatMap((s) => [[`${s} · 혐오 차단`, 1], [`${s} · 정상 오차단`, 1]])],
+          real.map((k) => [on(k) ? h("strong", { text: `${M[k].name} (서빙)` }) : M[k].name, ...Object.keys(sens).flatMap((s) => { const t = M[k].filter[s].map((x) => x.toFixed(1));
+            return [`${t[0]}% [${t[1]}, ${t[2]}]`, `${t[3]}% [${t[4]}, ${t[5]}]`]; })])), true),
       perfPanel("행동 검사 v1", "직접 만든 42문장 · 보통 민감도에서 보임/가림",
-        ptable([["유형"], ["기대"], ["M1", 1], ["M2", 1, 1]],
-          [...P.probe1.map(([n, e, a, b]) => [n, e, `${a}/6`, `${b}/6`]), ["전체", "", "39/42", "42/42"]])),
+        ptable([["유형"], ["기대"], ...real.map(col)],
+          [...P.probe1.map(([n, e], i) => [n, e, ...real.map((k) => `${M[k].probe1[i]}/6`)]),
+           ["전체", "", ...real.map((k) => `${M[k].probe1.reduce((a, b) => a + b, 0)}/42`)]])),
       perfPanel("행동 검사 v2", "직접 만든 36문장 · 기대 등급과 일치",
-        [ptable([["유형"], ["기대"], ["M1", 1], ["M2", 1, 1]],
-          [...P.probe2.map(([n, e, a, b]) => [n, e, `${a}/6`, `${b}/6`]), ["전체", "", "17/36", "19/36"]]),
-         h("p", { class: "note", text: "성희롱과 비꼼이 가장 약합니다. 이 결과를 보고 기준값이나 공식을 바꾸지 않았습니다." })]),
+        [ptable([["유형"], ["기대"], ...real.filter((k) => M[k].probe2).map(col)],
+          [...P.probe2.map(([n, e], i) => [n, e, ...real.filter((k) => M[k].probe2).map((k) => `${M[k].probe2[i]}/6`)]),
+           ["전체", "", ...real.filter((k) => M[k].probe2).map((k) => `${M[k].probe2.reduce((a, b) => a + b, 0)}/36`)]]),
+         h("p", { class: "note", text: "이 결과를 보고 기준값이나 공식을 바꾸지 않았습니다." })]),
       perfPanel("운영 지표", "맥 로컬, CPU 단일 스레드 · 클라우드 측정 전",
-        ptable([["지표"], ["M1", 1], ["M2 (서빙)", 1, 1]], [
-          ["모델 로드", M.m1.run.load, M.m2.run.load], ["단건 지연 p50", M.m1.run.p50, M.m2.run.p50], ["단건 지연 p90", M.m1.run.p90, M.m2.run.p90],
-          ["100건 배치 p50", M.m1.run.batch, M.m2.run.batch], ["최대 메모리", M.m1.run.rss, M.m2.run.rss], ["모델 파일", M.m1.run.size, M.m2.run.size]])),
-      perfPanel("한계", "측정하지 못한 부분 포함", h("ul", { class: "limits" }, P.limits.map((t) => h("li", { text: t })))),
+        ptable([["지표"], ...real.map(col)], [
+          ["모델 로드", ...real.map((k) => `${M[k].run.load.toFixed(2)}초`)],
+          ["단건 지연 p50", ...real.map((k) => `${M[k].run.p50.toFixed(1)}ms`)],
+          ["단건 지연 p90", ...real.map((k) => `${M[k].run.p90.toFixed(1)}ms`)],
+          ["100건 배치 p50", ...real.map((k) => `${int(M[k].run.batch)}ms`)],
+          ["최대 메모리", ...real.map((k) => `${int(M[k].run.rss)}MB`)],
+          ["모델 파일", ...real.map((k) => `${int(M[k].run.size)}MB`)]]), true),
+      perfPanel("한계", "측정하지 못한 부분 포함", h("ul", { class: "limits" }, PERF_LIMITS.map((t) => h("li", { text: t })))),
       perfPanel("근거", null, h("p", { class: "srcs" },
-        "평가 데이터: BEEP! dev.tsv 471건 (정상 160 / 공격 189 / 혐오 122). 학습, 어휘 사전, 하이퍼파라미터, 기준값 조정, 모델 선택에 쓰지 않았습니다.", h("br"),
-        "기록 파일: runs/20261109-232715-evaluate/metrics.json · runs/20261110-010215-evaluate-m2/metrics.json · runs/20261110-010228-compare/comparison.json · runs/20261110-003059-probe · runs/20261110-010956-probe-behavior_v2", h("br"),
-        "설명과 해석: docs/EVALUATION.md"), true))].filter(Boolean));
+        `평가 데이터: BEEP! dev.tsv ${P.evalRows}건 (정상 ${P.evalCounts.none} / 공격 ${P.evalCounts.offensive} / 혐오 ${P.evalCounts.hate}). 학습, 어휘 사전, 하이퍼파라미터, 기준값 조정, 모델 선택에 쓰지 않았습니다.`, h("br"),
+        `기록 파일: ${P.sources.map((s) => `runs/${s}`).join(" · ")}`, h("br"),
+        "설명과 해석: docs/EVALUATION.md")))].filter(Boolean));
   stagger($("p-body"));
 }
 

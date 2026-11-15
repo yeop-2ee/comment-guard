@@ -14,6 +14,7 @@ import json
 import logging
 import os
 import sys
+import threading
 import time
 import uuid
 from collections import Counter
@@ -63,6 +64,7 @@ def _check_text(v: str) -> str:
 
 
 Text = Annotated[str, AfterValidator(_check_text)]
+ModelParam = Annotated[str | None, Query(max_length=100, description="모델 ID 또는 버전. 없으면 기본 모델")]
 
 
 class ClassifyRequest(BaseModel):
@@ -111,7 +113,56 @@ def predict(model: model_store.CommentModel, texts: list[str]) -> list[dict[str,
     return out
 
 
-def create_app(model: model_store.CommentModel | None = None, load_on_startup: bool = True) -> FastAPI:
+def _display_name(card: dict[str, Any]) -> str:
+    mid = card.get("model_id", "m1")
+    if mid == "ens":
+        return "ENS · " + " + ".join(m["model_id"].upper() for m in card.get("members", [])) + " 앙상블"
+    base = (card.get("base_model") or {}).get("name", "").split("/")[-1]
+    return f"{mid.upper()} · {base or 'TF-IDF + 로지스틱 회귀'}"
+
+
+class ModelRegistry:
+    """고를 수 있는 모델 (명세서 4.6장). 기본 모델은 바로 쓰고, 나머지는 처음 선택될 때 불러옵니다."""
+
+    def __init__(self, default: Any, extra: list[Any] | None = None, dirs: list[Path] | None = None):
+        self.default = default
+        self._loaded = {m.version: m for m in [default, *(extra or [])]}
+        self._dirs: dict[str, Path] = {}
+        self._cards = {m.version: m.card for m in self._loaded.values()}
+        self._lock = threading.Lock()
+        for d in dirs or []:
+            card = json.loads((d / "model_card.json").read_text(encoding="utf-8"))
+            if card["model_version"] not in self._cards:
+                self._cards[card["model_version"]] = card
+                self._dirs[card["model_version"]] = d
+
+    def list(self) -> list[dict[str, Any]]:
+        rows = [{"model_id": c.get("model_id", "m1"), "model_version": v, "name": _display_name(c),
+                 "default": v == self.default.version, "loaded": v in self._loaded,
+                 "thresholds": (c.get("severity") or {}).get("thresholds")} for v, c in self._cards.items()]
+        return sorted(rows, key=lambda r: r["model_id"])
+
+    def get(self, name: str | None) -> Any:
+        """name은 모델 버전 또는 모델 ID. 없으면 기본 모델. 모르는 이름이면 KeyError."""
+        if not name:
+            return self.default
+        version = name if name in self._cards else next(
+            (v for v, c in self._cards.items() if c.get("model_id", "m1") == name), None)
+        if version is None:
+            raise KeyError(name)
+        with self._lock:  # 같은 모델을 동시에 두 번 올리지 않게
+            if version not in self._loaded:
+                self._loaded[version] = model_store.load_cached(self._dirs[version])
+                log_event("model_loaded", model_version=version, on_demand=True)
+        return self._loaded[version]
+
+
+class UnknownModel(Exception):
+    pass
+
+
+def create_app(model: model_store.CommentModel | None = None, load_on_startup: bool = True,
+               extra_models: list[Any] | None = None) -> FastAPI:
     """model을 넘기면 그 모델을 쓰고(테스트), 아니면 시작할 때 MODEL_URI에서 로드합니다."""
     _setup_logging()
 
@@ -126,10 +177,15 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
                 log_event("model_load_failed", severity="ERROR", model_uri=uri, error=str(e))
                 raise
             log_event("model_loaded", model_uri=uri, model_version=app.state.model.version)
+            if not uri:  # 로컬: models/LATEST* 의 다른 모델도 고를 수 있게 (클라우드는 MODEL_URI 하나만)
+                app.state.registry = ModelRegistry(app.state.model, dirs=model_store.local_candidates())
+        if app.state.model is not None and app.state.registry is None:
+            app.state.registry = ModelRegistry(app.state.model, extra=extra_models)
         yield
 
     app = FastAPI(title="Comment Guard", version="0.1.0", lifespan=lifespan)
     app.state.model = model
+    app.state.registry = None
 
     @app.middleware("http")
     async def access_log(request: Request, call_next):
@@ -144,9 +200,9 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
             return response
         finally:
             m = app.state.model
+            fields = {"model_version": m.version if m else None, **request.state.log}  # 고른 모델이 있으면 그 버전
             log_event("request", request_id=request_id, method=request.method, path=request.url.path,
-                      status=status, latency_ms=round((time.perf_counter() - start) * 1000, 1),
-                      model_version=m.version if m else None, **request.state.log)
+                      status=status, latency_ms=round((time.perf_counter() - start) * 1000, 1), **fields)
 
     @app.exception_handler(RequestValidationError)
     async def validation_error(request: Request, exc: RequestValidationError):
@@ -159,8 +215,20 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
         request.state.log["validation_errors"] = len(errors)
         return JSONResponse(status_code=422, content={"error": "validation_error", "detail": errors})
 
-    def _model(request: Request) -> model_store.CommentModel:
-        return request.app.state.model
+    @app.exception_handler(UnknownModel)
+    async def unknown_model(request: Request, exc: UnknownModel):
+        return JSONResponse(status_code=404, content={
+            "error": "unknown_model", "available": [m["model_version"] for m in request.app.state.registry.list()]})
+
+    def _model(request: Request, name: str | None = None) -> model_store.CommentModel:
+        if not name:
+            return request.app.state.model
+        try:
+            m = request.app.state.registry.get(name)
+        except KeyError:
+            raise UnknownModel(name) from None
+        request.state.log["model_version"] = m.version
+        return m
 
     @app.get("/", include_in_schema=False)
     def index():
@@ -174,11 +242,17 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
             return JSONResponse(status_code=503, content={"status": "unavailable", "model_version": None})
         return {"status": "ok", "model_version": m.version}
 
+    @app.get("/v1/models")
+    def models(request: Request):
+        return {"default": request.app.state.model.version, "models": request.app.state.registry.list()}
+
     @app.get("/v1/meta")
-    def meta(request: Request):
-        card = _model(request).card
+    def meta(request: Request, model: ModelParam = None):
+        card = _model(request, model).card
         return {
             "model_version": card["model_version"],
+            "model_id": card.get("model_id", "m1"),
+            "name": _display_name(card),
             "git_commit": card.get("git_commit"),
             "git_dirty": card.get("git_dirty"),
             "data": card.get("data"),
@@ -190,15 +264,15 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
         }
 
     @app.post("/v1/classify")
-    def classify(req: ClassifyRequest, request: Request):
-        m = _model(request)
+    def classify(req: ClassifyRequest, request: Request, model: ModelParam = None):
+        m = _model(request, model)
         results = predict(m, req.texts)
         request.state.log.update(n_items=len(results), grade_counts=dict(Counter(r["grade"] for r in results)))
         return {"model_version": m.version, "results": results}
 
     @app.post("/v1/filter")
-    def filter_comments(req: FilterRequest, request: Request):
-        m = _model(request)
+    def filter_comments(req: FilterRequest, request: Request, model: ModelParam = None):
+        m = _model(request, model)
         preds = predict(m, [c.text for c in req.comments])
         sev = m.severity
         results = [{"id": c.id, "action": sev.action(p["grade"], req.sensitivity), "grade": p["grade"],
@@ -210,8 +284,8 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
 
     @app.post("/v1/evidence/report")
     def evidence_report(req: ReportRequest, request: Request,
-                        format: Literal["json", "csv"] = Query("json")):
-        m = _model(request)
+                        format: Literal["json", "csv"] = Query("json"), model: ModelParam = None):
+        m = _model(request, model)
         inputs = [it.model_dump() for it in req.items]
         preds = predict(m, [it["text"] for it in inputs])
         sev = m.severity

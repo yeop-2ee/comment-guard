@@ -180,3 +180,68 @@ def test_web_page_served(client):
     assert "/v1/filter" in r.text and "/v1/evidence/report" in r.text
     assert "<script src=" not in r.text
 
+
+@pytest.fixture()
+def two_clients(tiny_model):
+    import copy
+    other = copy.copy(tiny_model)
+    # 기준값만 다른 두 번째 모델: 같은 입력이 다른 등급을 받을 수 있음
+    other.card = {**tiny_model.card, "model_version": "other-20261115-0000000", "model_id": "m9",
+                  "severity": {**tiny_model.card["severity"], "thresholds": {"caution": 1, "severe": 2}}}
+    with TestClient(create_app(model=tiny_model, extra_models=[other])) as c:
+        yield c
+
+
+def test_models_lists_default_and_extra(two_clients):
+    d = two_clients.get("/v1/models").json()
+    assert d["default"] == TEST_VERSION
+    assert {m["model_version"] for m in d["models"]} == {TEST_VERSION, "other-20261115-0000000"}
+    assert [m["default"] for m in d["models"] if m["model_version"] == TEST_VERSION] == [True]
+
+
+def test_model_param_selects_model(two_clients):
+    body = {"texts": ["오늘 무대 정말 좋았어요"]}
+    base = two_clients.post("/v1/classify", json=body).json()
+    by_version = two_clients.post("/v1/classify?model=other-20261115-0000000", json=body).json()
+    by_id = two_clients.post("/v1/classify?model=m9", json=body).json()
+    assert base["model_version"] == TEST_VERSION
+    assert by_version["model_version"] == by_id["model_version"] == "other-20261115-0000000"
+    assert by_version["results"][0]["grade"] == "severe" and base["results"][0]["grade"] != "severe"
+    f = two_clients.post("/v1/filter?model=m9", json={"comments": [{"id": "a", "text": "응원합니다 힘내세요"}]}).json()
+    assert f["model_version"] == "other-20261115-0000000" and f["results"][0]["action"] == "hide"
+    r = two_clients.post("/v1/evidence/report?model=m9", json={"items": [{"text": "응원합니다 힘내세요"}]}).json()
+    assert r["model_version"] == "other-20261115-0000000"
+    assert two_clients.get("/v1/meta?model=m9").json()["severity"]["thresholds"] == {"caution": 1, "severe": 2}
+
+
+def test_unknown_model_is_404(two_clients):
+    r = two_clients.post("/v1/classify?model=nope", json={"texts": ["응원합니다"]})
+    assert r.status_code == 404 and r.json()["error"] == "unknown_model"
+
+
+def test_selected_model_version_is_logged(two_clients, caplog):
+    import json as _json, logging
+    with caplog.at_level(logging.INFO, logger="commentguard"):
+        two_clients.post("/v1/classify?model=m9", json={"texts": ["응원합니다"]})
+    rec = [_json.loads(r.message) for r in caplog.records if '"request"' in r.message][-1]
+    assert rec["model_version"] == "other-20261115-0000000"
+
+
+def test_ensemble_averages_member_probabilities(tiny_model):
+    import numpy as np
+    from commentguard.ensemble import EnsembleModel
+    ens = EnsembleModel([tiny_model, tiny_model], {"model_version": "ens-test", "severity": tiny_model.card["severity"]})
+    h, b = ens.predict_proba(["진짜 바보 같네", "응원합니다"])
+    h0, b0 = tiny_model.predict_proba(["진짜 바보 같네", "응원합니다"])
+    assert np.allclose(h, h0) and np.allclose(b, b0) and ens.severity.caution == 30
+
+
+def test_select_serving_rule():
+    from commentguard.compare import select_serving
+    rt = lambda mb, p50=10, batch=100, rss=1000: {"latency_ms_single_p50": p50, "latency_ms_batch100_p50": batch,
+                                                  "peak_rss_mb": rss, "artifact_mb": mb}
+    m = lambda f1, **k: {"valid_hate_macro_f1": f1, "runtime_cpu": rt(**k)}
+    # 가장 높은 후보, 0.005 미만 차이는 작은 모델, 운영 조건을 못 맞추면 제외
+    assert select_serving({"m2": m(0.713, mb=437), "m3": m(0.730, mb=500), "ens": m(0.750, mb=2200)})["serving_model"] == "ens"
+    assert select_serving({"m2": m(0.713, mb=437), "m3": m(0.716, mb=500)})["serving_model"] == "m2"
+    assert select_serving({"m2": m(0.713, mb=437), "m4": m(0.760, mb=1300, rss=9000)})["serving_model"] == "m2"
