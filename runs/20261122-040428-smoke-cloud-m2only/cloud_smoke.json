@@ -1,0 +1,310 @@
+{
+  "target": "cloud",
+  "url": "https://comment-guard-jade.vercel.app",
+  "region": "icn1",
+  "deployment_id": "dpl_7ekatoGCBHvBCLDEPK3tvh6g9RGP",
+  "deployment_url": "https://comment-guard-oss5lmpt2-mlo-ps2.vercel.app",
+  "model_uri": "blob://models/m2-20261110-314b2b2/",
+  "model_version": "m2-20261110-314b2b2",
+  "run_id": "20261122-040428-smoke-cloud-m2only",
+  "git_commit": "0cfa2cf52b68044af4c60efe50caaa329ee1ea16",
+  "started_at": "2026-11-22T04:04:28+09:00",
+  "passed": 2,
+  "total": 14,
+  "cases": [
+    {
+      "id": "T11",
+      "desc": "/health 200, model_version 확인",
+      "method": "GET",
+      "path": "/health",
+      "request": null,
+      "status": 200,
+      "latency_ms": 319.0,
+      "response": {
+        "status": "ok",
+        "model_version": "m2-20261110-314b2b2"
+      },
+      "passed": true,
+      "problem": null
+    },
+    {
+      "id": "T1",
+      "desc": "정상 댓글 1건",
+      "method": "POST",
+      "path": "/v1/classify",
+      "request": {
+        "texts": [
+          "둘다 넘 좋다~행복하세요"
+        ]
+      },
+      "status": 500,
+      "latency_ms": 574.2,
+      "response": "A server error has occurred\n\nFUNCTION_INVOCATION_FAILED\n\nicn1::nc64t-1795287869414-1319540edc9f\n",
+      "passed": false,
+      "problem": "status 500 != 200"
+    },
+    {
+      "id": "T2",
+      "desc": "100건 배치, 순서 유지",
+      "method": "POST",
+      "path": "/v1/classify",
+      "request": "(생략: 크기가 큼, 공개 데이터 댓글)",
+      "status": 503,
+      "latency_ms": 1703.9,
+      "response": {
+        "status": "unavailable",
+        "error": "model_load_failed",
+        "model_version": null
+      },
+      "passed": false,
+      "problem": "status 503 != 200"
+    },
+    {
+      "id": "T3",
+      "desc": "이모지·영어·초성 섞인 댓글",
+      "method": "POST",
+      "path": "/v1/classify",
+      "request": {
+        "texts": [
+          "근데 만원이하는 현금결제만 하라고 써놓은집 우리나라에 엄청 많은데 😂👍 lol ㅋㅋㅋ ㅎㅇㅌ"
+        ]
+      },
+      "status": 503,
+      "latency_ms": 61.5,
+      "response": {
+        "status": "unavailable",
+        "error": "model_load_failed",
+        "model_version": null
+      },
+      "passed": false,
+      "problem": "status 503 != 200"
+    },
+    {
+      "id": "T4",
+      "desc": "빈 문자열·공백만 → 422, index 포함",
+      "method": "POST",
+      "path": "/v1/classify",
+      "request": {
+        "texts": [
+          "ㅋㅋㅋㅋ 그래도 조아해주는 팬들 많아서 좋겠다 ㅠㅠ 니들은 온유가 안만져줌 ㅠㅠ",
+          "   "
+        ]
+      },
+      "status": 503,
+      "latency_ms": 59.4,
+      "response": {
+        "status": "unavailable",
+        "error": "model_load_failed",
+        "model_version": null
+      },
+      "passed": false,
+      "problem": "status 503 != 422"
+    },
+    {
+      "id": "T5",
+      "desc": "1,001자 → 422",
+      "method": "POST",
+      "path": "/v1/classify",
+      "request": "(생략: 크기가 큼, 공개 데이터 댓글)",
+      "status": 503,
+      "latency_ms": 265.1,
+      "response": {
+        "status": "unavailable",
+        "error": "model_load_failed",
+        "model_version": null
+      },
+      "passed": false,
+      "problem": "status 503 != 422"
+    },
+    {
+      "id": "T6",
+      "desc": "101건 → 422",
+      "method": "POST",
+      "path": "/v1/classify",
+      "request": "(생략: 크기가 큼, 공개 데이터 댓글)",
+      "status": 503,
+      "latency_ms": 82.2,
+      "response": {
+        "status": "unavailable",
+        "error": "model_load_failed",
+        "model_version": null
+      },
+      "passed": false,
+      "problem": "status 503 != 422"
+    },
+    {
+      "id": "T7",
+      "desc": "잘못된 민감도 → 422",
+      "method": "POST",
+      "path": "/v1/filter",
+      "request": {
+        "sensitivity": "extreme",
+        "comments": [
+          {
+            "id": "c1",
+            "text": "ㅋㅋㅋㅋ 그래도 조아해주는 팬들 많아서 좋겠다 ㅠㅠ 니들은 온유가 안만져줌 ㅠㅠ"
+          }
+        ]
+      },
+      "status": 503,
+      "latency_ms": 100.1,
+      "response": {
+        "status": "unavailable",
+        "error": "model_load_failed",
+        "model_version": null
+      },
+      "passed": false,
+      "problem": "status 503 != 422"
+    },
+    {
+      "id": "F",
+      "desc": "필터 medium 3건",
+      "method": "POST",
+      "path": "/v1/filter",
+      "request": {
+        "sensitivity": "medium",
+        "comments": [
+          {
+            "id": "c0",
+            "text": "원곡생각하나도 안나고 러블리즈 신곡나온줄!!! 너무 예쁘게 잘봤어요"
+          },
+          {
+            "id": "c1",
+            "text": "장현승 얘도 참 이젠 짠하다..."
+          },
+          {
+            "id": "c2",
+            "text": "신선하게 웃긴다ㅋㅋㅋ역시 동엽신~~!! 장소연님은 진짜 조선족인가 착각할정도로 말투가 리얼하네요"
+          }
+        ]
+      },
+      "status": 503,
+      "latency_ms": 289.0,
+      "response": {
+        "status": "unavailable",
+        "error": "model_load_failed",
+        "model_version": null
+      },
+      "passed": false,
+      "problem": "status 503 != 200"
+    },
+    {
+      "id": "T8",
+      "desc": "리포트 text만 → missing_fields 경고",
+      "method": "POST",
+      "path": "/v1/evidence/report",
+      "request": {
+        "case_title": "스모크 테스트 (공개 데이터)",
+        "items": [
+          {
+            "text": "누군데 얘네?"
+          },
+          {
+            "text": "진짜 라디오 스타 노래한거 보세요 홍진영은비비지도 못함"
+          },
+          {
+            "text": "쑈 하지마라 짜식아!음주 1번은 실수, 2번은 고의, 3번은 인간쓰레기다.슬금슬금 기어나올 생각말고 하던대로 그냥 조용히 살어라! 잠재적 살인마."
+          }
+        ]
+      },
+      "status": 503,
+      "latency_ms": 59.3,
+      "response": {
+        "status": "unavailable",
+        "error": "model_load_failed",
+        "model_version": null
+      },
+      "passed": false,
+      "problem": "status 503 != 200"
+    },
+    {
+      "id": "T9",
+      "desc": "리포트 같은 입력 2회 → 해시 동일",
+      "method": "POST",
+      "path": "/v1/evidence/report",
+      "request": {
+        "case_title": "스모크 테스트 (공개 데이터)",
+        "items": [
+          {
+            "text": "누군데 얘네?"
+          },
+          {
+            "text": "진짜 라디오 스타 노래한거 보세요 홍진영은비비지도 못함"
+          },
+          {
+            "text": "쑈 하지마라 짜식아!음주 1번은 실수, 2번은 고의, 3번은 인간쓰레기다.슬금슬금 기어나올 생각말고 하던대로 그냥 조용히 살어라! 잠재적 살인마."
+          }
+        ]
+      },
+      "status": 503,
+      "latency_ms": 61.5,
+      "response": {
+        "status": "unavailable",
+        "error": "model_load_failed",
+        "model_version": null
+      },
+      "passed": false,
+      "problem": "status 503 != 200"
+    },
+    {
+      "id": "T10",
+      "desc": "리포트 CSV (BOM, 행 수)",
+      "method": "POST",
+      "path": "/v1/evidence/report?format=csv",
+      "request": {
+        "case_title": "스모크 테스트 (공개 데이터)",
+        "items": [
+          {
+            "text": "누군데 얘네?"
+          },
+          {
+            "text": "진짜 라디오 스타 노래한거 보세요 홍진영은비비지도 못함"
+          },
+          {
+            "text": "쑈 하지마라 짜식아!음주 1번은 실수, 2번은 고의, 3번은 인간쓰레기다.슬금슬금 기어나올 생각말고 하던대로 그냥 조용히 살어라! 잠재적 살인마."
+          }
+        ]
+      },
+      "status": 503,
+      "latency_ms": 62.3,
+      "response": {
+        "status": "unavailable",
+        "error": "model_load_failed",
+        "model_version": null
+      },
+      "passed": false,
+      "problem": "status 503 != 200"
+    },
+    {
+      "id": "META",
+      "desc": "/v1/meta",
+      "method": "GET",
+      "path": "/v1/meta",
+      "request": null,
+      "status": 503,
+      "latency_ms": 105.0,
+      "response": {
+        "status": "unavailable",
+        "error": "model_load_failed",
+        "model_version": null
+      },
+      "passed": false,
+      "problem": "status 503 != 200"
+    },
+    {
+      "id": "LOG",
+      "desc": "런타임 로그에 요청 기록이 있고 댓글 원문은 없음",
+      "method": "CLI",
+      "path": "vercel logs --deployment <id> --json",
+      "status": 0,
+      "response": {
+        "lines": 290,
+        "request_events": 30,
+        "leaked_texts": 0,
+        "file": "runs/20261122-040428-smoke-cloud-m2only/runtime_logs.jsonl"
+      },
+      "passed": true,
+      "problem": null
+    }
+  ]
+}

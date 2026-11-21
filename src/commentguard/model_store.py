@@ -13,7 +13,6 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Sequence
 
-import joblib
 import numpy as np
 
 from commentguard.runlog import REPO_ROOT
@@ -60,6 +59,7 @@ class CommentModel:
 
 
 def save(model_dir: Path, vectorizer, hate_clf, bias_clf, card: dict[str, Any]) -> None:
+    import joblib  # 서빙 함수(Vercel)에는 scikit-learn·joblib을 설치하지 않아서 M1을 다룰 때만 import
     model_dir.mkdir(parents=True, exist_ok=True)
     joblib.dump({"vectorizer": vectorizer, "hate_clf": hate_clf, "bias_clf": bias_clf},
                 model_dir / "model.joblib", compress=3)
@@ -77,6 +77,8 @@ def load_local(model_dir: str | Path) -> CommentModel:
     for p in (card_path, weights):
         if not p.is_file():
             raise FileNotFoundError(f"모델 파일 없음: {p}")
+    import joblib  # M1 파일을 읽을 때만 필요
+
     card = json.loads(card_path.read_text(encoding="utf-8"))
     obj = joblib.load(weights)
     return CommentModel(obj["vectorizer"], obj["hate_clf"], obj["bias_clf"], card)

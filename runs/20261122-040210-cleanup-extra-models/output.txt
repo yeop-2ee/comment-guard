@@ -1,0 +1,42 @@
+[cleanup] 삭제: models/m1-20261109-591d16d/model_card.json
+Vercel CLI 66.6.0
+Deleting blob
+> Success! Blob deleted
+[cleanup] 삭제: models/m1-20261109-591d16d/model.joblib
+Vercel CLI 66.6.0
+Deleting blob
+> Success! Blob deleted
+[cleanup] 삭제: models/m1-20261109-591d16d/serving.json
+Vercel CLI 66.6.0
+Deleting blob
+> Success! Blob deleted
+[cleanup] 삭제: models/m3-20261115-5b32863/model_card.json
+Vercel CLI 66.6.0
+Deleting blob
+> Success! Blob deleted
+[cleanup] 삭제: models/m3-20261115-5b32863/model.onnx
+Vercel CLI 66.6.0
+Deleting blob
+> Success! Blob deleted
+[cleanup] 삭제: models/m3-20261115-5b32863/serving.json
+Vercel CLI 66.6.0
+Deleting blob
+> Success! Blob deleted
+[cleanup] 삭제: models/m3-20261115-5b32863/tokenizer_config.json
+Vercel CLI 66.6.0
+Deleting blob
+> Success! Blob deleted
+[cleanup] 삭제: models/m3-20261115-5b32863/tokenizer.json
+Vercel CLI 66.6.0
+Deleting blob
+> Success! Blob deleted
+# 정리 후 저장소 목록
+  Uploaded At     Size          Pathname                                             URL                                                                                                           
+  1m              434353912     models/m2-20261110-314b2b2/model.ort                 https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/model.ort                 
+  1m              4759          models/m2-20261110-314b2b2/model_card.json           https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/model_card.json           
+  20s             611           models/m2-20261110-314b2b2/serving.json              https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/serving.json              
+  26s             2641468       models/m2-20261110-314b2b2/tokenizer.json            https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/tokenizer.json            
+  30s             408           models/m2-20261110-314b2b2/tokenizer_config.json     https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/tokenizer_config.json     
+> Blob stores for project comment-guard:
+  Name                   ID                       Status     Region   Size       Files   Projects        Age   
+  comment-guard-models   store_****************   ● Active   icn1     906.39MB   13      comment-guard   43m   
