@@ -76,17 +76,21 @@ class OnnxModel:
         return np.concatenate(hate).astype(float), np.concatenate(bias).astype(float)
 
 
-def load_onnx(model_dir: str | Path) -> OnnxModel:
+def load_onnx(model_dir: str | Path, onnx_bytes: bytes | None = None) -> OnnxModel:
+    """onnx_bytes를 주면 model.onnx를 디스크 대신 메모리에서 읽습니다 (Vercel 함수의 /tmp가 모델보다 작음)."""
     import onnxruntime as ort
     from tokenizers import Tokenizer
 
     model_dir = Path(model_dir)
     for name in SERVING_FILES[:3]:
+        if name == "model.onnx" and onnx_bytes is not None:
+            continue
         if not (model_dir / name).is_file():
             raise FileNotFoundError(f"모델 파일 없음: {model_dir / name}")
     card = json.loads((model_dir / "model_card.json").read_text(encoding="utf-8"))
     opts = ort.SessionOptions()
     opts.log_severity_level = 3
-    session = ort.InferenceSession(str(model_dir / "model.onnx"), opts, providers=["CPUExecutionProvider"])
+    source = onnx_bytes if onnx_bytes is not None else str(model_dir / "model.onnx")
+    session = ort.InferenceSession(source, opts, providers=["CPUExecutionProvider"])
     tok = Tokenizer.from_file(str(model_dir / "tokenizer.json"))
     return OnnxModel(session, tok, _special_ids(tok, model_dir), card)

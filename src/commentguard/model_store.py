@@ -161,8 +161,12 @@ def _blob_api():
     return blob
 
 
-def _download_blob(uri: str, dest: Path) -> dict[str, Any]:
-    """경로의 serving.json(파일 목록과 sha256)을 읽고, 적힌 파일을 받아 해시를 확인합니다."""
+IN_MEMORY = {"model.onnx"}  # Vercel 함수의 /tmp(약 500MB)보다 커서 디스크에 쓰지 않고 메모리로 받는 파일
+
+
+def _download_blob(uri: str, dest: Path) -> tuple[dict[str, Any], dict[str, bytes]]:
+    """경로의 serving.json(파일 목록과 sha256)을 읽고, 적힌 파일을 받아 해시를 확인합니다.
+    IN_MEMORY 파일은 메모리로, 나머지는 dest에 받습니다."""
     import hashlib
 
     blob = _blob_api()
@@ -171,19 +175,28 @@ def _download_blob(uri: str, dest: Path) -> dict[str, Any]:
         manifest = json.loads(blob.get_blob(f"{prefix}/{MANIFEST}", access="private").body)
     except Exception as e:  # 경로 없음(BlobNotFoundError), 인증 실패 등
         raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/{MANIFEST} 읽기 실패: {type(e).__name__}: {e}. 경로를 확인하세요") from e
+    memory: dict[str, bytes] = {}
     for name, meta in manifest["files"].items():
-        h, size = hashlib.sha256(), 0
+        h, size, chunks = hashlib.sha256(), 0, []
         try:
-            with blob.stream_blob(f"{prefix}/{name}", access="private") as stream, open(dest / name, "wb") as f:
-                for chunk in stream:
-                    f.write(chunk)
-                    h.update(chunk)
-                    size += len(chunk)
+            with blob.stream_blob(f"{prefix}/{name}", access="private") as stream:
+                f = None if name in IN_MEMORY else open(dest / name, "wb")
+                try:
+                    for chunk in stream:
+                        chunks.append(chunk) if f is None else f.write(chunk)
+                        h.update(chunk)
+                        size += len(chunk)
+                finally:
+                    if f is not None:
+                        f.close()
         except Exception as e:
             raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/{name} 다운로드 실패: {type(e).__name__}: {e}") from e
         if h.hexdigest() != meta["sha256"] or size != meta["bytes"]:
             raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/{name} 해시 불일치 (받은 {size}바이트)")
-    return manifest
+        if f is None:
+            memory[name] = b"".join(chunks)
+            chunks.clear()
+    return manifest, memory
 
 
 def load_from_uri(uri: str | None) -> CommentModel:
@@ -195,8 +208,12 @@ def load_from_uri(uri: str | None) -> CommentModel:
             import tempfile
 
             with tempfile.TemporaryDirectory() as tmp:  # Vercel 함수에서는 /tmp만 쓰기 가능
-                manifest = _download_blob(uri, Path(tmp))
-                model = load_any(tmp)  # 가중치는 메모리로 올라가므로 임시 폴더는 지워도 됨
+                manifest, memory = _download_blob(uri, Path(tmp))
+                if "model.onnx" in memory:
+                    from commentguard.onnx_model import load_onnx
+                    model = load_onnx(tmp, onnx_bytes=memory.pop("model.onnx"))
+                else:
+                    model = load_any(tmp)  # 가중치는 메모리로 올라가므로 임시 폴더는 지워도 됨
                 if model.version != manifest["model_version"]:
                     raise ModelLoadError(f"serving.json({manifest['model_version']})과 모델 카드({model.version})의 버전이 다릅니다")
                 return model
