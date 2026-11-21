@@ -148,6 +148,19 @@ def run_cases(s: Smoke, comments: list[str]) -> dict[str, Any]:
     return {"model_version": version}
 
 
+def run_model_switch(s: Smoke, comment: str, default: str | None) -> None:
+    """화면의 모델 선택과 같은 요청: 다른 모델을 골라 판정하고 기본 모델로 돌아옴 (명세서 4.6장).
+    클라우드는 큰 모델을 바꿔 끼우므로 첫 요청 지연에 모델을 받는 시간이 들어감."""
+    r = s.case("MODELS", "/v1/models 목록에 여러 모델", "GET", "/v1/models", None,
+               expect(200, lambda r: None if len(r.json()["models"]) > 1 else "모델이 하나뿐"))
+    if r is None or not r.ok:
+        return
+    others = [m["model_version"] for m in r.json()["models"] if not m["default"]]
+    for v in [*others, default]:
+        s.case(f"SWITCH:{v}", f"?model={v}로 정상 댓글 1건", "POST", f"/v1/classify?model={v}", {"texts": [comment]},
+               expect(200, lambda r, v=v: None if r.json()["model_version"] == v else "판정한 모델 버전이 다름"))
+
+
 def _strings(obj: Any):
     if isinstance(obj, str):
         yield obj
@@ -197,9 +210,10 @@ def main() -> int:
     ap.add_argument("--deployment-id")
     ap.add_argument("--deployment-url")
     ap.add_argument("--logs", action="store_true", help="스모크 직후 vercel logs로 런타임 로그를 받아 원문 미기록 확인")
+    ap.add_argument("--switch-models", action="store_true", help="목록의 다른 모델로 바꿔 판정하는 케이스 추가")
     ap.add_argument("--model-uri")
     ap.add_argument("--suffix", help="run_id 꼬리표 (예: incident-before)")
-    ap.add_argument("--timeout", type=float, default=60)
+    ap.add_argument("--timeout", type=float, default=90)
     args = ap.parse_args()
 
     deploy = {"url": args.url, "region": args.region, "deployment_id": args.deployment_id,
@@ -210,6 +224,8 @@ def main() -> int:
         with run_step("smoke", config={"target": args.target, **deploy}, suffix=suffix) as run:
             comments = public_comments(120)
             info = run_cases(s, comments)
+            if args.switch_models:
+                run_model_switch(s, comments[1], info["model_version"])
             if args.logs and args.deployment_id:
                 time.sleep(10)  # 로그가 조회되기까지 잠시 걸림
                 check_runtime_logs(s, args.deployment_id, run.dir / "runtime_logs.jsonl", comments)

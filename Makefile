@@ -73,7 +73,7 @@ deploy: test
 	$(MASK) $(WRAP) --step deploy --suffix $${RUN_SUFFIX:-main} -- bash scripts/deploy_vercel.sh
 
 smoke:
-	$(MASK) $(PY) scripts/smoke_cloud.py --target cloud --logs --suffix $${RUN_SUFFIX:-main} \
+	$(MASK) $(PY) scripts/smoke_cloud.py --target cloud --logs --switch-models --suffix $${RUN_SUFFIX:-main} \
 		$$($(PY) -c "import json;d=json.load(open('.state/last_deploy.json'));print(f\"--url {d['url']} --region {d['region']} --deployment-id {d['deployment_id']} --deployment-url {d['deployment_url']} --model-uri {d['model_uri']}\")")
 
 # 지난 배포만 지우고 프로덕션 배포·모델·프로젝트는 남김 (채점 기간용, 명세서 10.3장)
