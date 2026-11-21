@@ -609,7 +609,7 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 ### 6.3 서비스 시작 동작
 
 1. 환경변수 `MODEL_URI`(예: `blob://models/m2-20261110-314b2b2/`)를 읽습니다. 배포할 때 `vercel deploy --env MODEL_URI=...`로 배포마다 지정합니다.
-2. `blob://` 모델은 **첫 요청에서** 불러옵니다. Vercel 함수는 Blob을 읽는 단기 OIDC 토큰을 요청 헤더(`x-vercel-oidc-token`)로만 받기 때문입니다. 그 경로의 `serving.json`을 읽고, 적힌 파일(M1: `model.joblib`, M2: `model.onnx`·토크나이저)을 `/tmp`에 내려받아 sha256과 크기를 확인한 뒤 로드합니다. `model_card.json`의 `model_id`로 로더를 고르고, 가중치(`model.safetensors`) 없이 `model.onnx`만 있으면 ONNX로 로드합니다. 허브에는 접속하지 않습니다.
+2. `blob://` 모델은 **첫 요청에서** 불러옵니다. Blob 자격 증명이 단기 OIDC 토큰이면 요청 헤더(`x-vercel-oidc-token`)로만 들어오기 때문에 이렇게 설계했습니다. 실제 배포에서는 저장소를 연결할 때 Vercel이 만든 환경 변수 `BLOB_READ_WRITE_TOKEN`으로 읽었습니다(10.1장). 그 경로의 `serving.json`을 읽고, 적힌 파일(M1: `model.joblib`, M2: `model.onnx`·토크나이저)을 `/tmp`에 내려받아 sha256과 크기를 확인한 뒤 로드합니다. `model_card.json`의 `model_id`로 로더를 고르고, 가중치(`model.safetensors`) 없이 `model.onnx`만 있으면 ONNX로 로드합니다. 허브에는 접속하지 않습니다.
 3. 실패하면 **명확한 오류 메시지(`model_load_failed`)를 로그에 남기고, 빈 모델로 응답하지 않습니다.** 모든 요청이 503(`{"error": "model_load_failed"}`)을 받고, 다음 요청에서 다시 시도합니다. 배포 스크립트는 새 배포의 `/health`가 200이 아니면 승격하지 않습니다.
    - `MODEL_URI`가 없으면 `configs/serving.yaml`이 가리키는 로컬 모델을 시작할 때 불러옵니다(로컬 개발용). 로컬 경로를 주면 그 경로에서 읽고, 실패하면 시작이 실패합니다.
    - M1의 모델 파일은 joblib(pickle)이라 읽을 때 코드가 실행될 수 있습니다. 신뢰하는 본인 저장소에서만 읽습니다.
@@ -646,7 +646,8 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 | 8 | `make upload-model` | 서빙 모델을 Blob 저장소에 업로드 | `blob://models/<version>/` |
 | 9 | `make deploy` | `make test` 통과 후 Vercel 배포, 새 배포의 `/health` 확인 후 프로덕션 승격 | 배포 ID |
 | 10 | `make smoke` | 프로덕션 도메인에 스모크 테스트, 직후 런타임 로그를 받아 원문이 없는지 확인 | `cloud_smoke.json`, `runtime_logs.jsonl` |
-| 11 | `make cleanup` | 자원 정리 + 상태 재조회 (M8에서 구현 예정, 지금은 오류로 끝남) | `cleanup_status.txt` |
+| 11 | `make cleanup-keep` | 지난 배포만 삭제(프로덕션·모델 유지) + 상태 재조회 | `cleanup_status.txt` |
+| 12 | `make cleanup` | Blob 저장소·프로젝트 전체 삭제 + 상태 재조회 | `cleanup_status.txt` |
 | — | `make all-local` | 2~6 순서대로 | — |
 
 M2와 비교 단계는 Make 타깃이 없어서 모듈을 직접 실행합니다. 모두 `runlog`로 기록을 남깁니다.
@@ -753,7 +754,7 @@ M2와 비교 단계는 Make 타깃이 없어서 모듈을 직접 실행합니다
 | 주체 | 권한 | 대상 | 이유 |
 |---|---|---|---|
 | 본인 계정 (배포자, `vercel login`) | 프로젝트 배포·승격·롤백, Blob 저장소 생성·업로드·삭제, 로그 조회 | 본인 Hobby 계정의 이 프로젝트와 저장소 | 배포와 정리 |
-| 함수 (런타임) | Blob 저장소 읽기 (Vercel이 발급하는 단기 OIDC 토큰) | 이 프로젝트에 연결한 저장소만 | 모델 읽기만 |
+| 함수 (런타임) | Blob 저장소 읽기·쓰기가 가능한 토큰 `BLOB_READ_WRITE_TOKEN` (저장소 연결 시 Vercel이 자동 생성) | 이 프로젝트에 연결한 저장소 하나 | 코드는 읽기만 함. 토큰이 쓰기도 가능한 점은 한계로 기록(`docs/COST_AND_CLEANUP.md`) |
 | 호출자 | 없음 (공개) | 프로덕션 도메인만. 다른 배포 주소는 Vercel 로그인 필요 | 화면 공개 |
 
 - **장기 토큰을 직접 만들지 않습니다.** 로컬에서는 `vercel login`으로 인증합니다. 저장소를 프로젝트에 연결하면 Vercel이 프로젝트 환경 변수 `BLOB_READ_WRITE_TOKEN`을 자동으로 만들고, `vercel env pull`이 이것과 단기 OIDC 토큰을 `.env.local`(Git 제외)에 받습니다. 스크립트는 OIDC 토큰만 쓰고, 두 토큰 모두 출력·기록하지 않으며, 정리 단계에서 저장소·프로젝트와 함께 지웁니다.
@@ -772,7 +773,7 @@ M2와 비교 단계는 Make 타깃이 없어서 모듈을 직접 실행합니다
 
 ### 10.3 자원 정리
 
-`scripts/cleanup.sh` (M8에서 작성 예정):
+`scripts/cleanup.sh`는 두 모드가 있습니다. 채점 기간에는 `make cleanup-keep`(지난 배포만 삭제, 프로덕션·모델·프로젝트 유지)을 실행했고, 채점이 끝나면 `make cleanup`(전체 삭제)을 실행합니다(결정: 2026-11-22, 사용자).
 1. Blob 저장소의 모델 삭제 후 저장소 삭제 (보관한다면 이유와 삭제 예정일 기록)
 2. Vercel 프로젝트 삭제 (배포, 프로덕션 도메인 포함)
 3. **정리 후 상태 재조회** 결과를 `runs/<id>-cleanup/cleanup_status.txt`에 저장
@@ -864,7 +865,7 @@ comment-guard/
 │   ├── deploy_vercel.sh         # 배포 전 MODEL_URI 검사(M5 수정), 배포, /health 확인 후 프로덕션 승격
 │   ├── smoke_cloud.py           # 로컬·클라우드 공용 스모크 테스트
 │   ├── build_perf_snapshot.py   # 웹 화면 모델 성능 탭의 수치를 runs/ 기록에서 다시 만듦
-│   └── cleanup.sh               # (예정, M8)
+│   └── cleanup.sh               # 자원 정리와 상태 재조회 (--keep-production / --all)
 ├── tests/
 │   ├── conftest.py              # 가짜 예시로 학습한 작은 모델
 │   ├── test_text.py
@@ -887,7 +888,7 @@ comment-guard/
     ├── CLOUD_RUNS.md            # 클라우드 실행 기록 (M4)
     ├── INCIDENT.md              # 오류 재현과 복구 기록 (M5)
     ├── RERUN.md                 # (예정, M7)
-    └── COST_AND_CLEANUP.md      # (예정, M8)
+    └── COST_AND_CLEANUP.md      # 권한, 비용, 정리 후 상태 (M8)
 ```
 
 ---
@@ -910,7 +911,7 @@ comment-guard/
 | M6 추가: 시드 반복·시드 앙상블 (D8) | 완료. 서빙 모델은 M2 유지, M4·ENS 등 삭제 | `runs/20261116-002311-train-m2s43` ~ `-004633-probe-behavior_v2` |
 | M6 추가: 성능 개선 후보 (D7) | 완료. 서빙 모델은 M2 유지 | `runs/20261115-232408-train-m3`, `-233346-train-m4`, `runs/20261116-000626-train-ens`, `-000811-compare-all` |
 | M7 README와 재실행 | README 작성함(미실행 단계는 미실행으로 표시). 새 폴더 재실행은 시작 전 | `README.md` |
-| M8 자원 정리와 최종 점검 | 시작 전 | — |
+| M8 자원 정리와 최종 점검 | 부분 정리 완료(지난 배포 5개 삭제, 프로덕션·모델은 채점 기간 동안 유지). 전체 삭제는 채점 뒤 `make cleanup` | `docs/COST_AND_CLEANUP.md`, `runs/20261122-034232-cleanup-keep` |
 
 ### M0. 저장소 뼈대
 - [x] 12장 구조 생성, `.gitignore`(`.venv`, `models/`, `configs/deploy.env` 등), `requirements.txt` 초안
@@ -965,7 +966,7 @@ comment-guard/
 - **완료 조건:** README 명령만으로 재실행 성공
 
 ### M8. 자원 정리와 최종 점검
-- [ ] `scripts/cleanup.sh` 작성, `make cleanup`, 상태 재조회 기록, `docs/COST_AND_CLEANUP.md`
+- [x] `scripts/cleanup.sh` 작성, `make cleanup-keep` 실행, 상태 재조회 기록, `docs/COST_AND_CLEANUP.md` (전체 삭제 `make cleanup`은 채점 뒤)
 - [ ] 비밀값 검사: `git log -p`에서 키나 토큰 패턴 검색(예: `gitleaks` 또는 grep)
 - [ ] 로그아웃 상태에서 저장소 공개 여부 확인
 - **완료 조건:** 14장 대응표의 모든 항목에 근거 파일이 있음
