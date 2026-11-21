@@ -1,0 +1,16 @@
+# Vercel CLI로 올리지 않는 파일 (Hobby 업로드 한도 100MB, 모델은 Blob 저장소에서 받음)
+.venv/
+.git/
+__pycache__/
+.pytest_cache/
+models/
+data/
+runs/
+docs/
+tests/
+scripts/
+.state/
+.env*
+configs/deploy.env
+*.pdf
+*.md

@@ -82,13 +82,17 @@ def load_local(model_dir: str | Path) -> CommentModel:
 
 
 def load_any(model_dir: str | Path):
-    """model_card.json의 model_id로 로더를 고릅니다. M2~M4는 torch가 필요해서 그때만 import."""
+    """model_card.json의 model_id로 로더를 고릅니다. M2~M4는 torch가 필요해서 그때만 import.
+    가중치(model.safetensors) 없이 model.onnx만 있으면 ONNX로 로드합니다."""
     model_dir = Path(model_dir)
     card = json.loads((model_dir / "model_card.json").read_text(encoding="utf-8"))
     if card.get("members"):
         from commentguard.ensemble import load_ensemble
         return load_ensemble(model_dir)
     if str(card.get("model_id", "m1"))[:2] in TRANSFORMER_IDS:  # m2s43 같은 시드 변형 포함
+        if not (model_dir / "model.safetensors").is_file() and (model_dir / "model.onnx").is_file():
+            from commentguard.onnx_model import load_onnx  # 클라우드: torch 없이 ONNX로 (명세서 6.2장)
+            return load_onnx(model_dir)
         from commentguard.m2 import load_m2
         return load_m2(model_dir)
     return load_local(model_dir)
@@ -140,11 +144,62 @@ class ModelLoadError(RuntimeError):
     pass
 
 
+BLOB_SCHEME = "blob://"
+MANIFEST = "serving.json"
+
+
+def parse_blob_uri(uri: str) -> str:
+    """blob://models/v/ → "models/v" (Vercel Blob 저장소 안의 경로)"""
+    prefix = uri[len(BLOB_SCHEME):].strip("/")
+    if not prefix or "//" in prefix:
+        raise ModelLoadError(f"MODEL_URI 형식 오류 (blob://<경로>/ 이어야 함): {uri!r}")
+    return prefix
+
+
+def _blob_api():
+    import vercel.blob.sync as blob  # 로컬 학습에는 필요 없어서 여기서만 import
+    return blob
+
+
+def _download_blob(uri: str, dest: Path) -> dict[str, Any]:
+    """경로의 serving.json(파일 목록과 sha256)을 읽고, 적힌 파일을 받아 해시를 확인합니다."""
+    import hashlib
+
+    blob = _blob_api()
+    prefix = parse_blob_uri(uri)
+    try:
+        manifest = json.loads(blob.get_blob(f"{prefix}/{MANIFEST}", access="private").body)
+    except Exception as e:  # 경로 없음(BlobNotFoundError), 인증 실패 등
+        raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/{MANIFEST} 읽기 실패: {type(e).__name__}: {e}. 경로를 확인하세요") from e
+    for name, meta in manifest["files"].items():
+        h, size = hashlib.sha256(), 0
+        try:
+            with blob.stream_blob(f"{prefix}/{name}", access="private") as stream, open(dest / name, "wb") as f:
+                for chunk in stream:
+                    f.write(chunk)
+                    h.update(chunk)
+                    size += len(chunk)
+        except Exception as e:
+            raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/{name} 다운로드 실패: {type(e).__name__}: {e}") from e
+        if h.hexdigest() != meta["sha256"] or size != meta["bytes"]:
+            raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/{name} 해시 불일치 (받은 {size}바이트)")
+    return manifest
+
+
 def load_from_uri(uri: str | None) -> CommentModel:
-    """MODEL_URI 해석. 없으면 configs/serving.yaml의 로컬 모델, 있으면 그 로컬 경로."""
+    """MODEL_URI 해석. 없으면 configs/serving.yaml의 로컬 모델, blob://면 Vercel Blob, 그 외에는 로컬 경로."""
     try:
         if not uri:
             return load_any(serving_dir())
+        if uri.startswith(BLOB_SCHEME):
+            import tempfile
+
+            with tempfile.TemporaryDirectory() as tmp:  # Vercel 함수에서는 /tmp만 쓰기 가능
+                manifest = _download_blob(uri, Path(tmp))
+                model = load_any(tmp)  # 가중치는 메모리로 올라가므로 임시 폴더는 지워도 됨
+                if model.version != manifest["model_version"]:
+                    raise ModelLoadError(f"serving.json({manifest['model_version']})과 모델 카드({model.version})의 버전이 다릅니다")
+                return model
         return load_any(uri)
     except ModelLoadError:
         raise

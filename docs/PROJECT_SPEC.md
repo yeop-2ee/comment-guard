@@ -5,7 +5,7 @@
 > 구현 중 결정이 바뀌면 이 문서를 먼저 수정한 뒤 코드를 바꿉니다.
 
 - 작성일: 2026-11-09
-- 상태: v1.4 (2026-11-16, 성능 개선 후보와 시드 앙상블 비교, 모델 선택 기능, 모델 정리). D1~D6 모두 결정됨. M0~M3과 M6(로컬 범위)까지 실행했고, M4(클라우드 배포)부터는 아직 실행하지 않았습니다. 단계별 진행 상태는 13장에 있습니다.
+- 상태: v1.5 (2026-11-22, Vercel 배포 구현: 진입점, Blob 모델 로드, ONNX 서빙, 배포·스모크 스크립트, 활용 분야 추가). D1~D6 모두 결정됨. 단계별 진행 상태는 13장에 있습니다.
 - 서빙 모델: M2 `m2-20261110-314b2b2` (4.3장, 근거는 `docs/EVALUATION.md` 8장)
 - 관련 문서: `docs/DATA.md`(데이터), `docs/EVALUATION.md`(평가 결과), `README.md`(제출용)
 
@@ -51,6 +51,18 @@
 | **A. 일반 열람자** | 뉴스·커뮤니티 댓글에 악플이 섞여 있어 보기 불편함 | 악플을 안 보고 싶음 (기준은 사람마다 다름) | 민감도별 필터링 (`/v1/filter`) |
 | **B. 악플 피해 당사자** | 자신을 향한 악플이 반복적으로 달림 | 신고·고소 준비를 위해 악플을 체계적으로 정리하고 싶음 | 증거 정리 리포트 (`/v1/evidence/report`) |
 | **공통 / 개발자** | 다른 서비스에 붙여 쓰고 싶음 | 댓글 1건 또는 여러 건의 판정 결과 | 분류 API (`/v1/classify`) |
+
+**활용할 수 있는 곳 (2026-11-22 추가).** 댓글·채팅을 받는 서비스가 API를 불러 욕설과 악플을 가리는 용도로 붙여 쓸 수 있습니다.
+
+| 활용처 | 쓰는 방법 | 확인이 필요한 점 |
+|---|---|---|
+| 뉴스·기사 댓글 | 댓글 목록을 `/v1/filter`로 보내 민감도별로 숨기거나 흐리게 표시 | 학습 데이터와 가장 비슷한 영역 (연예 뉴스 댓글) |
+| 유튜브·커뮤니티 댓글 | 운영자가 댓글을 모아 `/v1/classify`로 점수를 받고, 심각 등급만 검토 대기열로 보냄 | 플랫폼 수집은 각 플랫폼의 공식 API와 약관 안에서 운영자가 직접 해야 함 (이 서비스는 수집하지 않음, 1.3장) |
+| 게임·라이브 채팅 | 채팅 메시지를 보내기 전에 점수를 받아 심각 등급을 가림 | 채팅은 짧고 신조어·은어가 많아서 학습 데이터와 말투가 다름. 붙이기 전에 그 서비스의 채팅으로 따로 평가해야 함 (5.5장 한계) |
+| 악플 피해자 지원 | 피해자가 직접 모은 댓글을 `/v1/evidence/report`로 정리 | 법률 판단이 아님 (1.3장) |
+
+- 한 번에 최대 100건, 댓글당 1,000자까지 받습니다(2.2장). 지연은 클라우드 실측값(`docs/CLOUD_RUNS.md`)을 기준으로 판단합니다.
+- 어느 활용처든 자동 판정만으로 삭제하지 않고, 사람이 검토하거나 이용자가 민감도를 고르는 방식을 권장합니다(11.3장).
 
 ### 1.2 입력과 출력 요약
 
@@ -588,18 +600,18 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 | 진입점 | Vercel 프로덕션 도메인 (HTTPS) | 화면을 브라우저로 바로 열 수 있음. 남용은 입력 크기 제한(2.2장)과 Hobby 플랜 한도(초과 시 과금 없이 중지)로 막음. 프로덕션 외 배포 주소는 Deployment Protection(Vercel 로그인 필요)으로 막힘 |
 | 버전·롤백 | 배포마다 새 배포(변경 불가)를 만들고, 그 배포의 `/health`가 통과해야 `vercel promote`로 프로덕션 도메인을 옮김 | 새 배포가 시작에 실패하면 승격하지 않아 이전 정상 배포가 계속 서비스함. 문제가 생기면 `vercel rollback`으로 되돌림 |
 | 리전 | `icn1` (서울) | 사용자가 한국에 있음. 모델 저장소도 같은 리전에 둠 |
-| 모델 저장 | Vercel Blob **비공개** 저장소 (버전별 경로 `models/<version>/`) | 코드와 모델을 분리해서 모델만 교체 가능. CLI 배포 업로드 한도(Hobby 100MB) 때문에 모델을 배포에 넣지 않음 |
-| 모델 실행 형식 | M1: joblib(scikit-learn). M2: ONNX로 변환해 onnxruntime으로 실행 | Python 함수 크기 한도(500MB) 안에 들어가야 함. PyTorch는 그것만으로 한도를 넘어서 서빙에는 쓰지 않음 |
+| 모델 저장 | Vercel Blob **비공개** 저장소 (버전별 경로 `models/<version>/`, 파일 목록과 sha256을 적은 `serving.json` 포함) | 코드와 모델을 분리해서 모델만 교체 가능. CLI 배포 업로드 한도(Hobby 100MB) 때문에 모델을 배포에 넣지 않음. 받은 파일은 해시로 확인 |
+| 모델 실행 형식 | M1: joblib(scikit-learn). M2: ONNX로 변환해 onnxruntime으로 실행(`python -m commentguard.onnx_export`) | Python 함수 크기 한도(500MB) 안에 들어가야 함. PyTorch는 그것만으로 한도를 넘어서 서빙에는 쓰지 않음. 같은 가중치를 형식만 바꾸므로 모델 버전은 그대로 두고, valid 790건으로 PyTorch 결과와 같은지 확인(토큰 ID 일치, 확률 차이 ≤ 1e-4, 예측 100% 일치)한 뒤에만 업로드 |
 | 로그 | Vercel 런타임 로그 (Hobby 1시간 보존) | 원문은 남기지 않음. 보존이 짧아서 스모크 직후 `vercel logs`로 받아 `runs/`에 저장 |
-| 실행 설정 | 메모리 2GB(vCPU 1, Hobby 최대), 최대 실행 시간 60초 | M2 최대 메모리 약 1.3GB에 여유. 모델 파일(약 440MB)은 함수가 시작할 때 `/tmp`에 받음 |
+| 실행 설정 | 메모리 2GB(vCPU 1, Hobby 기본값이자 최대), 최대 실행 시간 60초, Python 3.12 | M2 최대 메모리 약 1.3GB에 여유. 모델 파일(약 434MB)은 첫 요청에서 `/tmp`에 받음(6.3장) |
 | 인증 | 배포자는 `vercel login`(브라우저 인증). **장기 토큰을 만들지 않음** | 토큰 유출 위험 제거 |
 
 ### 6.3 서비스 시작 동작
 
 1. 환경변수 `MODEL_URI`(예: `blob://models/m2-20261110-314b2b2/`)를 읽습니다. 배포할 때 `vercel deploy --env MODEL_URI=...`로 배포마다 지정합니다.
-2. 그 경로의 파일을 `/tmp`에 내려받아 로드합니다(M1: `model.joblib`, M2: `model.onnx`·토크나이저). `model_card.json`의 `model_id`로 M1/M2 로더를 고릅니다. 허브에는 접속하지 않습니다.
-3. 실패하면 **명확한 오류 메시지를 로그에 남기고 시작을 중단합니다.** 조용히 빈 모델로 뜨지 않게 합니다. Vercel에서는 함수 시작이 실패해 요청이 500으로 끝납니다.
-   - `MODEL_URI`가 없으면 `configs/serving.yaml`이 가리키는 로컬 모델을 씁니다(로컬 개발용). `blob://`로 시작하면 Blob 저장소에서, 아니면 로컬 경로에서 읽습니다.
+2. `blob://` 모델은 **첫 요청에서** 불러옵니다. Vercel 함수는 Blob을 읽는 단기 OIDC 토큰을 요청 헤더(`x-vercel-oidc-token`)로만 받기 때문입니다. 그 경로의 `serving.json`을 읽고, 적힌 파일(M1: `model.joblib`, M2: `model.onnx`·토크나이저)을 `/tmp`에 내려받아 sha256과 크기를 확인한 뒤 로드합니다. `model_card.json`의 `model_id`로 로더를 고르고, 가중치(`model.safetensors`) 없이 `model.onnx`만 있으면 ONNX로 로드합니다. 허브에는 접속하지 않습니다.
+3. 실패하면 **명확한 오류 메시지(`model_load_failed`)를 로그에 남기고, 빈 모델로 응답하지 않습니다.** 모든 요청이 503(`{"error": "model_load_failed"}`)을 받고, 다음 요청에서 다시 시도합니다. 배포 스크립트는 새 배포의 `/health`가 200이 아니면 승격하지 않습니다.
+   - `MODEL_URI`가 없으면 `configs/serving.yaml`이 가리키는 로컬 모델을 시작할 때 불러옵니다(로컬 개발용). 로컬 경로를 주면 그 경로에서 읽고, 실패하면 시작이 실패합니다.
    - M1의 모델 파일은 joblib(pickle)이라 읽을 때 코드가 실행될 수 있습니다. 신뢰하는 본인 저장소에서만 읽습니다.
 4. 성공하면 `/health`가 200을 반환합니다.
 
@@ -629,10 +641,11 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 | 4 | `make train` | B0, M1, M1-bias 학습 | `models/<version>/`, `models/LATEST` |
 | 5 | `make evaluate` | M1의 5.1~5.2장 평가 | `runs/<id>/metrics.json`, 혼동행렬 이미지, `error_candidates.json` |
 | 6 | `make test` | pytest (5.3장) | 테스트 결과 |
-| 7 | `make vercel-setup` | Vercel 프로젝트 연결·Blob 저장소 1회 준비 | 프로젝트, Blob 저장소 |
+| 7 | `make export-onnx` | 서빙 모델(M2)을 ONNX로 변환, valid로 PyTorch 결과와 같은지 확인 | `models/<version>/model.onnx`, `onnx_check.json` |
+| 7 | `make vercel-setup` | Vercel 프로젝트 연결·Blob 저장소(비공개) 1회 준비 | 프로젝트, Blob 저장소 |
 | 8 | `make upload-model` | 서빙 모델을 Blob 저장소에 업로드 | `blob://models/<version>/` |
 | 9 | `make deploy` | `make test` 통과 후 Vercel 배포, 새 배포의 `/health` 확인 후 프로덕션 승격 | 배포 ID |
-| 10 | `make smoke` | 클라우드 스모크 테스트 | `cloud_smoke.json` |
+| 10 | `make smoke` | 프로덕션 도메인에 스모크 테스트, 직후 런타임 로그를 받아 원문이 없는지 확인 | `cloud_smoke.json`, `runtime_logs.jsonl` |
 | 11 | `make cleanup` | 자원 정리 + 상태 재조회 (M8에서 구현 예정, 지금은 오류로 끝남) | `cleanup_status.txt` |
 | — | `make all-local` | 2~6 순서대로 | — |
 
@@ -651,6 +664,7 @@ M2와 비교 단계는 Make 타깃이 없어서 모듈을 직접 실행합니다
 |---|---|
 | `make serve` | 로컬 `uvicorn` 실행. `MODEL_URI`가 없으면 `configs/serving.yaml`이 가리키는 모델 |
 | `make smoke-local` | 다른 터미널의 로컬 서버에 스모크 13개 케이스 실행 → `local_smoke.json` |
+| `make serve-onnx` | 클라우드와 같은 ONNX 경로(가중치 없이 `model.onnx`만 있는 폴더)로 로컬 서버 실행 |
 
 ### 7.2 실패 처리 규칙
 
@@ -694,10 +708,10 @@ M2와 비교 단계는 Make 타깃이 없어서 모듈을 직접 실행합니다
 | 항목 | 내용 |
 |---|---|
 | 재현 방법 | 배포할 때 `MODEL_URI`를 존재하지 않는 버전 경로로 지정 (예: `blob://models/m2-20261110-WRONG/`) |
-| 예상 증상 | 새 배포의 함수가 시작할 때 모델 경로를 찾지 못해 로드 실패 → 함수 시작 실패(500). 배포 스크립트의 새 배포 `/health` 확인이 실패해서 배포 명령이 0이 아닌 코드로 끝남. 승격하지 않아 프로덕션 도메인은 이전 정상 배포를 계속 서비스함 |
+| 예상 증상 | 새 배포가 첫 요청에서 `serving.json`을 찾지 못해 모델 로드 실패 → `/health` 503. 배포 스크립트의 새 배포 `/health` 확인이 실패해서 배포 명령이 0이 아닌 코드로 끝남. 승격하지 않아 프로덕션 도메인은 이전 정상 배포를 계속 서비스함 |
 | 기록할 것 | 실패한 배포 명령, 오류 메시지 원문(저장소 ID 등 가림), 런타임 로그의 `model_load_failed`, 실패 시각, 영향(새 배포 미반영, 기존 서비스 영향 여부를 스모크로 확인) |
 | 원인 조사 | `vercel logs`로 시작 로그 확인 → `vercel blob list`로 해당 경로가 없음을 확인 |
-| 수정 | ① 배포 스크립트가 배포 전에 `MODEL_URI` 경로에 `model_card.json`과 모델 파일(M1 `model.joblib`, M2 `model.onnx`)이 있는지 미리 검사(재발 방지. 망가진 배포가 만들어지기 전에 막음), ② 올바른 경로로 재배포 |
+| 수정 | ① 배포 스크립트가 배포 전에 `MODEL_URI` 경로의 `serving.json`과 거기 적힌 파일(M1 `model.joblib`, M2 `model.onnx` 등)이 모두 있는지 미리 검사(재발 방지. 망가진 배포가 만들어지기 전에 막음), ② 올바른 경로로 재배포 |
 | 재검증 | 실패했던 배포 명령을 올바른 값으로 다시 실행 → 성공 / 스모크 전체 재실행 → 통과 / 일부러 틀린 경로로 다시 시도 → 이번에는 배포 전 검사에서 막히고 새 배포가 만들어지지 않는지 확인 |
 | 산출물 | `docs/INCIDENT.md` + `runs/<id>-incident-*/` (실패 기록은 `status: failed`로 분리) |
 
@@ -797,18 +811,20 @@ M2와 비교 단계는 Make 타깃이 없어서 모듈을 직접 실행합니다
 
 ## 12. 저장소 구조
 
-`(예정)` 표시가 있는 파일은 아직 없고, 괄호 안의 마일스톤에서 만듭니다.
+`(예정)` 표시가 있는 파일은 아직 없고, 괄호 안의 마일스톤에서 만듭니다. `configs/deploy.env`, `.env.local`, `.vercel/`, `.state/`는 Git에서 뺍니다.
 
 ```
 comment-guard/
 ├── README.md                    # 제출용 메인 문서
 ├── LICENSE                      # 코드 라이선스 (MIT)
 ├── Makefile                     # 파이프라인 진입점 (7.1장)
-├── vercel.json                  # Vercel 함수 설정 (리전, 메모리, 최대 실행 시간)
+├── app.py                       # Vercel 진입점 (src/를 경로에 넣고 commentguard.api:app을 노출)
+├── vercel.json                  # Vercel 함수 설정 (리전, 최대 실행 시간, 함수에서 뺄 폴더)
+├── .vercelignore                # 배포 업로드에서 뺄 파일 (모델, 데이터, 기록)
 ├── pyproject.toml               # 패키지 정보, pytest 설정
-├── requirements.txt             # 런타임 의존성, 버전 고정 (pip freeze 기반)
+├── requirements.txt             # 런타임 의존성(Vercel 함수도 이 파일로 설치), 버전 고정 (pip freeze 기반)
 ├── requirements-dev.txt         # pytest, matplotlib 등
-├── requirements-m2.txt          # torch, transformers (M2 학습·평가, 서빙에는 설치하지 않음)
+├── requirements-m2.txt          # torch, transformers, onnx (M2 학습·평가·ONNX 변환, 서빙에는 설치하지 않음)
 ├── .gitignore
 ├── configs/
 │   ├── train.yaml               # 하이퍼파라미터, seed, 분할 비율 (M1, M2)
@@ -834,6 +850,8 @@ comment-guard/
 │   ├── severity.py              # 점수, 등급, 민감도 규칙, 기준값 조정
 │   ├── report.py                # 증거 리포트 생성 (JSON/CSV, 해시)
 │   ├── model_store.py           # 로컬/Blob 모델 로드, MODEL_URI 처리
+│   ├── onnx_export.py           # M2 → ONNX 변환, valid로 PyTorch와 동등성 확인
+│   ├── onnx_model.py            # ONNX 서빙판 (torch 없이 onnxruntime + tokenizers)
 │   ├── api.py                   # FastAPI 앱
 │   ├── runlog.py                # 실행 기록 공통 함수
 │   └── static/index.html        # 웹 화면 (2.6장)
@@ -856,6 +874,7 @@ comment-guard/
 │   ├── test_runlog.py
 │   ├── test_m2.py               # 토크나이저 [CLS]/[SEP] 부착 등
 │   ├── test_api.py              # 5.3장 T1~T11
+│   ├── test_cloud.py            # Blob 모델 로드, 로드 실패 시 503, ONNX 동등성
 │   └── test_no_text_in_logs.py  # 로그에 원문이 안 남는지
 ├── models/                      # 로컬 모델 (Git 제외, model_card.json만 runs/에 복사)
 ├── runs/                        # 실행 기록 (커밋함)
@@ -880,11 +899,11 @@ comment-guard/
 
 | 단계 | 상태 | 근거 |
 |---|---|---|
-| M0 저장소 뼈대 | 완료 | 커밋 `22dd165` |
+| M0 저장소 뼈대 | 완료 | 커밋 `2b1f4a3` |
 | M1 데이터 | 완료 | `runs/20261109-231905-data`, `runs/20261109-231906-validate` |
 | M2 모델 학습과 평가 | 완료 | `runs/20261109-232656-train`, `runs/20261109-232715-evaluate` |
 | M3 API (로컬) | 완료 | `runs/20261109-233855-smoke-local` (13/13) |
-| M4 클라우드 배포 (Vercel) | 구성만 결정. **배포 스크립트 작성과 클라우드 실행은 아직 안 함** | — |
+| M4 클라우드 배포 (Vercel) | 진입점·함수 설정·Blob 로드·ONNX 서빙·배포/스모크 스크립트 작성, 테스트 통과. **클라우드 실행은 아직 안 함** | `app.py`, `vercel.json`, `scripts/*vercel*.sh` |
 | M5 오류 재현과 복구 | 시작 전 (M4 뒤) | — |
 | M6 M2 사전학습 모델 | 로컬 범위 완료. cold start 측정과 클라우드 스모크는 M4에서 | `runs/20261110-003741-train-m2`, `-010215-evaluate-m2`, `-010228-compare`, `-010553-smoke-local`, 행동 검사 2건 |
 | M6 추가: 시드 반복·시드 앙상블 (D8) | 완료. 서빙 모델은 M2 유지, M4·ENS 등 삭제 | `runs/20261116-002311-train-m2s43` ~ `-004633-probe-behavior_v2` |
@@ -918,9 +937,11 @@ comment-guard/
 - **완료 조건:** `make test`에서 T1~T11 모두 통과, 로컬 `uvicorn`에 실제 HTTP 요청을 보낸 기록(`make smoke-local`)
 
 ### M4. 클라우드 배포 (Vercel)
-- [ ] Vercel 진입점(`app.py`)과 함수 설정(`vercel.json`)
+- [x] Vercel 진입점(`app.py`)과 함수 설정(`vercel.json`, `.vercelignore`)
+- [x] Blob 모델 로드(`blob://`, `serving.json` 해시 확인, 첫 요청에서 로드)와 ONNX 서빙(`onnx_model.py`), 테스트(`tests/test_cloud.py`)
+- [ ] M2 ONNX 변환과 동등성 확인 기록(`make export-onnx`)
 - [ ] Vercel 프로젝트 연결·Blob 저장소 준비(`vercel_setup.sh`), 모델 업로드
-- [ ] `deploy_vercel.sh`(배포 전 MODEL_URI 검사는 **M5 이후에 추가**, 오류 재현을 위해 처음에는 넣지 않음)
+- [ ] `deploy_vercel.sh`(배포 전 MODEL_URI 검사는 **M5 이후에 추가**, 오류 재현을 위해 처음에는 넣지 않음) (스크립트 작성됨)
 - [ ] `smoke_cloud.py` 실행, `cloud_smoke.json` 기록
 - [ ] M2 서빙 기준 cold start, 클라우드 지연 실측 (M6에서 넘어온 항목)
 - **완료 조건:** 클라우드에서 T1~T11 통과 기록, `docs/CLOUD_RUNS.md` 작성(서비스, 리전, 설정, 데이터·결과 위치, 선택 이유)
@@ -1008,6 +1029,13 @@ comment-guard/
 - 데이터 카드(HuggingFace): https://huggingface.co/datasets/inmoonlight/kor_hate
 - 논문: Moon, J., Cho, W. I., & Lee, J. (2020). BEEP! Korean Corpus of Online News Comments for Toxic Speech Detection. https://arxiv.org/abs/2005.12503
 - 사전학습 모델: beomi/KcELECTRA-base (MIT, 리비전 `681201a` 고정) — https://huggingface.co/beomi/KcELECTRA-base
+- 클라우드(Vercel) 문서:
+  - Python 런타임과 FastAPI 진입점 — https://vercel.com/docs/functions/runtimes/python
+  - 함수 한도(Python 번들 500MB, Hobby 메모리 2GB, 최대 실행 시간) — https://vercel.com/docs/functions/limitations
+  - Hobby 플랜 한도(CLI 업로드 100MB, 런타임 로그 1시간 보존) — https://vercel.com/docs/limits
+  - Vercel Blob 요금과 한도 — https://vercel.com/docs/vercel-blob/usage-and-pricing
+  - Deployment Protection(프로덕션 외 배포 주소 보호) — https://vercel.com/docs/deployment-protection
+- 서빙 라이브러리: onnxruntime 1.32.0 (MIT), tokenizers 0.23.3 (Apache-2.0), vercel-blob 0.6.2 (Blob SDK)
 - 증거 수집 체크리스트와 신고 절차 참고(법률 자문 아님):
   - 법무법인 법승, 악플 대응 FAQ — https://www.lawwin.co.kr/knowledge/6826
   - 사이버 명예훼손·모욕 신고 절차(ECRM) 관련 칼럼 — https://albup.co.kr/page/column_detail.php?content_id=1812

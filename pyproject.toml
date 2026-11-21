@@ -2,7 +2,7 @@
 name = "commentguard"
 version = "0.1.0"
 description = "한국어 댓글 악플 판정 API (클라우드 MLOps 실습과제)"
-requires-python = ">=3.11,<3.12"
+requires-python = ">=3.11,<3.13"  # 로컬 3.11, Vercel 함수 3.12
 license = { text = "MIT" }
 
 [tool.pytest.ini_options]

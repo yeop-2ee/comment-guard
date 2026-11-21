@@ -7,7 +7,7 @@ VENV := .venv
 PY := $(VENV)/bin/python
 export PYTHONPATH := $(CURDIR)/src
 
-.PHONY: setup data validate train evaluate test all-local serve smoke-local upload-model deploy smoke cleanup
+.PHONY: setup data validate train evaluate test all-local serve serve-onnx smoke-local export-onnx vercel-setup upload-model deploy smoke cleanup
 
 setup:
 	$(PYTHON_BIN) -m venv $(VENV)
@@ -40,14 +40,35 @@ serve:
 smoke-local:
 	$(PY) scripts/smoke_cloud.py --url http://127.0.0.1:$(PORT) --target local
 
-upload-model:
-	@echo "M4에서 구현 예정" >&2; exit 1
+# M2를 ONNX로 변환하고 valid로 PyTorch 결과와 같은지 확인 (Vercel 서빙용, 명세서 6.2장)
+export-onnx:
+	$(PY) -m commentguard.onnx_export
 
+# 클라우드와 같은 ONNX 경로로 로컬 서버 실행 (가중치 없이 model.onnx만 있는 폴더를 만들어 MODEL_URI로 지정)
+ONNX_DIR := .state/onnx-serving
+serve-onnx:
+	@d="$$($(PY) -c 'from commentguard.model_store import serving_dir; print(serving_dir())')"; \
+	rm -rf $(ONNX_DIR) && mkdir -p $(ONNX_DIR) && \
+	for f in model_card.json model.onnx tokenizer.json tokenizer_config.json; do ln -s "$$d/$$f" $(ONNX_DIR)/$$f; done
+	MODEL_URI=$(CURDIR)/$(ONNX_DIR) $(VENV)/bin/uvicorn commentguard.api:app --host 127.0.0.1 --port $(PORT)
+
+# 실행 기록(run.json, output.txt)에서 Blob 저장소 ID를 가림 (configs/deploy.env의 BLOB_STORE_ID)
+MASK = export COMMENTGUARD_MASK="$$(sed -n 's/^BLOB_STORE_ID=//p' configs/deploy.env 2>/dev/null | tr -d '"' | sed 's/^store_//' | awk 'NF{print $$0","tolower($$0)}')";
+WRAP = $(PY) -m commentguard.runlog wrap
+
+vercel-setup:
+	$(MASK) $(WRAP) --step vercel-setup -- bash scripts/vercel_setup.sh
+
+upload-model:
+	$(MASK) $(WRAP) --step upload-model --model-version "$$(basename "$$($(PY) -c 'from commentguard.model_store import serving_dir; print(serving_dir())')")" -- bash scripts/upload_model.sh
+
+# 테스트가 실패하면 배포하지 않음
 deploy: test
-	@echo "M4에서 구현 예정" >&2; exit 1
+	$(MASK) $(WRAP) --step deploy --suffix $${RUN_SUFFIX:-main} -- bash scripts/deploy_vercel.sh
 
 smoke:
-	@echo "M4에서 구현 예정" >&2; exit 1
+	$(MASK) $(PY) scripts/smoke_cloud.py --target cloud --logs --suffix $${RUN_SUFFIX:-main} \
+		$$($(PY) -c "import json;d=json.load(open('.state/last_deploy.json'));print(f\"--url {d['url']} --region {d['region']} --deployment-id {d['deployment_id']} --deployment-url {d['deployment_url']} --model-uri {d['model_uri']}\")")
 
 cleanup:
 	@echo "M8에서 구현 예정" >&2; exit 1

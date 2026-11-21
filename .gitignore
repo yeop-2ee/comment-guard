@@ -28,3 +28,7 @@ tmp/
 
 # 배포 상태 (배포 ID와 저장소 ID가 들어 있음)
 .state/
+
+# Vercel CLI가 만드는 프로젝트 연결 정보와 환경 변수 (OIDC 토큰이 들어 있음)
+.vercel/
+.env*.local

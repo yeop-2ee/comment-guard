@@ -2,7 +2,8 @@
 
 로컬:  MODEL_URI 없이 실행하면 configs/serving.yaml이 가리키는 모델을 씁니다.
     uvicorn commentguard.api:app --port 8080
-클라우드: 환경변수 MODEL_URI로 모델 경로를 지정합니다 (명세서 6.3장).
+클라우드(Vercel): MODEL_URI=blob://models/<version>/ (Vercel Blob 비공개 저장소, 명세서 6.3장)
+    Blob은 Vercel이 요청 헤더로 주는 OIDC 토큰으로 읽어서, blob:// 모델은 첫 요청에서 불러옵니다.
 
 로그에는 댓글 원문을 남기지 않습니다. 요청 ID, 경로, 상태, 건수, 등급별 건수, 처리 시간,
 모델 버전, report_sha256만 JSON 한 줄로 남깁니다 (런타임 로그에서 JSON 필드로 조회 가능).
@@ -168,19 +169,39 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
     """model을 넘기면 그 모델을 쓰고(테스트), 아니면 시작할 때 MODEL_URI에서 로드합니다."""
     _setup_logging()
 
+    load_lock = threading.Lock()
+
+    def load(uri: str | None) -> None:
+        try:
+            app.state.model = model_store.load_from_uri(uri)
+        except model_store.ModelLoadError as e:
+            # 빈 모델로 조용히 뜨지 않음 → 로컬은 시작 실패, 클라우드는 /health 503으로 드러남
+            log_event("model_load_failed", severity="ERROR", model_uri=uri, error=str(e))
+            raise
+        log_event("model_loaded", model_uri=uri, model_version=app.state.model.version)
+        if not uri:  # 로컬: models/LATEST* 의 다른 모델도 고를 수 있게 (클라우드는 MODEL_URI 하나만)
+            app.state.registry = ModelRegistry(app.state.model, dirs=model_store.local_candidates())
+        else:
+            app.state.registry = ModelRegistry(app.state.model)
+
+    def ensure_model(request: Request) -> None:
+        """blob:// 모델은 첫 요청에서 불러옵니다. 실패하면 다음 요청에서 다시 시도합니다."""
+        if app.state.model is not None or not app.state.lazy_uri:
+            return
+        with load_lock:
+            if app.state.model is None:
+                from vercel.headers import headers_from_asgi_scope, set_headers
+                set_headers(headers_from_asgi_scope(request.scope))  # OIDC 토큰(x-vercel-oidc-token)을 SDK에 넘김
+                load(app.state.lazy_uri)
+
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         if app.state.model is None and load_on_startup:
             uri = os.environ.get("MODEL_URI")
-            try:
-                app.state.model = model_store.load_from_uri(uri)
-            except model_store.ModelLoadError as e:
-                # 빈 모델로 조용히 뜨지 않고 종료 → 함수 시작 실패로 드러남
-                log_event("model_load_failed", severity="ERROR", model_uri=uri, error=str(e))
-                raise
-            log_event("model_loaded", model_uri=uri, model_version=app.state.model.version)
-            if not uri:  # 로컬: models/LATEST* 의 다른 모델도 고를 수 있게 (클라우드는 MODEL_URI 하나만)
-                app.state.registry = ModelRegistry(app.state.model, dirs=model_store.local_candidates())
+            if uri and uri.startswith(model_store.BLOB_SCHEME):
+                app.state.lazy_uri = uri
+            else:
+                load(uri)
         if app.state.model is not None and app.state.registry is None:
             app.state.registry = ModelRegistry(app.state.model, extra=extra_models)
         yield
@@ -188,6 +209,7 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
     app = FastAPI(title="Comment Guard", version="0.1.0", lifespan=lifespan)
     app.state.model = model
     app.state.registry = None
+    app.state.lazy_uri = None
 
     @app.middleware("http")
     async def access_log(request: Request, call_next):
@@ -196,6 +218,12 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
         start = time.perf_counter()
         status = 500
         try:
+            try:
+                ensure_model(request)
+            except model_store.ModelLoadError:
+                status = 503
+                return JSONResponse(status_code=503, content={"status": "unavailable", "error": "model_load_failed",
+                                                              "model_version": None}, headers={"x-request-id": request_id})
             response = await call_next(request)
             status = response.status_code
             response.headers["x-request-id"] = request_id

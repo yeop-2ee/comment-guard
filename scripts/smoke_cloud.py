@@ -2,9 +2,9 @@
 
     # 로컬
     python scripts/smoke_cloud.py --url http://127.0.0.1:8080 --target local
-    # 클라우드 (배포한 주소, 배포 정보는 기록용)
-    python scripts/smoke_cloud.py --url https://<배포 주소> --target cloud \
-        --region <리전> --revision <배포 ID> --model-uri <모델 경로>
+    # 클라우드 (Vercel 프로덕션 도메인. 배포 정보는 기록용, --logs면 스모크 직후 런타임 로그를 받아 원문이 없는지 확인)
+    python scripts/smoke_cloud.py --url https://<프로젝트>.vercel.app --target cloud --logs \
+        --region icn1 --deployment-id dpl_... --deployment-url https://... --model-uri blob://models/<버전>/
 
 입력 댓글은 공개 데이터(data/raw/test.no_label.tsv)에서만 가져옵니다.
 결과: runs/<run_id>/<target>_smoke.json. 하나라도 실패하면 종료 코드 1.
@@ -16,6 +16,8 @@ import argparse
 import csv
 import io
 import json
+import os
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -146,24 +148,72 @@ def run_cases(s: Smoke, comments: list[str]) -> dict[str, Any]:
     return {"model_version": version}
 
 
+def _strings(obj: Any):
+    if isinstance(obj, str):
+        yield obj
+    elif isinstance(obj, dict):
+        for v in obj.values():
+            yield from _strings(v)
+    elif isinstance(obj, list):
+        for v in obj:
+            yield from _strings(v)
+
+
+def check_runtime_logs(s: Smoke, deployment: str, out: Path, texts: list[str]) -> None:
+    """배포의 런타임 로그(Hobby는 1시간 보존)를 받아 저장하고, 보낸 댓글 원문이 로그에 없는지 확인합니다."""
+    cli = os.environ.get("VERCEL_CLI", "vercel@66.6.0")
+    cmd = ["npx", "-y", cli, "logs", "--deployment", deployment, "--json", "--since", "30m", "--limit", "2000"]
+    entry: dict[str, Any] = {"id": "LOG", "desc": "런타임 로그에 요청 기록이 있고 댓글 원문은 없음", "method": "CLI",
+                             "path": "vercel logs --deployment <id> --json", "status": None}
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+        if r.returncode != 0:
+            raise RuntimeError(r.stderr.strip()[-300:])
+        out.write_text(mask(r.stdout), encoding="utf-8")
+        decoded = []
+        for ln in r.stdout.splitlines():
+            try:
+                decoded.extend(_strings(json.loads(ln)))
+            except ValueError:
+                decoded.append(ln)
+        blob = "\n".join(decoded)
+        requests_logged = blob.count('"event": "request"')
+        leaked = sum(1 for t in texts if len(t) >= 5 and t in blob)
+        problem = None if requests_logged and not leaked else f"요청 로그 {requests_logged}건, 원문 {leaked}건"
+        entry.update(status=0, response={"lines": len(r.stdout.splitlines()), "request_events": requests_logged,
+                                         "leaked_texts": leaked, "file": rel(out)},
+                     passed=problem is None, problem=problem)
+    except Exception as e:
+        entry.update(passed=False, problem=f"{type(e).__name__}: {e}")
+    s.cases.append(entry)
+    print(f"{'PASS' if entry['passed'] else 'FAIL'} LOG {entry['desc']} {entry['problem'] or ''}")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--url", required=True)
     ap.add_argument("--target", choices=["local", "cloud"], required=True)
     ap.add_argument("--region")
-    ap.add_argument("--revision")
+    ap.add_argument("--deployment-id")
+    ap.add_argument("--deployment-url")
+    ap.add_argument("--logs", action="store_true", help="스모크 직후 vercel logs로 런타임 로그를 받아 원문 미기록 확인")
     ap.add_argument("--model-uri")
     ap.add_argument("--suffix", help="run_id 꼬리표 (예: incident-before)")
     ap.add_argument("--timeout", type=float, default=60)
     args = ap.parse_args()
 
-    deploy = {"url": args.url, "region": args.region, "revision": args.revision,
-              "model_uri": args.model_uri}
+    deploy = {"url": args.url, "region": args.region, "deployment_id": args.deployment_id,
+              "deployment_url": args.deployment_url, "model_uri": args.model_uri}
     s = Smoke(args.url, args.timeout)
     suffix = "-".join(x for x in (args.target, args.suffix) if x)
     try:
         with run_step("smoke", config={"target": args.target, **deploy}, suffix=suffix) as run:
-            info = run_cases(s, public_comments(120))
+            comments = public_comments(120)
+            info = run_cases(s, comments)
+            if args.logs and args.deployment_id:
+                time.sleep(10)  # 로그가 조회되기까지 잠시 걸림
+                check_runtime_logs(s, args.deployment_id, run.dir / "runtime_logs.jsonl", comments)
+                run.outputs.append(rel(run.dir / "runtime_logs.jsonl"))
             run.model_version = info["model_version"]
             passed = sum(c["passed"] for c in s.cases)
             result = {"target": args.target, **deploy, "model_version": info["model_version"],
