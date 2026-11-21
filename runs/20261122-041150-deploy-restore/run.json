@@ -1,0 +1,27 @@
+{
+  "run_id": "20261122-041150-deploy-restore",
+  "step": "deploy",
+  "started_at": "2026-11-22T04:11:50+09:00",
+  "finished_at": "2026-11-22T04:13:01+09:00",
+  "status": "success",
+  "git_commit": "643e4cb06decdf4fbba35a126425be245c51791d",
+  "git_dirty": false,
+  "model_version": null,
+  "inputs": {},
+  "config": {},
+  "outputs": [
+    "runs/20261122-041150-deploy-restore/output.txt"
+  ],
+  "extra": {
+    "command": [
+      "bash",
+      "scripts/deploy_vercel.sh"
+    ],
+    "exit_code": 0
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

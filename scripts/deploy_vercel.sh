@@ -42,6 +42,16 @@ if [[ "$code" != "200" ]] || ! grep -q '"status":"ok"' "$TMP/health.json"; then
   exit 1
 fi
 
+# /health는 모델을 불러왔는지만 봄. 실제 판정이 되는지도 확인한 뒤 승격 (판정 중 함수가 종료된 배포를 승격한 적이 있음)
+code="$(vc curl /v1/classify --deployment "$DEPLOY_URL" -- --silent --output "$TMP/classify.json" --write-out '%{http_code}' --max-time 120 \
+  -X POST -H 'content-type: application/json' --data '{"texts": ["오늘 무대 정말 좋았어요"]}' || true)"
+code="${code: -3}"
+echo "[deploy] 판정 확인: HTTP $code $(head -c 200 "$TMP/classify.json" 2>/dev/null || true)"
+if [[ "$code" != "200" ]] || ! grep -q '"results"' "$TMP/classify.json"; then
+  echo "[deploy] 새 배포에서 판정 실패 → 승격하지 않음" >&2
+  exit 1
+fi
+
 vc promote "$DEPLOY_URL" --yes
 PROD="${PROD_URL:-}"
 if [[ -z "$PROD" ]]; then  # 첫 배포: 이 배포에 붙은 별칭 중 가장 짧은 주소가 프로덕션 도메인. deploy.env에 적어 둠
