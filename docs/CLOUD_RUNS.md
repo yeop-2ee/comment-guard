@@ -1,6 +1,9 @@
 # 클라우드 실행 기록 (Vercel)
 
-과제 "나. 클라우드 실행" 항목의 기록입니다. 구성의 근거는 `docs/PROJECT_SPEC.md` 6장, 실행 기록 원본은 `runs/`에 있습니다. Blob 저장소 ID는 모든 기록에서 `*`로 가렸습니다.
+과제 "나. 클라우드 실행" 항목의 기록입니다.
+
+> **현재 상태 (2026-11-22 04:15 KST):** 프로덕션 `https://comment-guard-jade.vercel.app`, 배포 `dpl_9MuBmdTdMVgmmGBQLgyT7UaEPhwF`, 서빙 모델 M2 `m2-20261110-314b2b2`. 마지막 클라우드 스모크 **14/14 통과** (`runs/20261122-041509-smoke-cloud-main/`).
+ 구성의 근거는 `docs/PROJECT_SPEC.md` 6장, 실행 기록 원본은 `runs/`에 있습니다. Blob 저장소 ID는 모든 기록에서 `*`로 가렸습니다.
 
 ## 1. 구성
 
@@ -9,12 +12,12 @@
 | 서비스 | Vercel Functions, Python 3.12 런타임, FastAPI (`app.py` → `commentguard.api:app`) | 요청이 있을 때만 실행되고 요청이 없으면 비용이 없음. 로컬 `uvicorn`과 같은 앱을 그대로 실행. 화면과 API를 같은 주소로 제공 |
 | 플랜 | Hobby (무료, 결제 수단 없음) | 한도를 넘으면 과금 없이 중지되므로 비용이 생기지 않음 |
 | 리전 | 함수 `icn1`(서울), Blob 저장소 `icn1` | 사용자가 한국에 있음. 모델을 받는 거리도 짧게 |
-| 실행 설정 | 최대 실행 시간 60초(`vercel.json`), 메모리는 Hobby 기본값 2GB(vCPU 1) | M2 최대 메모리 약 1.3GB(로컬 측정)에 여유 |
+| 실행 설정 | 최대 실행 시간 60초(`vercel.json`), 메모리는 Hobby 기본값 2GB(vCPU 1) | ONNX로 M2를 받아 올리는 동안의 최대 메모리 1.65GB(로컬 측정)가 들어감 |
 | 모델 저장 | Vercel Blob **비공개** 저장소 `models/m2-20261110-314b2b2/` (`model.onnx` 434MB, 토크나이저, 모델 카드, `serving.json`) | CLI 배포 업로드 한도(Hobby 100MB)를 넘어서 배포에 넣을 수 없음. 코드와 모델을 분리해 모델만 교체 가능 |
 | 모델 실행 형식 | ONNX (onnxruntime 1.32.0) | PyTorch는 Python 함수 크기 한도(500MB)를 넘음. 변환 결과는 valid 790건에서 PyTorch와 같음(아래 2장) |
-| 함수 크기 | 59.06MB (빌드 출력 `λ fastapi (59.06MB) [icn1]`) | 의존성만 들어가고 모델·데이터·기록은 `vercel.json`의 `excludeFiles`와 `.vercelignore`로 뺌 |
+| 함수 크기와 의존성 | 빌드 출력 `λ fastapi (59.06MB) [icn1]`. 의존성은 `pyproject.toml`의 서빙용 32개만(FastAPI, onnxruntime, tokenizers, vercel-blob 등) | 런타임 로그에서 함수가 처음 뜰 때 의존성을 `/tmp`에 설치하는 것을 확인함(`Installing runtime dependencies...`). 모델을 받을 공간이 남도록 scikit-learn·scipy·pandas는 뺌(7장) |
 | 연결 | 브라우저·curl → 프로덕션 도메인 `https://comment-guard-jade.vercel.app` → 함수 → 첫 요청에서 Blob의 모델 로드 | 프로덕션 도메인만 공개. 개별 배포 주소는 Deployment Protection으로 Vercel 로그인 필요 |
-| 배포 방식 | `vercel deploy --prod --skip-domain --env MODEL_URI=...` → 새 배포의 `/health` 200 확인 → `vercel promote` | 새 배포가 실패하면 승격하지 않아 이전 배포가 계속 서비스함 |
+| 배포 방식 | 배포 전 `MODEL_URI` 검사(M5) → `vercel deploy --prod --skip-domain --env MODEL_URI=...` → 새 배포의 `/health` 200과 **판정 1건** 확인 → `vercel promote` | 새 배포가 실패하면 승격하지 않아 이전 배포가 계속 서비스함. 판정 확인은 7장의 장애 뒤에 추가 |
 
 ## 2. 모델 변환 (ONNX)
 
@@ -70,12 +73,50 @@
 
 ## 5. Cold start
 
-새 인스턴스의 첫 요청은 Blob에서 모델 434MB를 받아 ONNX 세션을 만드는 시간을 포함합니다. 성공한 배포의 런타임 로그(`runs/20261122-033033-smoke-cloud-main/runtime_logs.jsonl`)에서 첫 요청(`/`)의 처리 시간은 **25.1초**였고, 그 뒤 요청은 위 표처럼 수십~수백 ms입니다. 같은 배포에서 인스턴스가 두 개 떠서 모델을 두 번 받았습니다(`model_loaded` 2회).
+새 인스턴스의 첫 요청은 Blob에서 모델 434MB를 받아 ONNX 세션을 만드는 시간을 포함합니다. 런타임 로그에서 첫 요청의 처리 시간은 세 번 측정했습니다.
 
-- 측정은 한 번뿐이라 cold start의 분포는 모릅니다.
-- 인스턴스가 새로 뜰 때마다 Blob 전송량(Hobby 월 10GB)을 약 434MB씩 씁니다. 이 날의 업로드·배포 시도로 쓴 양은 Vercel 대시보드의 사용량으로 확인할 수 있고, 기록에는 남기지 않았습니다.
+| 기록 | 첫 요청 처리 시간 |
+|---|---|
+| `runs/20261122-033033-smoke-cloud-main/runtime_logs.jsonl` | 25.1초 |
+| `runs/20261122-041302-smoke-cloud-restore/runtime_logs.jsonl` | 29.3초 |
+| `runs/20261122-041509-smoke-cloud-main/runtime_logs.jsonl` | 29.8초 |
 
-## 6. 확인하지 못한 것
+그 뒤 요청은 4장 표처럼 수십~수백 ms입니다. 같은 배포에서 인스턴스가 여러 개 뜨면 각각 모델을 받습니다(`model_loaded`가 여러 번). 인스턴스가 새로 뜰 때마다 Blob 전송량(Hobby 월 10GB)을 약 434MB씩 씁니다.
+
+## 6. 화면에서 모델 고르기 시도 (M1·M3)
+
+배포한 화면에서도 모델을 고를 수 있게 M1과 M3를 함께 올려 봤습니다(명세서 4.6장). 큰 모델은 한 번에 하나만 메모리에 두고 바꿔 끼우는 방식입니다.
+
+| 순서 | 내용 | 기록 |
+|---|---|---|
+| 1 | M3 ONNX 변환, valid에서 PyTorch와 같음(확률 차이 최대 1.4e-5, 예측 100% 일치) | `runs/20261122-034620-export-onnx` |
+| 2 | M1·M3 업로드, 함께 배포 | `runs/20261122-035010-upload-model`, `-035028-upload-model`, `-035155-deploy-models` |
+| 3 | 스모크: 기본 14개와 M1 전환·M2 복귀는 통과, **M3 전환은 500** | `runs/20261122-035330-smoke-cloud-models` (failed) |
+| 원인 | 런타임 로그: `Vercel Runtime Error: instance was killed because it ran out of available memory`. 로컬 측정으로 M3를 받아 올리는 동안 최대 2.07GB(M2는 1.65GB)라 함수 메모리 2GB를 넘음 | 같은 폴더 `runtime_logs.jsonl` |
+
+메모리를 줄이는 형식(`.ort`, 받은 바이트를 복사 없이 사용)을 만들고 확인했지만(`runs/20261122-035903-export-onnx`, `-035949-export-onnx`), **사용자 결정으로 클라우드는 M2만 유지**했습니다. M1·M3 파일은 저장소에서 지웠습니다(`runs/20261122-040210-cleanup-extra-models`). 모델 비교는 로컬 서버에서 합니다.
+
+## 7. 운영 중 장애: 판정 실패 (2026-11-22 04:03~04:13 KST, 약 10분)
+
+M2만 남기면서 M2를 `.ort` 형식으로 다시 올리고 배포한 뒤, 프로덕션의 판정 요청이 실패했습니다. 계획한 오류 재현(`docs/INCIDENT.md`)과 별개로 실제로 생긴 장애입니다.
+
+| 시각 (KST) | 내용 | 기록 |
+|---|---|---|
+| 04:01~04:03 | M2를 `.ort` 형식으로 다시 올리고(이전 `model.onnx` 삭제) 배포. 새 배포의 `/health` 200이라 승격됨 | `runs/20261122-040109-upload-model`, `runs/20261122-040255-deploy-m2only` |
+| 04:04 | 스모크 2/14: `/health`, `/v1/meta` 외 판정 요청이 500·503. 런타임 로그: `No usable temporary directory found in ['/tmp', ...]` | `runs/20261122-040428-smoke-cloud-m2only` (failed), `runs/20261122-040255-deploy-m2only/runtime_logs_fetched_later.jsonl` |
+| 원인 1 | 함수가 처음 뜰 때 의존성 약 350MB를 `/tmp`에 설치하는데, 서빙에 쓰지 않는 scikit-learn·scipy·pandas까지 들어가 `/tmp`가 가득 참 | 위 로그의 `Installing runtime dependencies...` |
+| 04:06 | 수정 1: Vercel 의존성(`pyproject.toml`)을 서빙용 32개로 줄임 → 재배포 | `runs/20261122-040641-deploy-m2only` |
+| 04:07 | 스모크 8/14: 모델은 매번 불러오지만 판정 요청에서 500. 판정 중 프로세스가 종료되고 새 인스턴스가 다시 모델을 받는 것이 반복됨 | `runs/20261122-040751-smoke-cloud-m2only` (failed), `runs/20261122-040641-deploy-m2only/runtime_logs_fetched_later.jsonl` |
+| 원인 2 | `.ort` 형식(바이트를 가중치로 직접 쓰는 설정)이 로컬 맥에서는 동작했지만 Vercel 함수에서는 판정 중 종료됨. 정확한 원인은 확인하지 못함 | — |
+| 04:11 | 수정 2: 검증된 `model.onnx` 방식으로 되돌려 다시 올리고 재배포 | `runs/20261122-041030-upload-model`, `runs/20261122-041150-deploy-restore` |
+| 04:13 | 스모크 14/14, 복구 | `runs/20261122-041302-smoke-cloud-restore` |
+| 04:14 | 재발 방지: 배포 스크립트가 `/health`만이 아니라 새 배포에서 **판정 1건**이 되는지 확인한 뒤 승격 → 재배포, 스모크 14/14 | `runs/20261122-041403-deploy-main`, `runs/20261122-041509-smoke-cloud-main` |
+
+- **영향:** 약 10분 동안 프로덕션 도메인의 판정 요청(분류, 필터, 리포트)이 실패했습니다. `/health`는 계속 200이었습니다.
+- **왜 막지 못했나:** 배포 전 검사(경로·파일)와 `/health`(모델 로드)는 통과했고, 판정을 실제로 해 보는 단계가 없었습니다. 이전 정상 배포로 되돌리는 것도 불가능했습니다. 이전 배포가 쓰던 `model.onnx`를 저장소에서 먼저 지웠기 때문입니다.
+- **교훈:** 승격 전에 실제 판정을 확인합니다(반영함). 모델 파일 형식을 바꿀 때는 이전 파일을 지우기 전에 새 배포를 확인합니다.
+
+## 8. 확인하지 못한 것
 
 - 동시 요청이 많을 때의 동작(인스턴스 수, 지연)은 재지 않았습니다.
 - 메모리 사용량은 Vercel이 함수별로 보여 주는 값을 따로 기록하지 않았습니다.

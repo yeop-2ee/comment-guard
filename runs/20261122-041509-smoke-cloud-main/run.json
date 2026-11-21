@@ -1,0 +1,37 @@
+{
+  "run_id": "20261122-041509-smoke-cloud-main",
+  "step": "smoke",
+  "started_at": "2026-11-22T04:15:09+09:00",
+  "finished_at": "2026-11-22T04:15:39+09:00",
+  "status": "success",
+  "git_commit": "6193613168fcd3d81a4914327d95e14758415e85",
+  "git_dirty": false,
+  "model_version": "m2-20261110-314b2b2",
+  "inputs": {},
+  "config": {
+    "target": "cloud",
+    "url": "https://comment-guard-jade.vercel.app",
+    "region": "icn1",
+    "deployment_id": "dpl_9MuBmdTdMVgmmGBQLgyT7UaEPhwF",
+    "deployment_url": "https://comment-guard-9d2l1flq9-mlo-ps2.vercel.app",
+    "model_uri": "blob://models/m2-20261110-314b2b2/"
+  },
+  "outputs": [
+    "runs/20261122-041509-smoke-cloud-main/runtime_logs.jsonl",
+    "runs/20261122-041509-smoke-cloud-main/cloud_smoke.json"
+  ],
+  "extra": {
+    "passed": 14,
+    "total": 14,
+    "url": "https://comment-guard-jade.vercel.app",
+    "region": "icn1",
+    "deployment_id": "dpl_9MuBmdTdMVgmmGBQLgyT7UaEPhwF",
+    "deployment_url": "https://comment-guard-9d2l1flq9-mlo-ps2.vercel.app",
+    "model_uri": "blob://models/m2-20261110-314b2b2/"
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

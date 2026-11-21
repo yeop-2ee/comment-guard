@@ -1,0 +1,55 @@
+[deploy] MODEL_URI=blob://models/m2-20261110-314b2b2/ EXTRA_MODEL_URIS= region=icn1
+[deploy] 배포 전 검사 통과: m2-20261110-314b2b2 model_card.json, model.onnx, tokenizer.json, tokenizer_config.json
+Deploying comment-guard
+  Inspect         https://vercel.com/mlo-ps2/comment-guard/9MuBmdTdMVgmmGBQLgyT7UaEPhwF
+▲ Production      https://comment-guard-9d2l1flq9-mlo-ps2.vercel.app
+Building…
+Running build in Washington, D.C., USA (East) – iad1
+Build machine configuration: 2 cores, 8 GB
+Retrieving list of deployment files...
+Retrieving list of deployment files...
+Downloading 38 deployment files...
+Restored build cache from previous deployment (DYCgu8KAtvBRedPuFmM3c2NfTvzQ)
+Running "vercel build"
+Vercel CLI 66.2.0
+Using Python 3.12 from pyproject.toml
+Writing .python-version file with version 3.12
+Using uv 0.13.5 (x86_64-unknown-linux-gnu)
+Installing required dependencies from pyproject.toml...
+Compiling Python bytecode...
+Build Completed in /vercel/output [6s]
+Deploying outputs...
+[2K[1A[2K[G▲ Production      https://comment-guard-9d2l1flq9-mlo-ps2.vercel.app
+Completing…
+[deploy] 새 배포 dpl_9MuBmdTdMVgmmGBQLgyT7UaEPhwF https://comment-guard-9d2l1flq9-mlo-ps2.vercel.app
+Vercel CLI 66.6.0
+! This request bypasses Deployment Protection, so its response doesn't show whether the URL is public.
+
+  To check public access:
+    `curl https://comment-guard-9d2l1flq9-mlo-ps2.vercel.app/health`
+[deploy] /health 시도 1: HTTP 200 {"status":"ok","model_version":"m2-20261110-314b2b2"}
+Vercel CLI 66.6.0
+! This request bypasses Deployment Protection, so its response doesn't show whether the URL is public.
+
+  To check public access:
+    `curl https://comment-guard-9d2l1flq9-mlo-ps2.vercel.app/v1/classify`
+[deploy] 판정 확인: HTTP 200 {"model_version":"m2-20261110-314b2b2","results":[{"index":0,"label":"none","probs":{"none":0.9867,"offensive":0.0087,"hate":0.0046},"severity_score":1,"grade":"normal","bias":{"type":"none","contain_
+Vercel CLI 66.6.0
+Fetching deployment "https://comment-guard-9d2l1flq9-mlo-ps2.vercel.app" in mlo-ps2…
+> Fetching deployment "https://comment-guard-9d2l1flq9-mlo-ps2.vercel.app" in mlo-ps2…
+Promote in progress…
+Promote in progress…
+Promote in progress…
+Promote in progress…
+> Promote in progress…
+> Success! comment-guard was promoted to comment-guard-9d2l1flq9-mlo-ps2.vercel.app (dpl_9MuBmdTdMVgmmGBQLgyT7UaEPhwF) [2s]
+{
+  "url": "https://comment-guard-jade.vercel.app",
+  "deployment_id": "dpl_9MuBmdTdMVgmmGBQLgyT7UaEPhwF",
+  "deployment_url": "https://comment-guard-9d2l1flq9-mlo-ps2.vercel.app",
+  "region": "icn1",
+  "model_uri": "blob://models/m2-20261110-314b2b2/",
+  "model_version": "m2-20261110-314b2b2",
+  "promoted_at": "2026-11-22T04:15:08+09:00"
+}
+[deploy] 프로덕션 승격 완료: https://comment-guard-jade.vercel.app

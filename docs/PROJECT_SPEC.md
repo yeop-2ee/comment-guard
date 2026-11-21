@@ -487,7 +487,7 @@ M2의 eval macro-F1(0.694)을 더 올리고 싶다는 사용자 요청으로 후
 - **로컬**(`MODEL_URI` 없음): `models/LATEST*`가 가리키는 모델을 모두 목록에 올리고, 처음 선택될 때 불러옵니다(첫 요청만 느림). ENS는 이미 불러온 구성 모델을 같이 씁니다.
 - **클라우드**(`MODEL_URI` 지정): **서빙 모델(M2) 하나만 올립니다.** 목록에는 하나만 나오고 화면의 선택 상자는 숨겨집니다.
   - 2026-11-22에 M1·M3도 함께 고를 수 있게 해 봤습니다(`EXTRA_MODEL_URIS`, 큰 모델은 한 번에 하나만 메모리에 두고 바꿔 끼움). M1로 바꾸기와 M2로 돌아오기는 성공했지만, M3로 바꿀 때 함수가 메모리 부족으로 종료됐습니다(`runs/20261122-035330-smoke-cloud-models`, `docs/CLOUD_RUNS.md` 6장). 로컬 측정에서 M2만 올려도 최대 1.65GB, M3만 1.38~2.07GB로 Hobby 함수 메모리(2GB)에 여유가 없습니다.
-  - 메모리 사용을 줄이도록 고친 뒤(`.ort` 형식, 바이트 복사 없음) **사용자 결정으로 클라우드는 M2만 유지**했습니다. 함께 올리는 기능은 코드에 남아 있고 `configs/serving.yaml`의 `cloud_extra`가 비어 있어 꺼져 있습니다. 모델 비교는 로컬 서버(`make serve`)에서 합니다.
+  - 메모리를 줄이는 `.ort` 형식(바이트 복사 없음)도 만들었지만, **사용자 결정으로 클라우드는 M2만 유지**했습니다. `.ort`는 뒤에 M2에 써 봤다가 Vercel 함수에서 판정 중 종료돼서 쓰지 않습니다(`docs/CLOUD_RUNS.md` 7장). 함께 올리는 기능은 코드에 남아 있고 `configs/serving.yaml`의 `cloud_extra`가 비어 있어 꺼져 있습니다. 모델 비교는 로컬 서버(`make serve`)에서 합니다.
 
 ---
 
@@ -600,18 +600,18 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 | 실행 | **Vercel Functions (Python 런타임)** + FastAPI | 요청이 있을 때만 함수가 실행되고 요청이 없으면 비용이 없음. 짧은 요청-응답 API라 상시 서버가 필요 없음. 같은 FastAPI 앱을 로컬 `uvicorn`과 Vercel에서 그대로 실행하고, 화면(`GET /`)과 API를 같은 주소로 제공 |
 | 제외한 후보 | 상시 실행 서버(VM·컨테이너 서비스): 요청이 없어도 비용 발생. Edge 런타임: Python과 모델 라이브러리를 실행할 수 없음 | — |
 | 진입점 | Vercel 프로덕션 도메인 (HTTPS) | 화면을 브라우저로 바로 열 수 있음. 남용은 입력 크기 제한(2.2장)과 Hobby 플랜 한도(초과 시 과금 없이 중지)로 막음. 프로덕션 외 배포 주소는 Deployment Protection(Vercel 로그인 필요)으로 막힘 |
-| 버전·롤백 | 배포마다 새 배포(변경 불가)를 만들고, 그 배포의 `/health`가 통과해야 `vercel promote`로 프로덕션 도메인을 옮김 | 새 배포가 시작에 실패하면 승격하지 않아 이전 정상 배포가 계속 서비스함. 문제가 생기면 `vercel rollback`으로 되돌림 |
+| 버전·롤백 | 배포 전에 `MODEL_URI` 경로를 검사하고(M5), 새 배포(변경 불가)를 만든 뒤 그 배포의 `/health`와 판정 1건이 통과해야 `vercel promote`로 프로덕션 도메인을 옮김 | 새 배포가 시작에 실패하면 승격하지 않아 이전 정상 배포가 계속 서비스함. 문제가 생기면 `vercel rollback`으로 되돌림 |
 | 리전 | `icn1` (서울) | 사용자가 한국에 있음. 모델 저장소도 같은 리전에 둠 |
 | 모델 저장 | Vercel Blob **비공개** 저장소 (버전별 경로 `models/<version>/`, 파일 목록과 sha256을 적은 `serving.json` 포함) | 코드와 모델을 분리해서 모델만 교체 가능. CLI 배포 업로드 한도(Hobby 100MB) 때문에 모델을 배포에 넣지 않음. 받은 파일은 해시로 확인 |
 | 모델 실행 형식 | M1: joblib(scikit-learn). M2: ONNX로 변환해 onnxruntime으로 실행(`python -m commentguard.onnx_export`) | Python 함수 크기 한도(500MB) 안에 들어가야 함. PyTorch는 그것만으로 한도를 넘어서 서빙에는 쓰지 않음. 같은 가중치를 형식만 바꾸므로 모델 버전은 그대로 두고, valid 790건으로 PyTorch 결과와 같은지 확인(토큰 ID 일치, 확률 차이 ≤ 1e-4, 예측 100% 일치)한 뒤에만 업로드 |
 | 로그 | Vercel 런타임 로그 (Hobby 1시간 보존) | 원문은 남기지 않음. 보존이 짧아서 스모크 직후 `vercel logs`로 받아 `runs/`에 저장 |
-| 실행 설정 | 메모리 2GB(vCPU 1, Hobby 기본값이자 최대), 최대 실행 시간 60초, Python 3.12 | M2 최대 메모리 약 1.3GB에 여유. 모델 파일(약 434MB)은 첫 요청에서 `/tmp`에 받음(6.3장) |
+| 실행 설정 | 메모리 2GB(vCPU 1, Hobby 기본값이자 최대), 최대 실행 시간 60초, Python 3.12. 함수 의존성은 `pyproject.toml`의 서빙용 목록만 | ONNX로 M2를 올리는 동안 최대 1.65GB(로컬 측정). 함수가 처음 뜰 때 의존성을 `/tmp`에 설치하므로 서빙에 쓰지 않는 패키지는 넣지 않음. 모델 파일(434MB)은 `/tmp`보다 커서 메모리로 받음(6.3장) |
 | 인증 | 배포자는 `vercel login`(브라우저 인증). **장기 토큰을 만들지 않음** | 토큰 유출 위험 제거 |
 
 ### 6.3 서비스 시작 동작
 
 1. 환경변수 `MODEL_URI`(예: `blob://models/m2-20261110-314b2b2/`)를 읽습니다. 배포할 때 `vercel deploy --env MODEL_URI=...`로 배포마다 지정합니다.
-2. `blob://` 모델은 **첫 요청에서** 불러옵니다. Blob 자격 증명이 단기 OIDC 토큰이면 요청 헤더(`x-vercel-oidc-token`)로만 들어오기 때문에 이렇게 설계했습니다. 실제 배포에서는 저장소를 연결할 때 Vercel이 만든 환경 변수 `BLOB_READ_WRITE_TOKEN`으로 읽었습니다(10.1장). 그 경로의 `serving.json`을 읽고, 적힌 파일(M1: `model.joblib`, M2: `model.onnx`·토크나이저)을 `/tmp`에 내려받아 sha256과 크기를 확인한 뒤 로드합니다. `model_card.json`의 `model_id`로 로더를 고르고, 가중치(`model.safetensors`) 없이 `model.onnx`만 있으면 ONNX로 로드합니다. 허브에는 접속하지 않습니다.
+2. `blob://` 모델은 **첫 요청에서** 불러옵니다. Blob 자격 증명이 단기 OIDC 토큰이면 요청 헤더(`x-vercel-oidc-token`)로만 들어오기 때문에 이렇게 설계했습니다. 실제 배포에서는 저장소를 연결할 때 Vercel이 만든 환경 변수 `BLOB_READ_WRITE_TOKEN`으로 읽었습니다(10.1장). 그 경로의 `serving.json`을 읽고, 적힌 파일(M1: `model.joblib`, M2: `model.onnx`·토크나이저)을 받아 sha256과 크기를 확인한 뒤 로드합니다. `model.onnx`는 `/tmp`보다 커서 크기만큼 메모리를 한 번 잡고 그 자리에 받으며, 나머지 작은 파일은 `/tmp`에 받습니다. `model_card.json`의 `model_id`로 로더를 고르고, 가중치(`model.safetensors`) 없이 `model.onnx`만 있으면 ONNX로 로드합니다. 허브에는 접속하지 않습니다.
 3. 실패하면 **명확한 오류 메시지(`model_load_failed`)를 로그에 남기고, 빈 모델로 응답하지 않습니다.** 모든 요청이 503(`{"error": "model_load_failed"}`)을 받고, 다음 요청에서 다시 시도합니다. 배포 스크립트는 새 배포의 `/health`가 200이 아니면 승격하지 않습니다.
    - `MODEL_URI`가 없으면 `configs/serving.yaml`이 가리키는 로컬 모델을 시작할 때 불러옵니다(로컬 개발용). 로컬 경로를 주면 그 경로에서 읽고, 실패하면 시작이 실패합니다.
    - M1의 모델 파일은 joblib(pickle)이라 읽을 때 코드가 실행될 수 있습니다. 신뢰하는 본인 저장소에서만 읽습니다.
@@ -907,7 +907,7 @@ comment-guard/
 | M1 데이터 | 완료 | `runs/20261109-231905-data`, `runs/20261109-231906-validate` |
 | M2 모델 학습과 평가 | 완료 | `runs/20261109-232656-train`, `runs/20261109-232715-evaluate` |
 | M3 API (로컬) | 완료 | `runs/20261109-233855-smoke-local` (13/13) |
-| M4 클라우드 배포 (Vercel) | 완료. 배포 실패 3번(의존성 미설치, `/tmp` 부족, 주소 탐색) 고친 뒤 배포, 클라우드 스모크 14/14, cold start 25.1초 | `docs/CLOUD_RUNS.md`, `runs/20261122-032913-deploy-main`, `runs/20261122-033033-smoke-cloud-main` |
+| M4 클라우드 배포 (Vercel) | 완료. 배포 실패 3번 고친 뒤 배포, 클라우드 스모크 14/14, cold start 25~30초(3회). M1·M3 함께 올리기는 메모리 부족으로 접고 M2만 유지. 운영 중 판정 실패 약 10분(의존성 `/tmp` 부족, `.ort` 형식) 복구 후 승격 전 판정 확인 추가 | `docs/CLOUD_RUNS.md`, `runs/20261122-041403-deploy-main`, `runs/20261122-041509-smoke-cloud-main` |
 | M5 오류 재현과 복구 | 완료. 잘못된 경로 배포는 승격되지 않았고 프로덕션 14/14 유지. 수정 뒤 같은 경로는 배포 전에 막힘, 정상 재배포·스모크 14/14 | `docs/INCIDENT.md`, `runs/20261122-033357-deploy-incident` ~ `-033916-smoke-cloud-incident-fixed` |
 | M6 M2 사전학습 모델 | 로컬 범위 완료. cold start 측정과 클라우드 스모크는 M4에서 | `runs/20261110-003741-train-m2`, `-010215-evaluate-m2`, `-010228-compare`, `-010553-smoke-local`, 행동 검사 2건 |
 | M6 추가: 시드 반복·시드 앙상블 (D8) | 완료. 서빙 모델은 M2 유지, M4·ENS 등 삭제 | `runs/20261116-002311-train-m2s43` ~ `-004633-probe-behavior_v2` |
