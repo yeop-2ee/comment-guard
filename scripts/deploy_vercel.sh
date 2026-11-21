@@ -9,17 +9,22 @@ export PYTHONPATH="$ROOT/src"
 
 VERSION="$(basename "$("$PY" -c 'from commentguard.model_store import serving_dir; print(serving_dir())')")"
 MODEL_URI="${MODEL_URI:-blob://models/$VERSION/}"
+# 화면에서 함께 고를 모델 (configs/serving.yaml의 cloud_extra)
+EXTRA_MODEL_URIS="${EXTRA_MODEL_URIS-$("$PY" -c 'from commentguard.model_store import cloud_extra_dirs; print(",".join(f"blob://models/{d.name}/" for d in cloud_extra_dirs()))')}"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
-echo "[deploy] MODEL_URI=$MODEL_URI region=$REGION"
+echo "[deploy] MODEL_URI=$MODEL_URI EXTRA_MODEL_URIS=$EXTRA_MODEL_URIS region=$REGION"
 
 # 배포 전 검사 (M5 수정): MODEL_URI 경로에 serving.json과 모델 파일이 모두 있어야 배포를 만듦
-if ! "$PY" -c 'import sys; from commentguard.model_store import check_blob_uri; m = check_blob_uri(sys.argv[1]); print("[deploy] 배포 전 검사 통과:", m["model_version"], ", ".join(m["files"]))' "$MODEL_URI"; then
+if ! "$PY" -c 'import sys
+from commentguard.model_store import check_blob_uri
+for uri in [sys.argv[1], *filter(None, sys.argv[2].split(","))]:
+    m = check_blob_uri(uri); print("[deploy] 배포 전 검사 통과:", m["model_version"], ", ".join(m["files"]))' "$MODEL_URI" "$EXTRA_MODEL_URIS"; then
   echo "[deploy] 배포 전 검사 실패 → 새 배포를 만들지 않음" >&2
   exit 1
 fi
 
-vc deploy --prod --skip-domain --yes --json --env MODEL_URI="$MODEL_URI" > "$TMP/deploy.json"
+vc deploy --prod --skip-domain --yes --json --env MODEL_URI="$MODEL_URI" --env EXTRA_MODEL_URIS="$EXTRA_MODEL_URIS" > "$TMP/deploy.json"
 read -r DEPLOY_ID DEPLOY_URL < <("$PY" -c 'import json,sys; d=json.load(open(sys.argv[1])); d=d.get("deployment", d); u=d["url"]; print(d["id"], u if u.startswith("http") else "https://"+u)' "$TMP/deploy.json")
 echo "[deploy] 새 배포 $DEPLOY_ID $DEPLOY_URL"
 

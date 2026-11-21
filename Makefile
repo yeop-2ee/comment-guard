@@ -7,7 +7,7 @@ VENV := .venv
 PY := $(VENV)/bin/python
 export PYTHONPATH := $(CURDIR)/src
 
-.PHONY: setup data validate train evaluate test all-local serve serve-onnx smoke-local export-onnx vercel-setup upload-model deploy smoke cleanup-keep cleanup
+.PHONY: setup data validate train evaluate test all-local serve serve-onnx smoke-local export-onnx vercel-setup upload-model upload-extra deploy smoke cleanup-keep cleanup
 
 setup:
 	$(PYTHON_BIN) -m venv $(VENV)
@@ -42,7 +42,7 @@ smoke-local:
 
 # M2를 ONNX로 변환하고 valid로 PyTorch 결과와 같은지 확인 (Vercel 서빙용, 명세서 6.2장)
 export-onnx:
-	$(PY) -m commentguard.onnx_export
+	$(PY) -m commentguard.onnx_export $(MODEL_DIR)
 
 # 클라우드와 같은 ONNX 경로로 로컬 서버 실행 (가중치 없이 model.onnx만 있는 폴더를 만들어 MODEL_URI로 지정)
 ONNX_DIR := .state/onnx-serving
@@ -61,6 +61,12 @@ vercel-setup:
 
 upload-model:
 	$(MASK) $(WRAP) --step upload-model --model-version "$$(basename "$$($(PY) -c 'from commentguard.model_store import serving_dir; print(serving_dir())')")" -- bash scripts/upload_model.sh
+
+# 화면에서 함께 고를 모델(configs/serving.yaml의 cloud_extra)도 올림. 트랜스포머는 먼저 make export-onnx MODEL_DIR=... 필요
+upload-extra:
+	@for d in $$($(PY) -c 'from commentguard.model_store import cloud_extra_dirs; print(" ".join(str(d) for d in cloud_extra_dirs()))'); do \
+		$(MASK) MODEL_DIR=$$d $(WRAP) --step upload-model --model-version "$$(basename $$d)" -- bash scripts/upload_model.sh || exit 1; \
+	done
 
 # 테스트가 실패하면 배포하지 않음
 deploy: test

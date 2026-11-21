@@ -145,3 +145,43 @@ def test_predeploy_check_blocks_wrong_path_and_missing_file(monkeypatch, tmp_pat
     del objects["models/v1/model.joblib"]
     with pytest.raises(ModelLoadError, match="model.joblib 없음"):
         model_store.check_blob_uri("blob://models/v1/")
+
+
+def test_cloud_registry_swaps_large_models(monkeypatch, tiny_model):
+    """클라우드(swap=True): 큰 모델(M2~M4)은 한 번에 하나만 메모리에 두고, M1은 함께 둠 (명세서 4.6장)."""
+    import copy
+
+    from commentguard.api import ModelRegistry
+
+    def fake(version, model_id):
+        m = copy.copy(tiny_model)
+        m.card = {**tiny_model.card, "model_version": version, "model_id": model_id}
+        return m
+
+    m2, m3, m1 = fake("m2-v", "m2"), fake("m3-v", "m3"), fake("m1-v", "m1")
+    store = {"blob://m2/": m2, "blob://m3/": m3, "blob://m1/": m1}
+    monkeypatch.setattr(model_store, "load_from_uri", lambda uri: store[uri])
+    reg = ModelRegistry(m2, uris={v.version: (u, v.card) for u, v in store.items()}, swap=True)
+    assert reg.loaded() == ["m2-v"]
+    assert reg.get("m1").version == "m1-v" and reg.loaded() == ["m1-v", "m2-v"]
+    assert reg.get("m3").version == "m3-v" and reg.loaded() == ["m1-v", "m3-v"]  # M2를 내리고 M3
+    assert reg.get(None).version == "m2-v" and reg.loaded() == ["m1-v", "m2-v"]   # 기본 모델로 돌아옴
+    assert [r["model_id"] for r in reg.list()] == ["m1", "m2", "m3"] and reg.default_version == "m2-v"
+
+
+def test_cloud_extra_models_listed_from_cards(monkeypatch, tmp_path, tiny_model):
+    """EXTRA_MODEL_URIS의 모델은 카드만 읽어 목록에 올리고, 고를 때 불러옴."""
+    objects = _blob_objects(tiny_model, tmp_path / "a", "models/v1")
+    import copy
+    other = copy.copy(tiny_model)
+    other.card = {**tiny_model.card, "model_version": "m1-other", "model_id": "m1"}
+    objects.update(_blob_objects(other, tmp_path / "b", "models/v2"))
+    objects["models/v2/serving.json"] = objects["models/v2/serving.json"].replace(TEST_VERSION.encode(), b"m1-other")
+    _fake_blob(monkeypatch, objects)
+    monkeypatch.setenv("MODEL_URI", "blob://models/v1/")
+    monkeypatch.setenv("EXTRA_MODEL_URIS", "blob://models/v2/, blob://models/missing/")
+    with TestClient(create_app()) as c:
+        rows = c.get("/v1/models").json()["models"]
+        assert {r["model_version"]: r["loaded"] for r in rows} == {TEST_VERSION: True, "m1-other": False}
+        assert c.get("/v1/meta?model=m1-other").json()["model_version"] == "m1-other"
+        assert c.get("/health").json()["model_version"] == TEST_VERSION

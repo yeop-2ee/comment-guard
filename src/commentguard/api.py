@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import gc
 import json
 import logging
 import os
@@ -124,39 +125,64 @@ def _display_name(card: dict[str, Any]) -> str:
     return f"{mid.upper()} · {base or 'TF-IDF + 로지스틱 회귀'}"
 
 
-class ModelRegistry:
-    """고를 수 있는 모델 (명세서 4.6장). 기본 모델은 바로 쓰고, 나머지는 처음 선택될 때 불러옵니다."""
+def _is_transformer(card: dict[str, Any]) -> bool:
+    return str(card.get("model_id", "m1"))[:2] in model_store.TRANSFORMER_IDS
 
-    def __init__(self, default: Any, extra: list[Any] | None = None, dirs: list[Path] | None = None):
-        self.default = default
+
+class ModelRegistry:
+    """고를 수 있는 모델 (명세서 4.6장). 기본 모델은 바로 쓰고, 나머지는 처음 선택될 때 불러옵니다.
+
+    로컬은 models/LATEST* 폴더(dirs), 클라우드는 Blob 경로(uris)에서 불러옵니다.
+    swap=True(클라우드)면 큰 모델(M2~M4)은 한 번에 하나만 메모리에 둡니다. Vercel 함수 메모리가 2GB라
+    M2와 M3를 함께 올릴 수 없어서(로컬 측정 최대 3.4GB), 다른 큰 모델을 고르면 지금 모델을 내리고 바꿔 끼웁니다.
+    """
+
+    def __init__(self, default: Any, extra: list[Any] | None = None, dirs: list[Path] | None = None,
+                 uris: dict[str, tuple[str, dict[str, Any]]] | None = None, swap: bool = False):
+        self.default_version = default.version
         self._loaded = {m.version: m for m in [default, *(extra or [])]}
         self._dirs: dict[str, Path] = {}
+        self._uris: dict[str, str] = {}
         self._cards = {m.version: m.card for m in self._loaded.values()}
+        self._swap = swap
         self._lock = threading.Lock()
         for d in dirs or []:
             card = json.loads((d / "model_card.json").read_text(encoding="utf-8"))
             if card["model_version"] not in self._cards:
                 self._cards[card["model_version"]] = card
                 self._dirs[card["model_version"]] = d
+        for version, (uri, card) in (uris or {}).items():
+            self._uris[version] = uri
+            self._cards.setdefault(version, card)
 
     def list(self) -> list[dict[str, Any]]:
         rows = [{"model_id": c.get("model_id", "m1"), "model_version": v, "name": _display_name(c),
-                 "default": v == self.default.version, "loaded": v in self._loaded,
+                 "default": v == self.default_version, "loaded": v in self._loaded,
                  "thresholds": (c.get("severity") or {}).get("thresholds")} for v, c in self._cards.items()]
         return sorted(rows, key=lambda r: r["model_id"])
 
+    def loaded(self) -> list[str]:
+        return sorted(self._loaded)
+
     def get(self, name: str | None) -> Any:
         """name은 모델 버전 또는 모델 ID. 없으면 기본 모델. 모르는 이름이면 KeyError."""
-        if not name:
-            return self.default
-        version = name if name in self._cards else next(
-            (v for v, c in self._cards.items() if c.get("model_id", "m1") == name), None)
+        version = self.default_version if not name else (name if name in self._cards else next(
+            (v for v, c in self._cards.items() if c.get("model_id", "m1") == name), None))
         if version is None:
             raise KeyError(name)
         with self._lock:  # 같은 모델을 동시에 두 번 올리지 않게
             if version not in self._loaded:
-                self._loaded[version] = model_store.load_cached(self._dirs[version])
-                log_event("model_loaded", model_version=version, on_demand=True)
+                evicted = []
+                if self._swap and _is_transformer(self._cards[version]):
+                    evicted = [v for v in self._loaded if _is_transformer(self._cards[v])]
+                    for v in evicted:
+                        del self._loaded[v]
+                    gc.collect()
+                if version in self._dirs:
+                    self._loaded[version] = model_store.load_cached(self._dirs[version])
+                else:
+                    self._loaded[version] = model_store.load_from_uri(self._uris[version])
+                log_event("model_loaded", model_version=version, on_demand=True, evicted=evicted)
         return self._loaded[version]
 
 
@@ -179,17 +205,26 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
             log_event("model_load_failed", severity="ERROR", model_uri=uri, error=str(e))
             raise
         log_event("model_loaded", model_uri=uri, model_version=app.state.model.version)
-        if not uri:  # 로컬: models/LATEST* 의 다른 모델도 고를 수 있게 (클라우드는 MODEL_URI 하나만)
+        if not uri:  # 로컬: models/LATEST* 의 다른 모델도 고를 수 있게
             app.state.registry = ModelRegistry(app.state.model, dirs=model_store.local_candidates())
-        else:
-            app.state.registry = ModelRegistry(app.state.model)
+            return
+        # 클라우드: EXTRA_MODEL_URIS(쉼표 구분)의 모델도 목록에 올리고, 고를 때 불러옴 (카드만 먼저 읽음)
+        uris = {app.state.model.version: (uri, app.state.model.card)}
+        for extra in filter(None, (x.strip() for x in os.environ.get("EXTRA_MODEL_URIS", "").split(","))):
+            try:
+                card = model_store.read_blob_card(extra)
+                uris[card["model_version"]] = (extra, card)
+            except model_store.ModelLoadError as e:  # 추가 모델이 없어도 기본 모델은 서비스
+                log_event("model_load_failed", severity="ERROR", model_uri=extra, error=str(e))
+        app.state.registry = ModelRegistry(app.state.model, uris=uris, swap=True)
+        app.state.model = None  # 기본 모델도 바꿔 끼울 수 있게 레지스트리만 참조를 가짐
 
     def ensure_model(request: Request) -> None:
         """blob:// 모델은 첫 요청에서 불러옵니다. 실패하면 다음 요청에서 다시 시도합니다."""
-        if app.state.model is not None or not app.state.lazy_uri:
+        if app.state.registry is not None or not app.state.lazy_uri:
             return
         with load_lock:
-            if app.state.model is None:
+            if app.state.registry is None:
                 from vercel.headers import headers_from_asgi_scope, set_headers
                 set_headers(headers_from_asgi_scope(request.scope))  # OIDC 토큰(x-vercel-oidc-token)을 SDK에 넘김
                 load(app.state.lazy_uri)
@@ -229,8 +264,8 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
             response.headers["x-request-id"] = request_id
             return response
         finally:
-            m = app.state.model
-            fields = {"model_version": m.version if m else None, **request.state.log}  # 고른 모델이 있으면 그 버전
+            reg = app.state.registry
+            fields = {"model_version": reg.default_version if reg else None, **request.state.log}  # 고른 모델이 있으면 그 버전
             log_event("request", request_id=request_id, method=request.method, path=request.url.path,
                       status=status, latency_ms=round((time.perf_counter() - start) * 1000, 1), **fields)
 
@@ -251,8 +286,6 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
             "error": "unknown_model", "available": [m["model_version"] for m in request.app.state.registry.list()]})
 
     def _model(request: Request, name: str | None = None) -> model_store.CommentModel:
-        if not name:
-            return request.app.state.model
         try:
             m = request.app.state.registry.get(name)
         except KeyError:
@@ -267,14 +300,14 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
 
     @app.get("/health")
     def health(request: Request):
-        m = _model(request)
-        if m is None:
+        reg = request.app.state.registry  # 모델을 새로 불러오지 않고 상태만 알려 줌
+        if reg is None:
             return JSONResponse(status_code=503, content={"status": "unavailable", "model_version": None})
-        return {"status": "ok", "model_version": m.version}
+        return {"status": "ok", "model_version": reg.default_version}
 
     @app.get("/v1/models")
     def models(request: Request):
-        return {"default": request.app.state.model.version, "models": request.app.state.registry.list()}
+        return {"default": request.app.state.registry.default_version, "models": request.app.state.registry.list()}
 
     @app.get("/v1/meta")
     def meta(request: Request, model: ModelParam = None):

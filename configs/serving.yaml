@@ -1,3 +1,6 @@
 # 서빙할 모델 (명세서 4.3장). m1이면 models/LATEST, m2면 models/LATEST_M2가 가리키는 버전.
 # 2026-11-10 M1·M2 비교 결과로 M2 선택 (docs/EVALUATION.md 8장)
 model_id: m2
+# 클라우드 화면에서 함께 고를 수 있는 모델 (명세서 4.6장, 2026-11-22). 기본 모델은 위 model_id.
+# 큰 모델(m2, m3)은 Vercel 함수 메모리(2GB) 때문에 한 번에 하나만 메모리에 두고 바꿔 끼움
+cloud_extra: [m1, m3]

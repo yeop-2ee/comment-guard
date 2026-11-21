@@ -135,6 +135,13 @@ def serving_model_id() -> str:
     return yaml.safe_load(open(SERVING_CFG, encoding="utf-8"))["model_id"]
 
 
+def cloud_extra_dirs() -> list[Path]:
+    """configs/serving.yaml의 cloud_extra가 가리키는 로컬 모델 폴더 (업로드·배포 대상)."""
+    import yaml
+    ids = yaml.safe_load(open(SERVING_CFG, encoding="utf-8")).get("cloud_extra") or []
+    return [latest_dir(i) for i in ids]
+
+
 def serving_dir() -> Path:
     """configs/serving.yaml이 가리키는 로컬 모델 폴더."""
     return latest_dir(serving_model_id())
@@ -159,6 +166,15 @@ def parse_blob_uri(uri: str) -> str:
 def _blob_api():
     import vercel.blob.sync as blob  # 로컬 학습에는 필요 없어서 여기서만 import
     return blob
+
+
+def read_blob_card(uri: str) -> dict[str, Any]:
+    """모델 카드만 읽음 (클라우드 화면의 모델 목록용, 가중치는 고를 때 받음)."""
+    prefix = parse_blob_uri(uri)
+    try:
+        return json.loads(_blob_api().get_blob(f"{prefix}/model_card.json", access="private").body)
+    except Exception as e:
+        raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/model_card.json 읽기 실패: {type(e).__name__}: {e}") from e
 
 
 def check_blob_uri(uri: str) -> dict[str, Any]:

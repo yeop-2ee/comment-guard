@@ -630,7 +630,7 @@ async function loadStatus() {
       sel.hidden = false; label.textContent = "모델";
       sel.onchange = async () => {
         MODEL = sel.value === list.default ? null : sel.value;
-        sel.disabled = true; label.textContent = "모델 불러오는 중";  // 처음 고른 모델은 메모리에 올리느라 몇 초 걸림
+        sel.disabled = true; label.textContent = "모델 불러오는 중 (처음 고르면 최대 30초)";  // 처음 고른 모델은 받아서 메모리에 올리느라 시간이 걸림 (클라우드는 큰 모델을 바꿔 끼움)
         try { await loadMeta(); box.className = "health ok"; label.textContent = "모델"; ["filter", "report", "analyze"].forEach((t) => stale.add(t)); stale.delete(document.querySelector("[data-panel]:not([hidden])").dataset.panel); rerun(); renderPerf(); }
         catch { box.className = "health bad"; label.textContent = "모델을 불러오지 못함"; }
         finally { sel.disabled = false; }
