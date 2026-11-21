@@ -193,8 +193,9 @@ def _wrap(args: argparse.Namespace) -> int:
                       model_version=args.model_version, suffix=args.suffix) as run:
             log_path = run.dir / "output.txt"
             with open(log_path, "w", encoding="utf-8") as log:
-                proc = subprocess.Popen(args.cmd, stdout=subprocess.PIPE,
-                                        stderr=subprocess.STDOUT, text=True)
+                # 감싼 명령이 추가 결과 파일을 run 폴더에 쓸 수 있게 경로를 넘김 (예: cleanup_status.txt)
+                proc = subprocess.Popen(args.cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True,
+                                        env=dict(os.environ, COMMENTGUARD_RUN_DIR=str(run.dir)))
                 assert proc.stdout is not None
                 for line in proc.stdout:  # 화면과 파일에 동시에 출력 (파일에는 가린 값)
                     sys.stdout.write(line)

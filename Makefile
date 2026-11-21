@@ -7,7 +7,7 @@ VENV := .venv
 PY := $(VENV)/bin/python
 export PYTHONPATH := $(CURDIR)/src
 
-.PHONY: setup data validate train evaluate test all-local serve serve-onnx smoke-local export-onnx vercel-setup upload-model deploy smoke cleanup
+.PHONY: setup data validate train evaluate test all-local serve serve-onnx smoke-local export-onnx vercel-setup upload-model deploy smoke cleanup-keep cleanup
 
 setup:
 	$(PYTHON_BIN) -m venv $(VENV)
@@ -70,5 +70,10 @@ smoke:
 	$(MASK) $(PY) scripts/smoke_cloud.py --target cloud --logs --suffix $${RUN_SUFFIX:-main} \
 		$$($(PY) -c "import json;d=json.load(open('.state/last_deploy.json'));print(f\"--url {d['url']} --region {d['region']} --deployment-id {d['deployment_id']} --deployment-url {d['deployment_url']} --model-uri {d['model_uri']}\")")
 
+# 지난 배포만 지우고 프로덕션 배포·모델·프로젝트는 남김 (채점 기간용, 명세서 10.3장)
+cleanup-keep:
+	$(MASK) $(WRAP) --step cleanup --suffix keep -- bash scripts/cleanup.sh --keep-production
+
+# Blob 저장소(모델 포함)와 Vercel 프로젝트를 모두 지우고 상태를 다시 조회
 cleanup:
-	@echo "M8에서 구현 예정" >&2; exit 1
+	$(MASK) $(WRAP) --step cleanup --suffix all -- bash scripts/cleanup.sh --all
