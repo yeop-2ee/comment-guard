@@ -1,0 +1,68 @@
+[cleanup] 남김: 프로덕션 배포 dpl_9zhhA5M93NrU93zVXN7GTaQ7Mz77 (https://comment-guard-rek9zsdhy-mlo-ps2.vercel.app), Blob 모델, 프로젝트
+[cleanup] 지난 배포 삭제: https://comment-guard-1srxkd8ee-mlo-ps2.vercel.app
+Vercel CLI 66.6.0
+Fetching deployment(s) "https://comment-guard-1srxkd8ee-mlo-ps2.vercel.app" in mlo-ps2
+> Found 1 deployment for removal in mlo-ps2 [827ms]
+Removing 1 deployment… 0 of 1 done
+> Success! Removed 1 deployment [509ms]
+- comment-guard-1srxkd8ee-mlo-ps2.vercel.app
+[cleanup] 지난 배포 삭제: https://comment-guard-cgu3k55pc-mlo-ps2.vercel.app
+Vercel CLI 66.6.0
+Fetching deployment(s) "https://comment-guard-cgu3k55pc-mlo-ps2.vercel.app" in mlo-ps2
+> Found 1 deployment for removal in mlo-ps2 [801ms]
+Removing 1 deployment… 0 of 1 done
+> Success! Removed 1 deployment [459ms]
+- comment-guard-cgu3k55pc-mlo-ps2.vercel.app
+[cleanup] 지난 배포 삭제: https://comment-guard-ifxj9zr1o-mlo-ps2.vercel.app
+Vercel CLI 66.6.0
+Fetching deployment(s) "https://comment-guard-ifxj9zr1o-mlo-ps2.vercel.app" in mlo-ps2
+> Found 1 deployment for removal in mlo-ps2 [662ms]
+Removing 1 deployment… 0 of 1 done
+> Success! Removed 1 deployment [628ms]
+- comment-guard-ifxj9zr1o-mlo-ps2.vercel.app
+[cleanup] 지난 배포 삭제: https://comment-guard-ljruhqhzi-mlo-ps2.vercel.app
+Vercel CLI 66.6.0
+Fetching deployment(s) "https://comment-guard-ljruhqhzi-mlo-ps2.vercel.app" in mlo-ps2
+> Found 1 deployment for removal in mlo-ps2 [754ms]
+Removing 1 deployment… 0 of 1 done
+> Success! Removed 1 deployment [531ms]
+- comment-guard-ljruhqhzi-mlo-ps2.vercel.app
+[cleanup] 지난 배포 삭제: https://comment-guard-qsfw2cp63-mlo-ps2.vercel.app
+Vercel CLI 66.6.0
+Fetching deployment(s) "https://comment-guard-qsfw2cp63-mlo-ps2.vercel.app" in mlo-ps2
+> Found 1 deployment for removal in mlo-ps2 [804ms]
+Removing 1 deployment… 0 of 1 done
+> Success! Removed 1 deployment [630ms]
+- comment-guard-qsfw2cp63-mlo-ps2.vercel.app
+# 정리 후 상태 재조회 (--keep-production) 2026-11-22T03:42:43+0900
+
+## vercel project ls
+> Projects found under mlo-ps2  [928ms]
+Project Name	Latest Production URL	Updated	Node Version	Status
+comment-guard	-	2026-11-21T18:42:42.879Z	26.x	-
+
+
+## vercel ls comment-guard
+  Age     Project                   Deployment                                             Status      Environment     Duration     Username            
+  5m      mlo-ps2/comment-guard     https://comment-guard-rek9zsdhy-mlo-ps2.vercel.app     ● Ready     Production      37s          ***************     
+https://comment-guard-rek9zsdhy-mlo-ps2.vercel.app
+
+## vercel blob list-stores
+> Blob stores for project comment-guard:
+  Name                   ID                       Status     Region   Size       Files   Projects        Age   
+  comment-guard-models   store_****************   ● Active   icn1     416.64MB   5       comment-guard   23m   
+
+
+## vercel blob list
+  Uploaded At     Size          Pathname                                             URL                                                                                                           
+  22m             434229590     models/m2-20261110-314b2b2/model.onnx                https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/model.onnx                
+  22m             4759          models/m2-20261110-314b2b2/model_card.json           https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/model_card.json           
+  21m             612           models/m2-20261110-314b2b2/serving.json              https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/serving.json              
+  21m             2641468       models/m2-20261110-314b2b2/tokenizer.json            https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/tokenizer.json            
+  21m             408           models/m2-20261110-314b2b2/tokenizer_config.json     https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/tokenizer_config.json     
+
+## 프로덕션 도메인 https://comment-guard-jade.vercel.app/health
+{"status":"ok","model_version":"m2-20261110-314b2b2"} HTTP 200
+
+## 로컬 토큰 파일
+.vercel

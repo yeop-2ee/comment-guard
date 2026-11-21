@@ -52,8 +52,8 @@ serve-onnx:
 	for f in model_card.json model.onnx tokenizer.json tokenizer_config.json; do ln -s "$$d/$$f" $(ONNX_DIR)/$$f; done
 	MODEL_URI=$(CURDIR)/$(ONNX_DIR) $(VENV)/bin/uvicorn commentguard.api:app --host 127.0.0.1 --port $(PORT)
 
-# 실행 기록(run.json, output.txt)에서 Blob 저장소 ID를 가림 (configs/deploy.env의 BLOB_STORE_ID)
-MASK = export COMMENTGUARD_MASK="$$(sed -n 's/^BLOB_STORE_ID=//p' configs/deploy.env 2>/dev/null | tr -d '"' | sed 's/^store_//' | awk 'NF{print $$0","tolower($$0)}')";
+# 실행 기록(run.json, output.txt)에서 Blob 저장소 ID와 Vercel 사용자 이름을 가림 (configs/deploy.env의 BLOB_STORE_ID, vercel whoami)
+MASK = export COMMENTGUARD_MASK="$$(sed -n 's/^BLOB_STORE_ID=//p' configs/deploy.env 2>/dev/null | tr -d '"' | sed 's/^store_//' | awk 'NF{print $$0","tolower($$0)}'),$$(npx -y vercel@66.6.0 whoami 2>/dev/null | tail -1)";
 WRAP = $(PY) -m commentguard.runlog wrap
 
 vercel-setup:

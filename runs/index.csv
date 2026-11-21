@@ -51,3 +51,4 @@ run_id,step,status,started_at,finished_at,git_commit,git_dirty,model_version,err
 20261122-033730-investigate-incident-recheck,investigate,success,2026-11-22T03:37:30+09:00,2026-11-22T03:37:32+09:00,976ab1e80e70a4543258da942ec163e30bcab56e,False,,
 20261122-033754-deploy-incident-fixed,deploy,success,2026-11-22T03:37:54+09:00,2026-11-22T03:39:15+09:00,976ab1e80e70a4543258da942ec163e30bcab56e,False,,
 20261122-033916-smoke-cloud-incident-fixed,smoke,success,2026-11-22T03:39:16+09:00,2026-11-22T03:39:41+09:00,976ab1e80e70a4543258da942ec163e30bcab56e,False,m2-20261110-314b2b2,
+20261122-034232-cleanup-keep,cleanup,success,2026-11-22T03:42:32+09:00,2026-11-22T03:42:47+09:00,6df45e2849624c765b6598143936be79a6a0bc48,False,,

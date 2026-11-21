@@ -29,4 +29,7 @@ if ! vc whoami >/dev/null 2>&1; then
   echo "Vercel 로그인 필요: npx -y $VERCEL_CLI login" >&2
   exit 1
 fi
+# Vercel 사용자 이름도 기록에서 가림 (배포 목록에 나옴)
+COMMENTGUARD_MASK="${COMMENTGUARD_MASK:-},$(vc whoami 2>/dev/null | tail -1)"
+export COMMENTGUARD_MASK
 cd "$ROOT"
