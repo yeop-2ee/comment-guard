@@ -44,12 +44,12 @@ smoke-local:
 export-onnx:
 	$(PY) -m commentguard.onnx_export $(MODEL_DIR)
 
-# 클라우드와 같은 ONNX 경로로 로컬 서버 실행 (가중치 없이 model.ort만 있는 폴더를 만들어 MODEL_URI로 지정)
+# 클라우드와 같은 ONNX 경로로 로컬 서버 실행 (가중치 없이 model.onnx만 있는 폴더를 만들어 MODEL_URI로 지정)
 ONNX_DIR := .state/onnx-serving
 serve-onnx:
 	@d="$$($(PY) -c 'from commentguard.model_store import serving_dir; print(serving_dir())')"; \
 	rm -rf $(ONNX_DIR) && mkdir -p $(ONNX_DIR) && \
-	for f in model_card.json model.ort tokenizer.json tokenizer_config.json; do ln -s "$$d/$$f" $(ONNX_DIR)/$$f; done
+	for f in model_card.json model.onnx tokenizer.json tokenizer_config.json; do ln -s "$$d/$$f" $(ONNX_DIR)/$$f; done
 	MODEL_URI=$(CURDIR)/$(ONNX_DIR) $(VENV)/bin/uvicorn commentguard.api:app --host 127.0.0.1 --port $(PORT)
 
 # 실행 기록(run.json, output.txt)에서 Blob 저장소 ID와 Vercel 사용자 이름을 가림 (configs/deploy.env의 BLOB_STORE_ID, vercel whoami)
