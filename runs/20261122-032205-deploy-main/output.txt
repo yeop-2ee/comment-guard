@@ -1,0 +1,36 @@
+[deploy] MODEL_URI=blob://models/m2-20261110-314b2b2/ region=icn1
+  Inspect         https://vercel.com/mlo-ps2/comment-guard/7YFx7G8RwMyZoTWNEjbekKt3kpnb
+▲ Production      https://comment-guard-qsfw2cp63-mlo-ps2.vercel.app
+[deploy] 새 배포 dpl_7YFx7G8RwMyZoTWNEjbekKt3kpnb https://comment-guard-qsfw2cp63-mlo-ps2.vercel.app
+> Added a Protection Bypass for Automation secret to project prj_XAreSRYbQFgSaPxsUVM5Ep1LCley. It stays on the project until you revoke it.
+  To revoke it, open Deployment Protection in the project settings, or run:
+    vercel project protection disable prj_XAreSRYbQFgSaPxsUVM5Ep1LCley --protection-bypass --protection-bypass-secret <secret>
+
+! This request bypasses Deployment Protection, so its response doesn't show whether the URL is public.
+
+  To check public access:
+    `curl https://comment-guard-qsfw2cp63-mlo-ps2.vercel.app/health`
+[deploy] /health 시도 1: HTTP 500 A server error has occurred
+
+FUNCTION_INVOCATION_FAILED
+
+icn1::nc64t-1795285345165-ac449f08216c
+! This request bypasses Deployment Protection, so its response doesn't show whether the URL is public.
+
+  To check public access:
+    `curl https://comment-guard-qsfw2cp63-mlo-ps2.vercel.app/health`
+[deploy] /health 시도 2: HTTP 500 A server error has occurred
+
+FUNCTION_INVOCATION_FAILED
+
+icn1::ksm72-1795285351753-666e2bfda37f
+! This request bypasses Deployment Protection, so its response doesn't show whether the URL is public.
+
+  To check public access:
+    `curl https://comment-guard-qsfw2cp63-mlo-ps2.vercel.app/health`
+[deploy] /health 시도 3: HTTP 500 A server error has occurred
+
+FUNCTION_INVOCATION_FAILED
+
+icn1::8cskz-1795285358363-5d339ab78242
+[deploy] 새 배포의 /health 실패 → 승격하지 않음. 프로덕션 도메인은 이전 배포를 계속 서비스합니다

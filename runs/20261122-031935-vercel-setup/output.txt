@@ -1,0 +1,35 @@
+[setup] 프로젝트 연결: comment-guard
+
+  Directory       ~/Projects/comment-guard
+
+
+  Detected FastAPI (Output Directory: N/A)
+
+✓ Created         mlo-ps2/comment-guard
+> Connecting GitHub repository: https://github.com/yeop-2ee/comment-guard
+Error: Failed to connect yeop-2ee/comment-guard to project. Make sure there aren't any typos and that you have access to the repository if it's private.
+
+> Downloading a fresh `VERCEL_OIDC_TOKEN` for comment-guard
+
+✓ Created         .env.local file and added it to .gitignore
+[setup] Blob 저장소 생성: comment-guard-models (비공개, icn1)
+> Success! Blob store created: comment-guard-models (store_****************) in icn1
+> Access: private. Learn more: https://vercel.com/docs/vercel-blob/private-storage (https://vercel.com/docs/vercel-blob/private-storage)
+> Success! Blob store comment-guard-models linked to comment-guard
+> Overwriting existing .env.local file
+> Downloading `development` environment variables for mlo-ps2/comment-guard
+
+  Changes:
+  + VERCEL_OIDC_TOKEN (Updated)
+  + BLOB_READ_WRITE_TOKEN
+
+
+✓ Updated         .env.local file
+> Overwriting existing .env.local file
+> Downloading `development` environment variables for comment-guard
+
+  Changes:
+  + VERCEL_OIDC_TOKEN (Updated)
+
+
+✓ Updated         .env.local file

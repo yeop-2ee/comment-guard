@@ -1,0 +1,27 @@
+{
+  "run_id": "20261122-032913-deploy-main",
+  "step": "deploy",
+  "started_at": "2026-11-22T03:29:13+09:00",
+  "finished_at": "2026-11-22T03:30:28+09:00",
+  "status": "success",
+  "git_commit": "6c2547409f7a58fb6e12e272e328fea1f5cd1a94",
+  "git_dirty": false,
+  "model_version": null,
+  "inputs": {},
+  "config": {},
+  "outputs": [
+    "runs/20261122-032913-deploy-main/output.txt"
+  ],
+  "extra": {
+    "command": [
+      "bash",
+      "scripts/deploy_vercel.sh"
+    ],
+    "exit_code": 0
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

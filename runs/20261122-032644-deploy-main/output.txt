@@ -1,0 +1,12 @@
+[deploy] MODEL_URI=blob://models/m2-20261110-314b2b2/ region=icn1
+  Inspect         https://vercel.com/mlo-ps2/comment-guard/4bqyKqGgMHJMfUcXpv37k2Xo1y9Q
+▲ Production      https://comment-guard-1srxkd8ee-mlo-ps2.vercel.app
+[deploy] 새 배포 dpl_4bqyKqGgMHJMfUcXpv37k2Xo1y9Q https://comment-guard-1srxkd8ee-mlo-ps2.vercel.app
+! This request bypasses Deployment Protection, so its response doesn't show whether the URL is public.
+
+  To check public access:
+    `curl https://comment-guard-1srxkd8ee-mlo-ps2.vercel.app/health`
+[deploy] /health 시도 1: HTTP 200 {"status":"ok","model_version":"m2-20261110-314b2b2"}
+> Fetching deployment "https://comment-guard-1srxkd8ee-mlo-ps2.vercel.app" in mlo-ps2…
+> Promote in progress…
+> Success! comment-guard was promoted to comment-guard-1srxkd8ee-mlo-ps2.vercel.app (dpl_4bqyKqGgMHJMfUcXpv37k2Xo1y9Q) [706ms]

@@ -1,0 +1,27 @@
+{
+  "run_id": "20261122-032044-upload-model",
+  "step": "upload-model",
+  "started_at": "2026-11-22T03:20:44+09:00",
+  "finished_at": "2026-11-22T03:21:37+09:00",
+  "status": "success",
+  "git_commit": "b3266dd755996a0c7fb1029492aebabd2a22eb57",
+  "git_dirty": false,
+  "model_version": "m2-20261110-314b2b2",
+  "inputs": {},
+  "config": {},
+  "outputs": [
+    "runs/20261122-032044-upload-model/output.txt"
+  ],
+  "extra": {
+    "command": [
+      "bash",
+      "scripts/upload_model.sh"
+    ],
+    "exit_code": 0
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

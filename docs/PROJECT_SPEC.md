@@ -756,7 +756,8 @@ M2와 비교 단계는 Make 타깃이 없어서 모듈을 직접 실행합니다
 | 함수 (런타임) | Blob 저장소 읽기 (Vercel이 발급하는 단기 OIDC 토큰) | 이 프로젝트에 연결한 저장소만 | 모델 읽기만 |
 | 호출자 | 없음 (공개) | 프로덕션 도메인만. 다른 배포 주소는 Vercel 로그인 필요 | 화면 공개 |
 
-- **장기 토큰을 만들지 않습니다.** 로컬에서는 `vercel login`으로 인증하고, Blob 읽기·쓰기 토큰을 만들어 파일에 저장하지 않습니다.
+- **장기 토큰을 직접 만들지 않습니다.** 로컬에서는 `vercel login`으로 인증합니다. 저장소를 프로젝트에 연결하면 Vercel이 프로젝트 환경 변수 `BLOB_READ_WRITE_TOKEN`을 자동으로 만들고, `vercel env pull`이 이것과 단기 OIDC 토큰을 `.env.local`(Git 제외)에 받습니다. 스크립트는 OIDC 토큰만 쓰고, 두 토큰 모두 출력·기록하지 않으며, 정리 단계에서 저장소·프로젝트와 함께 지웁니다.
+- 배포 스크립트의 `vercel curl`(보호된 새 배포의 `/health` 확인)은 처음 실행할 때 프로젝트에 "Protection Bypass for Automation" 비밀값을 만듭니다. 이 값은 Vercel 프로젝트 설정에만 있고 저장소·기록에는 없으며, 프로젝트를 지울 때 함께 사라집니다.
 - 프로젝트·저장소 이름은 `configs/deploy.env`(Git 제외)에 두고, 저장소에는 `configs/deploy.env.example`만 올립니다. 기록과 문서에서는 Blob 저장소 ID를 가립니다.
 - 공용 자원이나 조직 보안 설정은 바꾸지 않습니다(과제 조건).
 
@@ -883,7 +884,7 @@ comment-guard/
     ├── PROJECT_SPEC.md          # 이 문서
     ├── DATA.md
     ├── EVALUATION.md
-    ├── CLOUD_RUNS.md            # (예정, M4)
+    ├── CLOUD_RUNS.md            # 클라우드 실행 기록 (M4)
     ├── INCIDENT.md              # (예정, M5)
     ├── RERUN.md                 # (예정, M7)
     └── COST_AND_CLEANUP.md      # (예정, M8)
@@ -903,7 +904,7 @@ comment-guard/
 | M1 데이터 | 완료 | `runs/20261109-231905-data`, `runs/20261109-231906-validate` |
 | M2 모델 학습과 평가 | 완료 | `runs/20261109-232656-train`, `runs/20261109-232715-evaluate` |
 | M3 API (로컬) | 완료 | `runs/20261109-233855-smoke-local` (13/13) |
-| M4 클라우드 배포 (Vercel) | 진입점·함수 설정·Blob 로드·ONNX 서빙·배포/스모크 스크립트 작성, 테스트 통과. **클라우드 실행은 아직 안 함** | `app.py`, `vercel.json`, `scripts/*vercel*.sh` |
+| M4 클라우드 배포 (Vercel) | 완료. 배포 실패 3번(의존성 미설치, `/tmp` 부족, 주소 탐색) 고친 뒤 배포, 클라우드 스모크 14/14, cold start 25.1초 | `docs/CLOUD_RUNS.md`, `runs/20261122-032913-deploy-main`, `runs/20261122-033033-smoke-cloud-main` |
 | M5 오류 재현과 복구 | 시작 전 (M4 뒤) | — |
 | M6 M2 사전학습 모델 | 로컬 범위 완료. cold start 측정과 클라우드 스모크는 M4에서 | `runs/20261110-003741-train-m2`, `-010215-evaluate-m2`, `-010228-compare`, `-010553-smoke-local`, 행동 검사 2건 |
 | M6 추가: 시드 반복·시드 앙상블 (D8) | 완료. 서빙 모델은 M2 유지, M4·ENS 등 삭제 | `runs/20261116-002311-train-m2s43` ~ `-004633-probe-behavior_v2` |
@@ -939,11 +940,11 @@ comment-guard/
 ### M4. 클라우드 배포 (Vercel)
 - [x] Vercel 진입점(`app.py`)과 함수 설정(`vercel.json`, `.vercelignore`)
 - [x] Blob 모델 로드(`blob://`, `serving.json` 해시 확인, 첫 요청에서 로드)와 ONNX 서빙(`onnx_model.py`), 테스트(`tests/test_cloud.py`)
-- [ ] M2 ONNX 변환과 동등성 확인 기록(`make export-onnx`)
-- [ ] Vercel 프로젝트 연결·Blob 저장소 준비(`vercel_setup.sh`), 모델 업로드
-- [ ] `deploy_vercel.sh`(배포 전 MODEL_URI 검사는 **M5 이후에 추가**, 오류 재현을 위해 처음에는 넣지 않음) (스크립트 작성됨)
-- [ ] `smoke_cloud.py` 실행, `cloud_smoke.json` 기록
-- [ ] M2 서빙 기준 cold start, 클라우드 지연 실측 (M6에서 넘어온 항목)
+- [x] M2 ONNX 변환과 동등성 확인 기록(`make export-onnx`, 확률 최대 차이 1.5e-5, 예측 100% 일치)
+- [x] Vercel 프로젝트 연결·Blob 저장소 준비(`vercel_setup.sh`), 모델 업로드
+- [x] `deploy_vercel.sh`(배포 전 MODEL_URI 검사는 **M5 이후에 추가**, 오류 재현을 위해 처음에는 넣지 않음)
+- [x] `smoke_cloud.py` 실행, `cloud_smoke.json` 기록 (14/14)
+- [x] M2 서빙 기준 cold start(25.1초, 1회), 클라우드 지연 실측
 - **완료 조건:** 클라우드에서 T1~T11 통과 기록, `docs/CLOUD_RUNS.md` 작성(서비스, 리전, 설정, 데이터·결과 위치, 선택 이유)
 
 ### M5. 오류 재현과 복구

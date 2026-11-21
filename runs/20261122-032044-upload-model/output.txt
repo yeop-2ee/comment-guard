@@ -1,0 +1,37 @@
+{
+  "model_version": "m2-20261110-314b2b2",
+  "files": {
+    "model_card.json": {
+      "sha256": "2ef95955f7bfa1bc893d9447530dae0e104d928ba67915c92e09754ded298867",
+      "bytes": 4759
+    },
+    "model.onnx": {
+      "sha256": "bf82d523a0ae2b8bcc748a03da89eea5361c2857d0659bf6532562e857a8141a",
+      "bytes": 434229590
+    },
+    "tokenizer.json": {
+      "sha256": "b554ec7d94fde75765face1dba4e3eef366ea75e9e02ca57556441e9fd2bba42",
+      "bytes": 2641468
+    },
+    "tokenizer_config.json": {
+      "sha256": "d79aa0c6a3e2e067dd3914b1c53c4a4fec7a9acb36da7e2da74935a8e4cbb2d6",
+      "bytes": 408
+    }
+  }
+}
+[upload] models/m2-20261110-314b2b2/model_card.json (8.0K)
+> Success! https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/model_card.json
+[upload] models/m2-20261110-314b2b2/model.onnx (414M)
+> Success! https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/model.onnx
+[upload] models/m2-20261110-314b2b2/tokenizer_config.json (4.0K)
+> Success! https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/tokenizer_config.json
+[upload] models/m2-20261110-314b2b2/tokenizer.json (2.5M)
+> Success! https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/tokenizer.json
+> Success! https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/serving.json
+[upload] 저장소 확인
+  48s             434229590     models/m2-20261110-314b2b2/model.onnx                https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/model.onnx                
+  51s             4759          models/m2-20261110-314b2b2/model_card.json           https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/model_card.json           
+  3s              612           models/m2-20261110-314b2b2/serving.json              https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/serving.json              
+  8s              2641468       models/m2-20261110-314b2b2/tokenizer.json            https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/tokenizer.json            
+  12s             408           models/m2-20261110-314b2b2/tokenizer_config.json     https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/tokenizer_config.json     
+MODEL_URI=blob://models/m2-20261110-314b2b2/

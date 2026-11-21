@@ -1,0 +1,22 @@
+[setup] 프로젝트 연결: comment-guard
+
+  Directory       ~/Projects/comment-guard
+
+
+✓ Linked          mlo-ps2/comment-guard
+
+> Downloading a fresh `VERCEL_OIDC_TOKEN` for comment-guard
+
+✓ Updated         .env.local file
+[setup] Blob 저장소 있음: comment-guard-models
+> Overwriting existing .env.local file
+> Downloading `development` environment variables for comment-guard
+
+  Changes:
+  + VERCEL_OIDC_TOKEN (Updated)
+
+
+✓ Updated         .env.local file
+[setup] 완료. 저장소 ID는 configs/deploy.env에만 저장(기록에서는 가림)
+Project Name	Latest Production URL	Updated	Node Version	Status
+comment-guard	-	2026-11-21T18:19:41.475Z	26.x	-

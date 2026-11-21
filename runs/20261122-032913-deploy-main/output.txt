@@ -1,0 +1,22 @@
+[deploy] MODEL_URI=blob://models/m2-20261110-314b2b2/ region=icn1
+  Inspect         https://vercel.com/mlo-ps2/comment-guard/HaxxJVMbd2TuYfYjVbLzDZzqS3gn
+▲ Production      https://comment-guard-cgu3k55pc-mlo-ps2.vercel.app
+[deploy] 새 배포 dpl_HaxxJVMbd2TuYfYjVbLzDZzqS3gn https://comment-guard-cgu3k55pc-mlo-ps2.vercel.app
+! This request bypasses Deployment Protection, so its response doesn't show whether the URL is public.
+
+  To check public access:
+    `curl https://comment-guard-cgu3k55pc-mlo-ps2.vercel.app/health`
+[deploy] /health 시도 1: HTTP 200 {"status":"ok","model_version":"m2-20261110-314b2b2"}
+> Fetching deployment "https://comment-guard-cgu3k55pc-mlo-ps2.vercel.app" in mlo-ps2…
+> Promote in progress…
+> Success! comment-guard was promoted to comment-guard-cgu3k55pc-mlo-ps2.vercel.app (dpl_HaxxJVMbd2TuYfYjVbLzDZzqS3gn) [3s]
+{
+  "url": "https://comment-guard-jade.vercel.app",
+  "deployment_id": "dpl_HaxxJVMbd2TuYfYjVbLzDZzqS3gn",
+  "deployment_url": "https://comment-guard-cgu3k55pc-mlo-ps2.vercel.app",
+  "region": "icn1",
+  "model_uri": "blob://models/m2-20261110-314b2b2/",
+  "model_version": "m2-20261110-314b2b2",
+  "promoted_at": "2026-11-22T03:30:28+09:00"
+}
+[deploy] 프로덕션 승격 완료: https://comment-guard-jade.vercel.app

@@ -1,0 +1,23 @@
+{
+  "model_version": "m2-20261110-314b2b2",
+  "files": {
+    "model_card.json": {
+      "sha256": "2ef95955f7bfa1bc893d9447530dae0e104d928ba67915c92e09754ded298867",
+      "bytes": 4759
+    },
+    "model.onnx": {
+      "sha256": "bf82d523a0ae2b8bcc748a03da89eea5361c2857d0659bf6532562e857a8141a",
+      "bytes": 434229590
+    },
+    "tokenizer.json": {
+      "sha256": "b554ec7d94fde75765face1dba4e3eef366ea75e9e02ca57556441e9fd2bba42",
+      "bytes": 2641468
+    },
+    "tokenizer_config.json": {
+      "sha256": "d79aa0c6a3e2e067dd3914b1c53c4a4fec7a9acb36da7e2da74935a8e4cbb2d6",
+      "bytes": 408
+    }
+  }
+}
+[upload] models/m2-20261110-314b2b2/model_card.json (8.0K)
+Error: VERCEL_OIDC_TOKEN and BLOB_STORE_ID must both be set, or both be unset. Set both to use OIDC, unset both to use the read-write token, or pass --rw-token / --oidc-token + --store explicitly.

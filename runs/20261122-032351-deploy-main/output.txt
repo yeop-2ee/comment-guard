@@ -1,0 +1,20 @@
+[deploy] MODEL_URI=blob://models/m2-20261110-314b2b2/ region=icn1
+  Inspect         https://vercel.com/mlo-ps2/comment-guard/57BoM7zz2b2pvQSeS6JEha7wcm6V
+▲ Production      https://comment-guard-ljruhqhzi-mlo-ps2.vercel.app
+[deploy] 새 배포 dpl_57BoM7zz2b2pvQSeS6JEha7wcm6V https://comment-guard-ljruhqhzi-mlo-ps2.vercel.app
+! This request bypasses Deployment Protection, so its response doesn't show whether the URL is public.
+
+  To check public access:
+    `curl https://comment-guard-ljruhqhzi-mlo-ps2.vercel.app/health`
+[deploy] /health 시도 1: HTTP 503 {"status":"unavailable","error":"model_load_failed","model_version":null}
+! This request bypasses Deployment Protection, so its response doesn't show whether the URL is public.
+
+  To check public access:
+    `curl https://comment-guard-ljruhqhzi-mlo-ps2.vercel.app/health`
+[deploy] /health 시도 2: HTTP 503 {"status":"unavailable","error":"model_load_failed","model_version":null}
+! This request bypasses Deployment Protection, so its response doesn't show whether the URL is public.
+
+  To check public access:
+    `curl https://comment-guard-ljruhqhzi-mlo-ps2.vercel.app/health`
+[deploy] /health 시도 3: HTTP 503 {"status":"unavailable","error":"model_load_failed","model_version":null}
+[deploy] 새 배포의 /health 실패 → 승격하지 않음. 프로덕션 도메인은 이전 배포를 계속 서비스합니다

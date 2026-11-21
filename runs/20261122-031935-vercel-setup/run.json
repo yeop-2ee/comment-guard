@@ -1,0 +1,27 @@
+{
+  "run_id": "20261122-031935-vercel-setup",
+  "step": "vercel-setup",
+  "started_at": "2026-11-22T03:19:35+09:00",
+  "finished_at": "2026-11-22T03:19:43+09:00",
+  "status": "failed",
+  "git_commit": "ea6ed3856a3b6936561b088b31b6a2968bea8f71",
+  "git_dirty": false,
+  "model_version": null,
+  "inputs": {},
+  "config": {},
+  "outputs": [
+    "runs/20261122-031935-vercel-setup/output.txt"
+  ],
+  "extra": {
+    "command": [
+      "bash",
+      "scripts/vercel_setup.sh"
+    ],
+    "exit_code": 1
+  },
+  "error": "RuntimeError: command exited with code 1\nTraceback (most recent call last):\n  File \"/Users/sangyeop/Projects/comment-guard/src/commentguard/runlog.py\", line 174, in run_step\n    yield record\n  File \"/Users/sangyeop/Projects/comment-guard/src/commentguard/runlog.py\", line 208, in _wrap\n    raise RuntimeError(f\"command exited with code {code}\")\nRuntimeError: command exited with code 1\n",
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}
