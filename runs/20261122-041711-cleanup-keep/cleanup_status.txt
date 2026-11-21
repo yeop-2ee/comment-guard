@@ -1,0 +1,32 @@
+# 정리 후 상태 재조회 (--keep-production) 2026-11-22T04:17:23+0900
+
+## vercel project ls
+> Projects found under mlo-ps2  [691ms]
+Project Name	Latest Production URL	Updated	Node Version	Status
+comment-guard	-	2026-11-21T19:17:23.756Z	26.x	-
+
+
+## vercel ls comment-guard
+  Age     Project                   Deployment                                             Status      Environment     Duration     Username            
+  3m      mlo-ps2/comment-guard     https://comment-guard-9d2l1flq9-mlo-ps2.vercel.app     ● Ready     Production      21s          ***************     
+https://comment-guard-9d2l1flq9-mlo-ps2.vercel.app
+
+## vercel blob list-stores
+> Blob stores for project comment-guard:
+  Name                   ID                       Status     Region   Size       Files   Projects        Age   
+  comment-guard-models   store_****************   ● Active   icn1     416.64MB   5       comment-guard   58m   
+
+
+## vercel blob list
+  Uploaded At     Size          Pathname                                             URL                                                                                                           
+  7m              434229590     models/m2-20261110-314b2b2/model.onnx                https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/model.onnx                
+  7m              4759          models/m2-20261110-314b2b2/model_card.json           https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/model_card.json           
+  6m              612           models/m2-20261110-314b2b2/serving.json              https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/serving.json              
+  6m              2641468       models/m2-20261110-314b2b2/tokenizer.json            https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/tokenizer.json            
+  6m              408           models/m2-20261110-314b2b2/tokenizer_config.json     https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/tokenizer_config.json     
+
+## 프로덕션 도메인 https://comment-guard-jade.vercel.app/health
+{"status":"ok","model_version":"m2-20261110-314b2b2"} HTTP 200
+
+## 로컬 토큰 파일
+.vercel

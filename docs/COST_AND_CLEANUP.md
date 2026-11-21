@@ -22,19 +22,22 @@
 | 자원 | 비용 요인 | Hobby 한도와 제한 방법 |
 |---|---|---|
 | Vercel Functions | 실행 시간(Active CPU), 메모리 시간, 호출 수 | 요청이 없으면 0. 최대 실행 시간 60초(`vercel.json`). 입력은 한 번에 100건, 댓글당 1,000자로 제한 |
-| Vercel Blob | 저장 용량, 전송량, 작업 수 | 저장 1GB(사용 416.64MB, 1개 버전만 보관), 전송 월 10GB. 함수 인스턴스가 새로 뜰 때마다 모델 약 434MB를 받으므로 cold start가 잦으면 전송 한도를 먼저 씀 |
-| 빌드 | 빌드 시간 | 배포 1번에 빌드 약 40초. 이 과제에서 배포 6개를 만듦(시작에 실패한 배포 3개 포함, 배포 전 검사로 막힌 1번은 배포가 만들어지지 않음) |
+| Vercel Blob | 저장 용량, 전송량, 작업 수 | 저장 1GB(사용 416.64MB, M2 한 버전만 보관. M1·M3를 함께 올렸을 때 약 950MB), 전송 월 10GB. 함수 인스턴스가 새로 뜰 때마다 모델 약 434MB를 받으므로 cold start가 잦으면 전송 한도를 먼저 씀 |
+| 빌드 | 빌드 시간 | 배포 1번에 빌드 약 40초. 이 과제에서 배포 11개를 만듦(시작·판정에 실패한 배포 5개 포함, 배포 전 검사로 막힌 1번은 배포가 만들어지지 않음). 남은 것은 1개 |
 | 런타임 로그 | — | 1시간 보존, 추가 비용 없음. 필요한 로그는 받은 즉시 `runs/`에 저장 |
 
 ## 3. 정리 실행과 정리 후 상태
 
-`make cleanup-keep` → `runs/20261122-034232-cleanup-keep/` (`cleanup_status.txt`, 2026-11-22 03:42 KST)
+부분 정리(`make cleanup-keep`)를 두 번 실행했습니다. 첫 번째(`runs/20261122-034232-cleanup-keep/`)는 M5까지의 지난 배포 5개를 지웠고, 이 문서의 상태는 마지막 실행 기준입니다.
+
+`make cleanup-keep` → `runs/20261122-041711-cleanup-keep/` (`cleanup_status.txt`)
 
 | 대상 | 처리 |
 |---|---|
-| 지난 배포 5개 (시작에 실패한 배포 3개 포함) | **삭제** |
-| 프로덕션 배포 `dpl_9zhhA5M93NrU93zVXN7GTaQ7Mz77` | 남김 |
-| Blob 저장소 `comment-guard-models` (모델 1개 버전, 파일 5개, 416.64MB) | 남김 |
+| 첫 정리 뒤 만든 지난 배포 5개 (M1·M3 시도, 판정이 실패한 배포 2개, 복구 배포 포함) | **삭제** |
+| M1·M3 모델 파일 8개 (화면 모델 선택 시도용) | **삭제** (`runs/20261122-040210-cleanup-extra-models/`) |
+| 프로덕션 배포 `dpl_9MuBmdTdMVgmmGBQLgyT7UaEPhwF` | 남김 |
+| Blob 저장소 `comment-guard-models` (M2 한 버전, 파일 5개, 416.64MB) | 남김 |
 | Vercel 프로젝트 `comment-guard` | 남김 |
 | 로컬 `.env.local` (개발용 토큰) | **삭제** |
 
@@ -42,7 +45,7 @@
 
 - `vercel ls comment-guard`: 배포 1개(프로덕션, Ready)만 남음
 - `vercel blob list-stores`: `comment-guard-models` Active, icn1, 416.64MB, 파일 5개
-- `vercel blob list`: `models/m2-20261110-314b2b2/` 아래 5개 파일만 있음
+- `vercel blob list`: `models/m2-20261110-314b2b2/` 아래 5개 파일만 있음 (`model.onnx`, `model_card.json`, `serving.json`, 토크나이저 2개)
 - 프로덕션 도메인 `/health`: `{"status":"ok","model_version":"m2-20261110-314b2b2"}` HTTP 200
 
 ## 4. 남긴 자원과 정리 계획
