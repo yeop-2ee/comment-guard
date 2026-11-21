@@ -12,11 +12,11 @@ else
   vc blob create-store "$BLOB_STORE" --access private --region "$REGION" --yes
 fi
 
-# 로컬 CLI가 저장소를 쓸 때 필요한 개발용 변수(BLOB_STORE_ID, 단기 OIDC 토큰)를 .env.local로 받음 (Git 제외)
+# 로컬 CLI가 저장소를 쓸 때 필요한 개발용 변수(단기 OIDC 토큰, Blob 토큰)를 .env.local로 받음 (Git 제외, 정리 때 삭제)
 vc env pull .env.local --yes >/dev/null
-store_id="$(grep -E '^BLOB_STORE_ID=' .env.local | cut -d= -f2- | tr -d '"')"
+store_id="$(vc blob list-stores 2>&1 | awk -v n="$BLOB_STORE" '$1 == n {print $2}' | head -1)"
 if [[ -z "$store_id" ]]; then
-  echo "[setup] .env.local에 BLOB_STORE_ID가 없습니다. 저장소가 프로젝트에 연결됐는지 확인하세요" >&2
+  echo "[setup] 저장소 ID를 찾지 못했습니다: $BLOB_STORE" >&2
   exit 1
 fi
 if grep -q '^BLOB_STORE_ID=' configs/deploy.env; then
