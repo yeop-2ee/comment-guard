@@ -1,0 +1,11 @@
+# vercel blob list (models/ 아래 경로)
+Vercel CLI 66.6.0
+Fetching blobs
+
+  Uploaded At     Size          Pathname                                             URL                                                                                                           
+  15m             434229590     models/m2-20261110-314b2b2/model.onnx                https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/model.onnx                
+  15m             4759          models/m2-20261110-314b2b2/model_card.json           https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/model_card.json           
+  14m             612           models/m2-20261110-314b2b2/serving.json              https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/serving.json              
+  14m             2641468       models/m2-20261110-314b2b2/tokenizer.json            https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/tokenizer.json            
+  15m             408           models/m2-20261110-314b2b2/tokenizer_config.json     https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/tokenizer_config.json     
+

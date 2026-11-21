@@ -1,0 +1,28 @@
+{
+  "run_id": "20261122-033614-investigate-incident",
+  "step": "investigate",
+  "started_at": "2026-11-22T03:36:14+09:00",
+  "finished_at": "2026-11-22T03:36:16+09:00",
+  "status": "success",
+  "git_commit": "e554cbdd694012d0aa86f3752e55c93011422a69",
+  "git_dirty": false,
+  "model_version": null,
+  "inputs": {},
+  "config": {},
+  "outputs": [
+    "runs/20261122-033614-investigate-incident/output.txt"
+  ],
+  "extra": {
+    "command": [
+      "bash",
+      "-c",
+      "source scripts/vercel_env.sh; out=\"$(vc blob list 2>&1)\"; echo \"$out\" | grep -E \"Pathname|models/\"; echo \"# 찾는 경로: models/m2-20261110-WRONG/\"; if echo \"$out\" | grep -q \"models/m2-20261110-WRONG/\"; then echo \"있음\"; else echo \"없음 → 배포에 지정한 MODEL_URI가 저장소에 없는 경로\"; fi"
+    ],
+    "exit_code": 0
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

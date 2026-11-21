@@ -1,0 +1,43 @@
+[deploy] MODEL_URI=blob://models/m2-20261110-WRONG/ region=icn1
+Deploying comment-guard
+  Inspect         https://vercel.com/mlo-ps2/comment-guard/27nomzKHcWhPaW8xjdvh3h4JDnpq
+▲ Production      https://comment-guard-ifxj9zr1o-mlo-ps2.vercel.app
+Building…
+Building…
+Running build in Washington, D.C., USA (East) – iad1
+Build machine configuration: 2 cores, 8 GB
+Retrieving list of deployment files...
+Downloading 38 deployment files...
+Restored build cache from previous deployment (HaxxJVMbd2TuYfYjVbLzDZzqS3gn)
+Running "vercel build"
+Vercel CLI 66.2.0
+Using Python 3.12 from pyproject.toml
+Writing .python-version file with version 3.12
+Using uv 0.13.5 (x86_64-unknown-linux-gnu)
+Installing required dependencies from pyproject.toml...
+Bundle size (355.26 MB) exceeds the standard size; optimizing dependencies.
+Compiling Python bytecode...
+Build Completed in /vercel/output [20s]
+Deploying outputs...
+[2K[1A[2K[G▲ Production      https://comment-guard-ifxj9zr1o-mlo-ps2.vercel.app
+Completing…
+[deploy] 새 배포 dpl_27nomzKHcWhPaW8xjdvh3h4JDnpq https://comment-guard-ifxj9zr1o-mlo-ps2.vercel.app
+Vercel CLI 66.6.0
+! This request bypasses Deployment Protection, so its response doesn't show whether the URL is public.
+
+  To check public access:
+    `curl https://comment-guard-ifxj9zr1o-mlo-ps2.vercel.app/health`
+[deploy] /health 시도 1: HTTP 503 {"status":"unavailable","error":"model_load_failed","model_version":null}
+Vercel CLI 66.6.0
+! This request bypasses Deployment Protection, so its response doesn't show whether the URL is public.
+
+  To check public access:
+    `curl https://comment-guard-ifxj9zr1o-mlo-ps2.vercel.app/health`
+[deploy] /health 시도 2: HTTP 503 {"status":"unavailable","error":"model_load_failed","model_version":null}
+Vercel CLI 66.6.0
+! This request bypasses Deployment Protection, so its response doesn't show whether the URL is public.
+
+  To check public access:
+    `curl https://comment-guard-ifxj9zr1o-mlo-ps2.vercel.app/health`
+[deploy] /health 시도 3: HTTP 503 {"status":"unavailable","error":"model_load_failed","model_version":null}
+[deploy] 새 배포의 /health 실패 → 승격하지 않음. 프로덕션 도메인은 이전 배포를 계속 서비스합니다

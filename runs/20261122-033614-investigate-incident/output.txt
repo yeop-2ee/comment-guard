@@ -1,0 +1,8 @@
+  Uploaded At     Size          Pathname                                             URL                                                                                                           
+  15m             434229590     models/m2-20261110-314b2b2/model.onnx                https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/model.onnx                
+  15m             4759          models/m2-20261110-314b2b2/model_card.json           https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/model_card.json           
+  15m             612           models/m2-20261110-314b2b2/serving.json              https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/serving.json              
+  15m             2641468       models/m2-20261110-314b2b2/tokenizer.json            https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/tokenizer.json            
+  15m             408           models/m2-20261110-314b2b2/tokenizer_config.json     https://****************.private.blob.vercel-storage.com/models/m2-20261110-314b2b2/tokenizer_config.json     
+# 찾는 경로: models/m2-20261110-WRONG/
+없음 → 배포에 지정한 MODEL_URI가 저장소에 없는 경로
