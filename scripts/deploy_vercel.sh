@@ -33,8 +33,10 @@ fi
 
 vc promote "$DEPLOY_URL" --yes
 PROD="${PROD_URL:-}"
-if [[ -z "$PROD" ]]; then  # 첫 배포: 프로덕션 도메인을 찾아 deploy.env에 적어 둠
-  PROD="https://$(vc inspect "$DEPLOY_URL" 2>&1 | grep -oE '[a-z0-9-]+\.vercel\.app' | grep -v "$(echo "$DEPLOY_URL" | sed 's|https://||')" | awk '{print length, $0}' | sort -n | head -1 | cut -d' ' -f2)"
+if [[ -z "$PROD" ]]; then  # 첫 배포: 이 배포에 붙은 별칭 중 가장 짧은 주소가 프로덕션 도메인. deploy.env에 적어 둠
+  host="${DEPLOY_URL#https://}"
+  PROD="https://$(vc alias ls 2>/dev/null | awk -v h="$host" '$1 == h {print length($2), $2}' | sort -n | head -1 | cut -d' ' -f2 || true)"
+  [[ "$PROD" == "https://" ]] && { echo "[deploy] 프로덕션 도메인을 찾지 못했습니다" >&2; exit 1; }
   sed -i.bak "s|^PROD_URL=.*|PROD_URL=$PROD|" configs/deploy.env && rm -f configs/deploy.env.bak
 fi
 mkdir -p .state
