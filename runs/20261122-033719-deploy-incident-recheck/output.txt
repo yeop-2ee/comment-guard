@@ -1,0 +1,33 @@
+[deploy] MODEL_URI=blob://models/m2-20261110-WRONG/ region=icn1
+Traceback (most recent call last):
+  File "/Users/sangyeop/Projects/comment-guard/src/commentguard/model_store.py", line 170, in check_blob_uri
+    manifest = json.loads(blob.get_blob(f"{prefix}/{MANIFEST}", access="private").body)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sangyeop/Projects/comment-guard/.venv/lib/python3.11/site-packages/vercel/blob/sync/__init__.py", line 117, in get_blob
+    with stream_blob(url_or_pathname, access=access) as download:
+  File "/Users/sangyeop/Projects/comment-guard/.venv/lib/python3.11/site-packages/vercel/blob/_internal/download.py", line 186, in __enter__
+    self._download = self._opener()
+                     ^^^^^^^^^^^^^^
+  File "/Users/sangyeop/Projects/comment-guard/.venv/lib/python3.11/site-packages/vercel/blob/sync/__init__.py", line 154, in opener
+    stream, metadata = iter_coroutine(service.open_download(url_or_pathname, access=access))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sangyeop/Projects/comment-guard/.venv/lib/python3.11/site-packages/vercel/_internal/core/iter_coroutine.py", line 11, in iter_coroutine
+    coro.send(None)
+  File "/Users/sangyeop/Projects/comment-guard/.venv/lib/python3.11/site-packages/vercel/blob/_internal/service.py", line 209, in open_download
+    return await self._api_client.open_download(target_url, credentials=credentials)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sangyeop/Projects/comment-guard/.venv/lib/python3.11/site-packages/vercel/blob/_internal/api_client.py", line 654, in open_download
+    metadata = _validate_and_parse_download_response(url, stream.response)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/sangyeop/Projects/comment-guard/.venv/lib/python3.11/site-packages/vercel/blob/_internal/api_client.py", line 355, in _validate_and_parse_download_response
+    raise _map_http_error(response)
+vercel.blob.errors.BlobNotFoundError: Vercel Blob: Blob request failed with HTTP 404
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<string>", line 1, in <module>
+  File "/Users/sangyeop/Projects/comment-guard/src/commentguard/model_store.py", line 172, in check_blob_uri
+    raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/{MANIFEST} 없음: {type(e).__name__}: {e}") from e
+commentguard.model_store.ModelLoadError: blob://models/m2-20261110-WRONG/serving.json 없음: BlobNotFoundError: Vercel Blob: Blob request failed with HTTP 404
+[deploy] 배포 전 검사 실패 → 새 배포를 만들지 않음

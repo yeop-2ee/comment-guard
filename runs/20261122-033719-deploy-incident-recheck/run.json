@@ -1,0 +1,27 @@
+{
+  "run_id": "20261122-033719-deploy-incident-recheck",
+  "step": "deploy",
+  "started_at": "2026-11-22T03:37:19+09:00",
+  "finished_at": "2026-11-22T03:37:20+09:00",
+  "status": "failed",
+  "git_commit": "976ab1e80e70a4543258da942ec163e30bcab56e",
+  "git_dirty": false,
+  "model_version": null,
+  "inputs": {},
+  "config": {},
+  "outputs": [
+    "runs/20261122-033719-deploy-incident-recheck/output.txt"
+  ],
+  "extra": {
+    "command": [
+      "bash",
+      "scripts/deploy_vercel.sh"
+    ],
+    "exit_code": 1
+  },
+  "error": "RuntimeError: command exited with code 1\nTraceback (most recent call last):\n  File \"/Users/sangyeop/Projects/comment-guard/src/commentguard/runlog.py\", line 174, in run_step\n    yield record\n  File \"/Users/sangyeop/Projects/comment-guard/src/commentguard/runlog.py\", line 208, in _wrap\n    raise RuntimeError(f\"command exited with code {code}\")\nRuntimeError: command exited with code 1\n",
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

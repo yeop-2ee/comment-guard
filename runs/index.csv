@@ -47,3 +47,7 @@ run_id,step,status,started_at,finished_at,git_commit,git_dirty,model_version,err
 20261122-033520-smoke-cloud-incident-during,smoke,success,2026-11-22T03:35:20+09:00,2026-11-22T03:35:43+09:00,e554cbdd694012d0aa86f3752e55c93011422a69,False,m2-20261110-314b2b2,
 20261122-033557-investigate-incident,investigate,failed,2026-11-22T03:35:57+09:00,2026-11-22T03:35:59+09:00,e554cbdd694012d0aa86f3752e55c93011422a69,False,,RuntimeError: command exited with code 1
 20261122-033614-investigate-incident,investigate,success,2026-11-22T03:36:14+09:00,2026-11-22T03:36:16+09:00,e554cbdd694012d0aa86f3752e55c93011422a69,False,,
+20261122-033719-deploy-incident-recheck,deploy,failed,2026-11-22T03:37:19+09:00,2026-11-22T03:37:20+09:00,976ab1e80e70a4543258da942ec163e30bcab56e,False,,RuntimeError: command exited with code 1
+20261122-033730-investigate-incident-recheck,investigate,success,2026-11-22T03:37:30+09:00,2026-11-22T03:37:32+09:00,976ab1e80e70a4543258da942ec163e30bcab56e,False,,
+20261122-033754-deploy-incident-fixed,deploy,success,2026-11-22T03:37:54+09:00,2026-11-22T03:39:15+09:00,976ab1e80e70a4543258da942ec163e30bcab56e,False,,
+20261122-033916-smoke-cloud-incident-fixed,smoke,success,2026-11-22T03:39:16+09:00,2026-11-22T03:39:41+09:00,976ab1e80e70a4543258da942ec163e30bcab56e,False,m2-20261110-314b2b2,

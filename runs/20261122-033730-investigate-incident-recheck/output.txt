@@ -1,0 +1,12 @@
+  Age     Project                   Deployment                                             Status      Environment     Duration     Username            
+  4m      mlo-ps2/comment-guard     https://comment-guard-ifxj9zr1o-mlo-ps2.vercel.app     ● Ready     Production      44s          ***************     
+  8m      mlo-ps2/comment-guard     https://comment-guard-cgu3k55pc-mlo-ps2.vercel.app     ● Ready     Production      29s          ***************     
+  11m     mlo-ps2/comment-guard     https://comment-guard-1srxkd8ee-mlo-ps2.vercel.app     ● Ready     Production      40s          ***************     
+  14m     mlo-ps2/comment-guard     https://comment-guard-ljruhqhzi-mlo-ps2.vercel.app     ● Ready     Production      39s          ***************     
+  15m     mlo-ps2/comment-guard     https://comment-guard-qsfw2cp63-mlo-ps2.vercel.app     ● Ready     Production      10s          ***************     
+https://comment-guard-ifxj9zr1o-mlo-ps2.vercel.app
+https://comment-guard-cgu3k55pc-mlo-ps2.vercel.app
+https://comment-guard-1srxkd8ee-mlo-ps2.vercel.app
+https://comment-guard-ljruhqhzi-mlo-ps2.vercel.app
+https://comment-guard-qsfw2cp63-mlo-ps2.vercel.app
+# 배포 수: 10 (검사 전 10개와 같으면 새 배포가 만들어지지 않은 것)

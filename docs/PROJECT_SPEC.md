@@ -885,7 +885,7 @@ comment-guard/
     ├── DATA.md
     ├── EVALUATION.md
     ├── CLOUD_RUNS.md            # 클라우드 실행 기록 (M4)
-    ├── INCIDENT.md              # (예정, M5)
+    ├── INCIDENT.md              # 오류 재현과 복구 기록 (M5)
     ├── RERUN.md                 # (예정, M7)
     └── COST_AND_CLEANUP.md      # (예정, M8)
 ```
@@ -905,7 +905,7 @@ comment-guard/
 | M2 모델 학습과 평가 | 완료 | `runs/20261109-232656-train`, `runs/20261109-232715-evaluate` |
 | M3 API (로컬) | 완료 | `runs/20261109-233855-smoke-local` (13/13) |
 | M4 클라우드 배포 (Vercel) | 완료. 배포 실패 3번(의존성 미설치, `/tmp` 부족, 주소 탐색) 고친 뒤 배포, 클라우드 스모크 14/14, cold start 25.1초 | `docs/CLOUD_RUNS.md`, `runs/20261122-032913-deploy-main`, `runs/20261122-033033-smoke-cloud-main` |
-| M5 오류 재현과 복구 | 시작 전 (M4 뒤) | — |
+| M5 오류 재현과 복구 | 완료. 잘못된 경로 배포는 승격되지 않았고 프로덕션 14/14 유지. 수정 뒤 같은 경로는 배포 전에 막힘, 정상 재배포·스모크 14/14 | `docs/INCIDENT.md`, `runs/20261122-033357-deploy-incident` ~ `-033916-smoke-cloud-incident-fixed` |
 | M6 M2 사전학습 모델 | 로컬 범위 완료. cold start 측정과 클라우드 스모크는 M4에서 | `runs/20261110-003741-train-m2`, `-010215-evaluate-m2`, `-010228-compare`, `-010553-smoke-local`, 행동 검사 2건 |
 | M6 추가: 시드 반복·시드 앙상블 (D8) | 완료. 서빙 모델은 M2 유지, M4·ENS 등 삭제 | `runs/20261116-002311-train-m2s43` ~ `-004633-probe-behavior_v2` |
 | M6 추가: 성능 개선 후보 (D7) | 완료. 서빙 모델은 M2 유지 | `runs/20261115-232408-train-m3`, `-233346-train-m4`, `runs/20261116-000626-train-ens`, `-000811-compare-all` |
@@ -948,7 +948,7 @@ comment-guard/
 - **완료 조건:** 클라우드에서 T1~T11 통과 기록, `docs/CLOUD_RUNS.md` 작성(서비스, 리전, 설정, 데이터·결과 위치, 선택 이유)
 
 ### M5. 오류 재현과 복구
-- [ ] 8.1장 시나리오 재현 → 기록 → 원인 → 수정(배포 전 검사 추가) → 재검증
+- [x] 8.1장 시나리오 재현 → 기록 → 원인 → 수정(배포 전 검사 추가, 커밋 `976ab1e`) → 재검증
 - **완료 조건:** `docs/INCIDENT.md` 완성, 실패 기록과 정상 기록이 `runs/`에서 구분됨
 
 ### M6. M2 사전학습 모델 (필수, D2)
