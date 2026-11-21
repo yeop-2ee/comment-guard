@@ -13,6 +13,12 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 echo "[deploy] MODEL_URI=$MODEL_URI region=$REGION"
 
+# 배포 전 검사 (M5 수정): MODEL_URI 경로에 serving.json과 모델 파일이 모두 있어야 배포를 만듦
+if ! "$PY" -c 'import sys; from commentguard.model_store import check_blob_uri; m = check_blob_uri(sys.argv[1]); print("[deploy] 배포 전 검사 통과:", m["model_version"], ", ".join(m["files"]))' "$MODEL_URI"; then
+  echo "[deploy] 배포 전 검사 실패 → 새 배포를 만들지 않음" >&2
+  exit 1
+fi
+
 vc deploy --prod --skip-domain --yes --json --env MODEL_URI="$MODEL_URI" > "$TMP/deploy.json"
 read -r DEPLOY_ID DEPLOY_URL < <("$PY" -c 'import json,sys; d=json.load(open(sys.argv[1])); d=d.get("deployment", d); u=d["url"]; print(d["id"], u if u.startswith("http") else "https://"+u)' "$TMP/deploy.json")
 echo "[deploy] 새 배포 $DEPLOY_ID $DEPLOY_URL"

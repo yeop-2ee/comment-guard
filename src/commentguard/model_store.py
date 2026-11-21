@@ -161,6 +161,27 @@ def _blob_api():
     return blob
 
 
+def check_blob_uri(uri: str) -> dict[str, Any]:
+    """배포 전 검사 (M5 수정, 명세서 8.1장): serving.json과 거기 적힌 파일이 모두 있고 크기가 맞는지 확인.
+    파일을 내려받지 않고 메타데이터만 조회합니다. 문제가 있으면 ModelLoadError."""
+    blob = _blob_api()
+    prefix = parse_blob_uri(uri)
+    try:
+        manifest = json.loads(blob.get_blob(f"{prefix}/{MANIFEST}", access="private").body)
+    except Exception as e:
+        raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/{MANIFEST} 없음: {type(e).__name__}: {e}") from e
+    if not {"model_card.json"} <= set(manifest.get("files", {})):
+        raise ModelLoadError(f"{MANIFEST}에 model_card.json이 없습니다")
+    for name, meta in manifest["files"].items():
+        try:
+            size = blob.head_blob(f"{prefix}/{name}").size
+        except Exception as e:
+            raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/{name} 없음: {type(e).__name__}: {e}") from e
+        if size != meta["bytes"]:
+            raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/{name} 크기 불일치 ({size} != {meta['bytes']})")
+    return manifest
+
+
 IN_MEMORY = {"model.onnx"}  # Vercel 함수의 /tmp(약 500MB)보다 커서 디스크에 쓰지 않고 메모리로 받는 파일
 
 

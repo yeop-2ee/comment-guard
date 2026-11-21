@@ -861,7 +861,7 @@ comment-guard/
 │   ├── vercel_env.sh            # deploy.env 읽기, 공통 변수
 │   ├── vercel_setup.sh          # 프로젝트 연결·Blob 저장소 1회 준비
 │   ├── upload_model.sh          # 서빙 모델을 Blob 저장소에 업로드 (dirty 모델은 거부)
-│   ├── deploy_vercel.sh         # 배포, /health 확인 후 프로덕션 승격 (M5에서 MODEL_URI 사전 검사 추가)
+│   ├── deploy_vercel.sh         # 배포 전 MODEL_URI 검사(M5 수정), 배포, /health 확인 후 프로덕션 승격
 │   ├── smoke_cloud.py           # 로컬·클라우드 공용 스모크 테스트
 │   ├── build_perf_snapshot.py   # 웹 화면 모델 성능 탭의 수치를 runs/ 기록에서 다시 만듦
 │   └── cleanup.sh               # (예정, M8)

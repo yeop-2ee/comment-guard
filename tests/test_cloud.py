@@ -31,7 +31,13 @@ def _fake_blob(monkeypatch, objects: dict[str, bytes]):
         data = objects[path]
         yield iter([data[:5], data[5:]])
 
-    monkeypatch.setattr(model_store, "_blob_api", lambda: types.SimpleNamespace(get_blob=get_blob, stream_blob=stream_blob))
+    def head_blob(path):
+        if path not in objects:
+            raise FileNotFoundError(f"BlobNotFoundError: {path}")
+        return types.SimpleNamespace(size=len(objects[path]))
+
+    monkeypatch.setattr(model_store, "_blob_api",
+                        lambda: types.SimpleNamespace(get_blob=get_blob, stream_blob=stream_blob, head_blob=head_blob))
 
 
 def _blob_objects(tiny_model, tmp_path: Path, prefix: str = "models/v1") -> dict[str, bytes]:
@@ -127,3 +133,15 @@ def test_blob_onnx_loads_from_memory(monkeypatch):
     assert m.version == M2_DIR.name and not any(w.endswith("model.onnx") for w in written)
     hate, _ = m.predict_proba(["오늘 무대 정말 좋았어요"])
     assert abs(hate.sum() - 1) < 1e-4
+
+
+def test_predeploy_check_blocks_wrong_path_and_missing_file(monkeypatch, tmp_path, tiny_model):
+    """M5 수정: 배포 전에 MODEL_URI 경로와 파일을 검사해서 망가진 배포를 만들지 않음."""
+    objects = _blob_objects(tiny_model, tmp_path)
+    _fake_blob(monkeypatch, objects)
+    assert model_store.check_blob_uri("blob://models/v1/")["model_version"] == TEST_VERSION
+    with pytest.raises(ModelLoadError, match="serving.json 없음"):
+        model_store.check_blob_uri("blob://models/m2-20261110-WRONG/")
+    del objects["models/v1/model.joblib"]
+    with pytest.raises(ModelLoadError, match="model.joblib 없음"):
+        model_store.check_blob_uri("blob://models/v1/")
