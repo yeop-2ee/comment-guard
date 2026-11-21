@@ -1,0 +1,18 @@
+{
+  "rows": 790,
+  "token_batches_mismatch": 0,
+  "max_abs_prob_diff": 1.3887882232666016e-05,
+  "hate_pred_agreement": 1.0,
+  "bias_pred_agreement": 1.0,
+  "seconds_torch": 9.82,
+  "seconds_onnx": 8.12,
+  "criteria": {
+    "max_abs_prob_diff": 0.0001,
+    "pred_agreement": 1.0,
+    "token_batches_mismatch": 0
+  },
+  "passed": true,
+  "model_version": "m3-20261115-5b32863",
+  "onnx_sha256": "sha256:fb139275d9069e2ce03c6bdaa9f08a9af9eaff558ed67051c890699b1b192861",
+  "onnx_mb": 509.0
+}
