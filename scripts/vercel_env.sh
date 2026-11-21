@@ -12,6 +12,8 @@ source "$ENV_FILE"
 : "${REGION:?deploy.env에 REGION이 필요합니다}"
 : "${BLOB_STORE:?deploy.env에 BLOB_STORE가 필요합니다}"
 VERCEL_CLI="${VERCEL_CLI:-vercel@66.6.0}"
+# Blob CLI는 .env.local의 단기 OIDC 토큰과 저장소 ID를 같이 써야 함 (토큰은 파일에만 있고 출력하지 않음)
+[[ -n "${BLOB_STORE_ID:-}" ]] && export BLOB_STORE_ID
 SCOPE_ARGS=()
 [[ -n "${VERCEL_SCOPE:-}" ]] && SCOPE_ARGS=(--scope "$VERCEL_SCOPE")
 
