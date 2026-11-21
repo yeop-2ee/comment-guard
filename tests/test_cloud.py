@@ -114,9 +114,9 @@ def test_onnx_matches_torch_on_fake_examples():
     assert np.abs(h1 - h2).max() < 1e-4 and np.abs(b1 - b2).max() < 1e-4
 
 
-@pytest.mark.skipif(not (M2_DIR / "model.onnx").is_file(), reason="models/에 M2 ONNX가 없음 (make export-onnx)")
+@pytest.mark.skipif(not (M2_DIR / "model.ort").is_file(), reason="models/에 M2 ORT가 없음 (make export-onnx)")
 def test_blob_onnx_loads_from_memory(monkeypatch):
-    """model.onnx는 /tmp에 쓰지 않고 메모리에서 불러옴 (Vercel /tmp가 모델보다 작음)."""
+    """model.ort는 /tmp에 쓰지 않고 메모리에서 불러와 그 바이트를 그대로 가중치로 씀 (Vercel /tmp가 모델보다 작음)."""
     from commentguard.onnx_model import SERVING_FILES
 
     objects, files = {}, {}
@@ -130,7 +130,7 @@ def test_blob_onnx_loads_from_memory(monkeypatch):
     real_open = open
     monkeypatch.setattr("builtins.open", lambda f, *a, **k: (written.append(str(f)), real_open(f, *a, **k))[1])
     m = model_store.load_from_uri("blob://models/m2/")
-    assert m.version == M2_DIR.name and not any(w.endswith("model.onnx") for w in written)
+    assert m.version == M2_DIR.name and not any(w.endswith("model.ort") for w in written)
     hate, _ = m.predict_proba(["오늘 무대 정말 좋았어요"])
     assert abs(hate.sum() - 1) < 1e-4
 

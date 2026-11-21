@@ -36,6 +36,13 @@ manifest = {"model_version": card["model_version"], "files": files}
 print(json.dumps(manifest, ensure_ascii=False, indent=2))
 PYEOF
 
+# 같은 경로에 이번 목록에 없는 파일(예: 예전 형식의 model.onnx)이 있으면 먼저 지움 (Hobby 저장 한도 1GB)
+for old in $(vc blob list 2>&1 | grep -oE "models/$VERSION/[^ ]+" | sort -u); do
+  [[ -f "$STAGE/$(basename "$old")" ]] && continue
+  echo "[upload] 목록에 없는 파일 삭제: $old"
+  vc blob delete "$old" --confirm-name "$old" >/dev/null
+done
+
 # serving.json은 마지막에 올려서, 파일이 다 올라가기 전에는 이 경로가 쓰이지 않게 함
 for f in "$STAGE"/*; do
   name="$(basename "$f")"

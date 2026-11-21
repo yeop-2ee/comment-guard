@@ -1,6 +1,6 @@
 """M2(트랜스포머) 모델의 ONNX 서빙판 (명세서 6.2장). torch 없이 onnxruntime과 tokenizers만 씁니다.
 
-models/<version>/model.onnx 는 python -m commentguard.onnx_export 로 만듭니다.
+models/<version>/model.onnx, model.ort 는 python -m commentguard.onnx_export 로 만듭니다.
 입력 처리는 m2.encode()와 같습니다: normalize() → 특수 토큰 없이 토큰화 → [CLS] ... [SEP] → 배치 안 최대 길이로 패딩.
 """
 
@@ -16,7 +16,9 @@ import numpy as np
 from commentguard.severity import SeverityConfig
 from commentguard.text import normalize
 
-SERVING_FILES = ("model_card.json", "model.onnx", "tokenizer.json", "tokenizer_config.json")
+# 클라우드에 올리는 파일. model.ort는 ONNX Runtime 전용 형식으로, 받은 바이트를 복사 없이 가중치로 써서 메모리를 아낌
+SERVING_FILES = ("model_card.json", "model.ort", "tokenizer.json", "tokenizer_config.json")
+MODEL_FILES = ("model.ort", "model.onnx")
 
 
 def _special_ids(tok, model_dir: Path) -> tuple[int, int, int]:
@@ -43,6 +45,7 @@ class OnnxModel:
     special: tuple[int, int, int]
     card: dict[str, Any]
     batch_size: int = 64
+    buffer: bytes | None = None  # model.ort 바이트를 가중치로 직접 쓰는 동안 살아 있어야 함
 
     @property
     def version(self) -> str:
@@ -76,21 +79,39 @@ class OnnxModel:
         return np.concatenate(hate).astype(float), np.concatenate(bias).astype(float)
 
 
-def load_onnx(model_dir: str | Path, onnx_bytes: bytes | None = None) -> OnnxModel:
-    """onnx_bytes를 주면 model.onnx를 디스크 대신 메모리에서 읽습니다 (Vercel 함수의 /tmp가 모델보다 작음)."""
+def session_options(ort_bytes: bool = False):
+    import onnxruntime as ort
+
+    opts = ort.SessionOptions()
+    opts.log_severity_level = 3
+    opts.enable_cpu_mem_arena = False  # 요청이 끝나면 중간 계산 메모리를 돌려줌 (함수 메모리 2GB)
+    opts.add_session_config_entry("session.disable_prepacking", "1")  # 가중치를 한 벌 더 만들지 않음
+    if ort_bytes:  # .ort 바이트를 그대로 그래프와 가중치로 씀 (복사 없음)
+        opts.add_session_config_entry("session.use_ort_model_bytes_directly", "1")
+        opts.add_session_config_entry("session.use_ort_model_bytes_for_initializers", "1")
+    return opts
+
+
+def load_onnx(model_dir: str | Path, model_bytes: bytes | None = None, model_file: str | None = None) -> OnnxModel:
+    """model.ort가 있으면 그것을, 없으면 model.onnx를 읽습니다.
+    model_bytes를 주면 디스크 대신 메모리에서 읽습니다 (Vercel 함수의 /tmp가 모델보다 작음). model_file은 그 바이트의 형식."""
     import onnxruntime as ort
     from tokenizers import Tokenizer
 
     model_dir = Path(model_dir)
-    for name in SERVING_FILES[:3]:
-        if name == "model.onnx" and onnx_bytes is not None:
-            continue
+    for name in ("model_card.json", "tokenizer.json"):
         if not (model_dir / name).is_file():
             raise FileNotFoundError(f"모델 파일 없음: {model_dir / name}")
     card = json.loads((model_dir / "model_card.json").read_text(encoding="utf-8"))
-    opts = ort.SessionOptions()
-    opts.log_severity_level = 3
-    source = onnx_bytes if onnx_bytes is not None else str(model_dir / "model.onnx")
-    session = ort.InferenceSession(source, opts, providers=["CPUExecutionProvider"])
+    if model_bytes is None:
+        model_file = model_file or next((f for f in MODEL_FILES if (model_dir / f).is_file()), None)
+        if model_file is None:
+            raise FileNotFoundError(f"모델 파일 없음: {model_dir}/model.ort 또는 model.onnx")
+        if model_file == "model.ort":
+            model_bytes = (model_dir / model_file).read_bytes()
+    use_bytes = model_bytes is not None
+    is_ort = model_file == "model.ort"
+    source = model_bytes if use_bytes else str(model_dir / model_file)
+    session = ort.InferenceSession(source, session_options(ort_bytes=use_bytes and is_ort), providers=["CPUExecutionProvider"])
     tok = Tokenizer.from_file(str(model_dir / "tokenizer.json"))
-    return OnnxModel(session, tok, _special_ids(tok, model_dir), card)
+    return OnnxModel(session, tok, _special_ids(tok, model_dir), card, buffer=model_bytes if is_ort else None)

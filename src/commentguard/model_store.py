@@ -7,6 +7,7 @@ models/<model_version>/
 
 from __future__ import annotations
 
+import ctypes
 import json
 from dataclasses import dataclass
 from pathlib import Path
@@ -83,14 +84,14 @@ def load_local(model_dir: str | Path) -> CommentModel:
 
 def load_any(model_dir: str | Path):
     """model_card.json의 model_id로 로더를 고릅니다. M2~M4는 torch가 필요해서 그때만 import.
-    가중치(model.safetensors) 없이 model.onnx만 있으면 ONNX로 로드합니다."""
+    가중치(model.safetensors) 없이 model.ort나 model.onnx만 있으면 ONNX Runtime으로 로드합니다."""
     model_dir = Path(model_dir)
     card = json.loads((model_dir / "model_card.json").read_text(encoding="utf-8"))
     if card.get("members"):
         from commentguard.ensemble import load_ensemble
         return load_ensemble(model_dir)
     if str(card.get("model_id", "m1"))[:2] in TRANSFORMER_IDS:  # m2s43 같은 시드 변형 포함
-        if not (model_dir / "model.safetensors").is_file() and (model_dir / "model.onnx").is_file():
+        if not (model_dir / "model.safetensors").is_file() and any((model_dir / f).is_file() for f in ("model.ort", "model.onnx")):
             from commentguard.onnx_model import load_onnx  # 클라우드: torch 없이 ONNX로 (명세서 6.2장)
             return load_onnx(model_dir)
         from commentguard.m2 import load_m2
@@ -198,7 +199,7 @@ def check_blob_uri(uri: str) -> dict[str, Any]:
     return manifest
 
 
-IN_MEMORY = {"model.onnx"}  # Vercel 함수의 /tmp(약 500MB)보다 커서 디스크에 쓰지 않고 메모리로 받는 파일
+IN_MEMORY = {"model.onnx", "model.ort"}  # Vercel 함수의 /tmp(약 500MB)보다 커서 디스크에 쓰지 않고 메모리로 받는 파일
 
 
 def _download_blob(uri: str, dest: Path) -> tuple[dict[str, Any], dict[str, bytes]]:
@@ -214,25 +215,35 @@ def _download_blob(uri: str, dest: Path) -> tuple[dict[str, Any], dict[str, byte
         raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/{MANIFEST} 읽기 실패: {type(e).__name__}: {e}. 경로를 확인하세요") from e
     memory: dict[str, bytes] = {}
     for name, meta in manifest["files"].items():
-        h, size, chunks = hashlib.sha256(), 0, []
+        h, size = hashlib.sha256(), 0
+        # 큰 파일은 크기만큼 bytes를 먼저 만들고 그 자리에 채움. 조각을 모았다가 합치면 모델 크기만큼 메모리를 한 번 더 써서
+        # Vercel 함수(2GB)에서 M3(509MB)를 받다가 메모리가 부족했음. onnxruntime은 bytes만 받아서 bytearray는 쓸 수 없음
+        buf = bytes(meta["bytes"]) if name in IN_MEMORY else None
+        addr = ctypes.cast(ctypes.c_char_p(buf), ctypes.c_void_p).value if buf is not None else None
         try:
             with blob.stream_blob(f"{prefix}/{name}", access="private") as stream:
-                f = None if name in IN_MEMORY else open(dest / name, "wb")
+                f = None if buf is not None else open(dest / name, "wb")
                 try:
                     for chunk in stream:
-                        chunks.append(chunk) if f is None else f.write(chunk)
+                        if buf is not None:
+                            if size + len(chunk) > len(buf):
+                                raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/{name} 크기가 serving.json보다 큼")
+                            ctypes.memmove(addr + size, chunk, len(chunk))
+                        else:
+                            f.write(chunk)
                         h.update(chunk)
                         size += len(chunk)
                 finally:
                     if f is not None:
                         f.close()
+        except ModelLoadError:
+            raise
         except Exception as e:
             raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/{name} 다운로드 실패: {type(e).__name__}: {e}") from e
         if h.hexdigest() != meta["sha256"] or size != meta["bytes"]:
             raise ModelLoadError(f"{BLOB_SCHEME}{prefix}/{name} 해시 불일치 (받은 {size}바이트)")
-        if f is None:
-            memory[name] = b"".join(chunks)
-            chunks.clear()
+        if buf is not None:
+            memory[name] = buf
     return manifest, memory
 
 
@@ -246,9 +257,10 @@ def load_from_uri(uri: str | None) -> CommentModel:
 
             with tempfile.TemporaryDirectory() as tmp:  # Vercel 함수에서는 /tmp만 쓰기 가능
                 manifest, memory = _download_blob(uri, Path(tmp))
-                if "model.onnx" in memory:
+                if memory:
                     from commentguard.onnx_model import load_onnx
-                    model = load_onnx(tmp, onnx_bytes=memory.pop("model.onnx"))
+                    name, data = memory.popitem()
+                    model = load_onnx(tmp, model_bytes=data, model_file=name)
                 else:
                     model = load_any(tmp)  # 가중치는 메모리로 올라가므로 임시 폴더는 지워도 됨
                 if model.version != manifest["model_version"]:
