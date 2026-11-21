@@ -1,0 +1,31 @@
+[setup] 프로젝트 연결: comment-guard
+Vercel CLI 66.6.0
+Loading teams…
+
+  Directory       ~/Projects/comment-guard
+
+Searching for existing projects…
+
+✓ Linked          mlo-ps2/comment-guard
+
+Retrieving project…
+> Downloading a fresh `VERCEL_OIDC_TOKEN` for comment-guard
+Downloading
+
+✓ Created         .env.local file and added it to .gitignore
+[setup] Blob 저장소 있음: comment-guard-models
+Vercel CLI 66.6.0
+Retrieving project…
+> Overwriting existing .env.local file
+> Downloading `development` environment variables for comment-guard
+Downloading
+
+  Changes:
+  + VERCEL_OIDC_TOKEN (Updated)
+  + BLOB_READ_WRITE_TOKEN
+
+
+✓ Updated         .env.local file
+[setup] 완료. 저장소 ID는 configs/deploy.env에만 저장(기록에서는 가림)
+Project Name	Latest Production URL	Updated	Node Version	Status
+comment-guard	-	2026-11-21T18:42:42.879Z	26.x	-

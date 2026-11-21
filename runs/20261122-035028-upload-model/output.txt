@@ -1,0 +1,44 @@
+{
+  "model_version": "m3-20261115-5b32863",
+  "files": {
+    "model_card.json": {
+      "sha256": "06a7369ea1a592d4458690fb1b7d52369ba3cf513e587f9b6d9110e87e890477",
+      "bytes": 4700
+    },
+    "model.onnx": {
+      "sha256": "fb139275d9069e2ce03c6bdaa9f08a9af9eaff558ed67051c890699b1b192861",
+      "bytes": 509011286
+    },
+    "tokenizer.json": {
+      "sha256": "1beb28419d4087668c6316aae66b0198e7b0a58b8584d9a892e4fd8bde370f29",
+      "bytes": 1310592
+    },
+    "tokenizer_config.json": {
+      "sha256": "3cfbb173107c0d1668eb08657cddba58563c9daa94f7229006d08c40e5e75bb3",
+      "bytes": 404
+    }
+  }
+}
+[upload] models/m3-20261115-5b32863/model_card.json (8.0K)
+Vercel CLI 66.6.0
+Uploading blob
+> Success! https://****************.private.blob.vercel-storage.com/models/m3-20261115-5b32863/model_card.json
+[upload] models/m3-20261115-5b32863/model.onnx (485M)
+Vercel CLI 66.6.0
+Uploading blob
+> Success! https://****************.private.blob.vercel-storage.com/models/m3-20261115-5b32863/model.onnx
+[upload] models/m3-20261115-5b32863/tokenizer_config.json (4.0K)
+Vercel CLI 66.6.0
+Uploading blob
+> Success! https://****************.private.blob.vercel-storage.com/models/m3-20261115-5b32863/tokenizer_config.json
+[upload] models/m3-20261115-5b32863/tokenizer.json (1.3M)
+Vercel CLI 66.6.0
+Uploading blob
+> Success! https://****************.private.blob.vercel-storage.com/models/m3-20261115-5b32863/tokenizer.json
+Vercel CLI 66.6.0
+Uploading blob
+> Success! https://****************.private.blob.vercel-storage.com/models/m3-20261115-5b32863/serving.json
+[upload] 저장소 확인
+  53s             509011286     models/m3-20261115-5b32863/model.onnx                https://****************.private.blob.vercel-storage.com/models/m3-20261115-5b32863/model.onnx                
+  56s             4700          models/m3-20261115-5b32863/model_card.json           https://****************.private.blob.vercel-storage.com/models/m3-20261115-5b32863/model_card.json           
+MODEL_URI=blob://models/m3-20261115-5b32863/

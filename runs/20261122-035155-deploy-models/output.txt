@@ -1,0 +1,58 @@
+[deploy] MODEL_URI=blob://models/m2-20261110-314b2b2/ EXTRA_MODEL_URIS=blob://models/m1-20261109-591d16d/,blob://models/m3-20261115-5b32863/ region=icn1
+[deploy] 배포 전 검사 통과: m2-20261110-314b2b2 model_card.json, model.onnx, tokenizer.json, tokenizer_config.json
+[deploy] 배포 전 검사 통과: m1-20261109-591d16d model_card.json, model.joblib
+[deploy] 배포 전 검사 통과: m3-20261115-5b32863 model_card.json, model.onnx, tokenizer.json, tokenizer_config.json
+Deploying comment-guard
+Uploading [--------------------] (0.0B/133.9KB)
+Uploading [=====---------------] (36.4KB/133.9KB)
+Uploading [==========----------] (68.4KB/133.9KB)
+Uploading [===============-----] (104.8KB/133.9KB)
+Uploading [====================] (133.9KB/133.9KB)
+  Inspect         https://vercel.com/mlo-ps2/comment-guard/BTuJkJZxXApAzqGc73KvU3AP19TV
+▲ Production      https://comment-guard-1emez2299-mlo-ps2.vercel.app
+Building…
+Building…
+Running build in Washington, D.C., USA (East) – iad1
+Build machine configuration: 2 cores, 8 GB
+Retrieving list of deployment files...
+Downloading 38 deployment files...
+Restored build cache from previous deployment (9zhhA5M93NrU93zVXN7GTaQ7Mz77)
+Running "vercel build"
+Vercel CLI 66.2.0
+Using Python 3.12 from pyproject.toml
+Writing .python-version file with version 3.12
+Using uv 0.13.5 (x86_64-unknown-linux-gnu)
+Installing required dependencies from pyproject.toml...
+Bundle size (355.26 MB) exceeds the standard size; optimizing dependencies.
+Compiling Python bytecode...
+Build Completed in /vercel/output [18s]
+Deploying outputs...
+[2K[1A[2K[G▲ Production      https://comment-guard-1emez2299-mlo-ps2.vercel.app
+Completing…
+[deploy] 새 배포 dpl_BTuJkJZxXApAzqGc73KvU3AP19TV https://comment-guard-1emez2299-mlo-ps2.vercel.app
+Vercel CLI 66.6.0
+! This request bypasses Deployment Protection, so its response doesn't show whether the URL is public.
+
+  To check public access:
+    `curl https://comment-guard-1emez2299-mlo-ps2.vercel.app/health`
+[deploy] /health 시도 1: HTTP 200 {"status":"ok","model_version":"m2-20261110-314b2b2"}
+Vercel CLI 66.6.0
+Fetching deployment "https://comment-guard-1emez2299-mlo-ps2.vercel.app" in mlo-ps2…
+> Fetching deployment "https://comment-guard-1emez2299-mlo-ps2.vercel.app" in mlo-ps2…
+Promote in progress…
+Promote in progress…
+Promote in progress…
+Promote in progress…
+Promote in progress…
+> Promote in progress…
+> Success! comment-guard was promoted to comment-guard-1emez2299-mlo-ps2.vercel.app (dpl_BTuJkJZxXApAzqGc73KvU3AP19TV) [3s]
+{
+  "url": "https://comment-guard-jade.vercel.app",
+  "deployment_id": "dpl_BTuJkJZxXApAzqGc73KvU3AP19TV",
+  "deployment_url": "https://comment-guard-1emez2299-mlo-ps2.vercel.app",
+  "region": "icn1",
+  "model_uri": "blob://models/m2-20261110-314b2b2/",
+  "model_version": "m2-20261110-314b2b2",
+  "promoted_at": "2026-11-22T03:53:28+09:00"
+}
+[deploy] 프로덕션 승격 완료: https://comment-guard-jade.vercel.app

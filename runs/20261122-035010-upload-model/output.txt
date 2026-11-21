@@ -1,0 +1,29 @@
+{
+  "model_version": "m1-20261109-591d16d",
+  "files": {
+    "model_card.json": {
+      "sha256": "e2b8e6283ba31376bc33cc072c0a3af4d5cd28a481524cc936b13cf636048ceb",
+      "bytes": 3457
+    },
+    "model.joblib": {
+      "sha256": "3c67d381a8c681781c4c0e623ef067a545f31cb21466daa97620681a6c9a31e9",
+      "bytes": 3084095
+    }
+  }
+}
+[upload] models/m1-20261109-591d16d/model_card.json (4.0K)
+Vercel CLI 66.6.0
+Uploading blob
+> Success! https://****************.private.blob.vercel-storage.com/models/m1-20261109-591d16d/model_card.json
+[upload] models/m1-20261109-591d16d/model.joblib (2.9M)
+Vercel CLI 66.6.0
+Uploading blob
+> Success! https://****************.private.blob.vercel-storage.com/models/m1-20261109-591d16d/model.joblib
+Vercel CLI 66.6.0
+Uploading blob
+> Success! https://****************.private.blob.vercel-storage.com/models/m1-20261109-591d16d/serving.json
+[upload] 저장소 확인
+  11s             3084095       models/m1-20261109-591d16d/model.joblib              https://****************.private.blob.vercel-storage.com/models/m1-20261109-591d16d/model.joblib              
+  14s             3457          models/m1-20261109-591d16d/model_card.json           https://****************.private.blob.vercel-storage.com/models/m1-20261109-591d16d/model_card.json           
+  2s              333           models/m1-20261109-591d16d/serving.json              https://****************.private.blob.vercel-storage.com/models/m1-20261109-591d16d/serving.json              
+MODEL_URI=blob://models/m1-20261109-591d16d/

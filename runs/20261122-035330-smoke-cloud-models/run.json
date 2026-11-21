@@ -1,0 +1,37 @@
+{
+  "run_id": "20261122-035330-smoke-cloud-models",
+  "step": "smoke",
+  "started_at": "2026-11-22T03:53:30+09:00",
+  "finished_at": "2026-11-22T03:54:57+09:00",
+  "status": "failed",
+  "git_commit": "f184ce1f682c963b9d251dff174ab5f7f72b7b47",
+  "git_dirty": false,
+  "model_version": "m2-20261110-314b2b2",
+  "inputs": {},
+  "config": {
+    "target": "cloud",
+    "url": "https://comment-guard-jade.vercel.app",
+    "region": "icn1",
+    "deployment_id": "dpl_BTuJkJZxXApAzqGc73KvU3AP19TV",
+    "deployment_url": "https://comment-guard-1emez2299-mlo-ps2.vercel.app",
+    "model_uri": "blob://models/m2-20261110-314b2b2/"
+  },
+  "outputs": [
+    "runs/20261122-035330-smoke-cloud-models/runtime_logs.jsonl",
+    "runs/20261122-035330-smoke-cloud-models/cloud_smoke.json"
+  ],
+  "extra": {
+    "passed": 17,
+    "total": 18,
+    "url": "https://comment-guard-jade.vercel.app",
+    "region": "icn1",
+    "deployment_id": "dpl_BTuJkJZxXApAzqGc73KvU3AP19TV",
+    "deployment_url": "https://comment-guard-1emez2299-mlo-ps2.vercel.app",
+    "model_uri": "blob://models/m2-20261110-314b2b2/"
+  },
+  "error": "RuntimeError: 스모크 실패: 1/18건\nTraceback (most recent call last):\n  File \"/Users/sangyeop/Projects/comment-guard/src/commentguard/runlog.py\", line 174, in run_step\n    yield record\n  File \"/Users/sangyeop/Projects/comment-guard/scripts/smoke_cloud.py\", line 243, in main\n    raise RuntimeError(f\"스모크 실패: {len(s.cases) - passed}/{len(s.cases)}건\")\nRuntimeError: 스모크 실패: 1/18건\n",
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}
