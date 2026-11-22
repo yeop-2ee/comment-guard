@@ -2,7 +2,7 @@
 
 과제 "나. 클라우드 실행" 항목의 기록입니다.
 
-> **현재 상태 (2026-11-22 04:15 KST):** 프로덕션 `https://comment-guard-jade.vercel.app`, 배포 `dpl_9MuBmdTdMVgmmGBQLgyT7UaEPhwF`, 서빙 모델 M2 `m2-20261110-314b2b2`. 마지막 클라우드 스모크 **14/14 통과** (`runs/20261122-041509-smoke-cloud-main/`).
+> **현재 상태 (2026-11-22 13:05 KST):** 프로덕션 `https://comment-guard-jade.vercel.app`, 배포 `dpl_CqKhq1Pou85PAvirQK7xroX2QcZx`, 서빙 모델 M2 `m2-20261110-314b2b2`. 모델은 이 저장소의 GitHub Release [`model-m2-20261110-314b2b2`](https://github.com/yeop-2ee/comment-guard/releases/tag/model-m2-20261110-314b2b2)에서 받습니다(8장). 마지막 클라우드 스모크 **14/14 통과** (`runs/20261122-130351-smoke-cloud-release/`).
  구성의 근거는 `docs/PROJECT_SPEC.md` 6장, 실행 기록 원본은 `runs/`에 있습니다. Blob 저장소 ID는 모든 기록에서 `*`로 가렸습니다.
 
 ## 1. 구성
@@ -13,7 +13,7 @@
 | 플랜 | Hobby (무료, 결제 수단 없음) | 한도를 넘으면 과금 없이 중지되므로 비용이 생기지 않음 |
 | 리전 | 함수 `icn1`(서울), Blob 저장소 `icn1` | 사용자가 한국에 있음. 모델을 받는 거리도 짧게 |
 | 실행 설정 | 최대 실행 시간 60초(`vercel.json`), 메모리는 Hobby 기본값 2GB(vCPU 1) | ONNX로 M2를 받아 올리는 동안의 최대 메모리 1.65GB(로컬 측정)가 들어감 |
-| 모델 저장 | Vercel Blob **비공개** 저장소 `models/m2-20261110-314b2b2/` (`model.onnx` 434MB, 토크나이저, 모델 카드, `serving.json`) | CLI 배포 업로드 한도(Hobby 100MB)를 넘어서 배포에 넣을 수 없음. 코드와 모델을 분리해 모델만 교체 가능 |
+| 모델 저장 | 처음: Vercel Blob **비공개** 저장소 `models/m2-20261110-314b2b2/`. 지금: 이 저장소의 GitHub Release `model-m2-20261110-314b2b2` (`model.onnx` 434MB, 토크나이저, 모델 카드, `serving.json`) | CLI 배포 업로드 한도(Hobby 100MB)를 넘어서 배포에 넣을 수 없음. 코드와 모델을 분리해 모델만 교체 가능. Blob이 한도 초과로 정지돼서 옮김(8장) |
 | 모델 실행 형식 | ONNX (onnxruntime 1.32.0) | PyTorch는 Python 함수 크기 한도(500MB)를 넘음. 변환 결과는 valid 790건에서 PyTorch와 같음(아래 2장) |
 | 함수 크기와 의존성 | 빌드 출력 `λ fastapi (59.06MB) [icn1]`. 의존성은 `pyproject.toml`의 서빙용 32개만(FastAPI, onnxruntime, tokenizers, vercel-blob 등) | 런타임 로그에서 함수가 처음 뜰 때 의존성을 `/tmp`에 설치하는 것을 확인함(`Installing runtime dependencies...`). 모델을 받을 공간이 남도록 scikit-learn·scipy·pandas는 뺌(7장) |
 | 연결 | 브라우저·curl → 프로덕션 도메인 `https://comment-guard-jade.vercel.app` → 함수 → 첫 요청에서 Blob의 모델 로드 | 프로덕션 도메인만 공개. 개별 배포 주소는 Deployment Protection으로 Vercel 로그인 필요 |
@@ -116,7 +116,23 @@ M2만 남기면서 M2를 `.ort` 형식으로 다시 올리고 배포한 뒤, 프
 - **왜 막지 못했나:** 배포 전 검사(경로·파일)와 `/health`(모델 로드)는 통과했고, 판정을 실제로 해 보는 단계가 없었습니다. 이전 정상 배포로 되돌리는 것도 불가능했습니다. 이전 배포가 쓰던 `model.onnx`를 저장소에서 먼저 지웠기 때문입니다.
 - **교훈:** 승격 전에 실제 판정을 확인합니다(반영함). 모델 파일 형식을 바꿀 때는 이전 파일을 지우기 전에 새 배포를 확인합니다.
 
-## 8. 확인하지 못한 것
+## 8. Blob 저장소 정지와 모델 저장 위치 변경 (2026-11-22 12:55 KST 확인)
+
+새 폴더 재실행 중 클라우드 스모크가 실패해서 확인해 보니 프로덕션이 모든 요청에 503을 반환하고 있었습니다.
+
+| 항목 | 내용 | 기록 |
+|---|---|---|
+| 증상 | `/health`와 판정 요청 모두 `{"error": "model_load_failed"}` 503. 런타임 로그: `serving.json 읽기 실패: BlobAccessError: Vercel Blob: Blob request failed with HTTP 403` | 정리 기록의 저장소 상태 |
+| 원인 | Blob 저장소가 **Suspended(정지)**. Hobby는 한도를 넘으면 과금 없이 Blob을 30일 동안 쓸 수 없게 함. 이날 배포 시도, M3 전환, 7장 장애 중 재시작으로 함수 인스턴스가 새로 뜰 때마다 모델(434~509MB)을 받아 전송 한도(월 10GB)를 넘은 것으로 봄. 정확한 사용량은 대시보드에서만 볼 수 있어 기록하지 못함 | `runs/20261122-130523-cleanup-keep/cleanup_status.txt` (`● Suspended`) |
+| 결정 | 모델을 이 저장소의 **GitHub Release**에 올리고 함수가 공개 HTTPS 주소에서 받게 함(사용자 결정). 전송량 한도와 과금이 없고 토큰도 필요 없음. 가중치가 공개되므로 출처와 CC BY-SA 4.0 조건을 Release 설명에 적음 | 명세서 6.2장 |
+| 코드 | `MODEL_URI=https://.../releases/download/model-<version>/`를 지원(`_HttpStore`), 배포 전 검사·해시 확인·메모리로 받기는 Blob과 같은 코드 경로. 테스트 추가(로컬 HTTP 서버) | `tests/test_cloud.py::test_https_store_loads_and_checks` |
+| 복구 | Release 생성 → 배포 전 검사 통과 → 새 배포 `/health`·판정 확인 → 승격 → 스모크 **14/14** | `runs/20261122-130049-upload-model`, `-130212-deploy-release`, `-130351-smoke-cloud-release` |
+| 정리 | 정지된 Blob 저장소는 쓰지 않음. 삭제는 Vercel CLI가 사람의 확인을 요구해서 자동 정리에서는 건너뜀(첫 시도는 실패로 기록) | `runs/20261122-130444-cleanup-keep` (failed), `-130523-cleanup-keep` |
+
+- **멈춘 시간:** 정지된 시점은 기록이 없어 정확히 모릅니다. 13:03에 복구했습니다.
+- **교훈:** 함수가 뜰 때마다 큰 모델을 받는 구조는 무료 저장소의 전송 한도를 빨리 씁니다. 전송 한도가 없는 곳(GitHub Release)에 두거나, 재시작이 반복되는 상황(7장)을 먼저 막아야 합니다.
+
+## 9. 확인하지 못한 것
 
 - 동시 요청이 많을 때의 동작(인스턴스 수, 지연)은 재지 않았습니다.
 - 메모리 사용량은 Vercel이 함수별로 보여 주는 값을 따로 기록하지 않았습니다.

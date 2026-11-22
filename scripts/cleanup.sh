@@ -23,7 +23,7 @@ case "$MODE" in
   --keep-production)
     prod_id="$("$PY" -c 'import json; print(json.load(open(".state/last_deploy.json"))["deployment_id"])')"
     prod_url="$("$PY" -c 'import json; print(json.load(open(".state/last_deploy.json"))["deployment_url"])')"
-    echo "[cleanup] 남김: 프로덕션 배포 $prod_id ($prod_url), Blob 모델, 프로젝트"
+    echo "[cleanup] 남김: 프로덕션 배포 $prod_id ($prod_url), 모델 Release, 프로젝트"
     for url in $(vc ls "$VERCEL_PROJECT" 2>&1 | grep -oE 'https://[a-z0-9-]+\.vercel\.app' | sort -u); do
       [[ "$url" == "$prod_url" ]] && continue
       echo "[cleanup] 지난 배포 삭제: $url"

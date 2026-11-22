@@ -44,7 +44,7 @@
 
 ```
 [브라우저 / 클라이언트] ── HTTPS ─▶ [Vercel 프로덕션 도메인] ─▶ [현재 배포: Python 함수 (FastAPI), icn1]
-                                                                 ├─ 첫 요청에서 로드 ─▶ [Vercel Blob (비공개): models/<version>/]
+                                                                 ├─ 첫 요청에서 로드 ─▶ [GitHub Release: model-<version>]
                                                                  └─ 요청 로그(원문 제외) ─▶ [Vercel 런타임 로그]
 [로컬] 데이터 → 검증 → 학습 → 평가 → ONNX 변환 → 테스트 → 모델 업로드
        → 배포 전 경로 검사 → 배포 → /health·판정 확인 → 프로덕션 승격 → 스모크
@@ -55,7 +55,7 @@
 |------|------|------|
 | **실행** | Vercel Functions (Python 3.12, Hobby 플랜) | 요청이 없으면 비용이 없음. 같은 FastAPI 앱을 로컬 `uvicorn`과 Vercel에서 그대로 실행하고, 화면과 API를 같은 주소로 제공 |
 | **리전** | `icn1` (서울), 모델 저장소도 같은 리전 | 사용자가 한국에 있음 |
-| **모델 저장** | Vercel Blob 비공개 저장소, 파일 목록과 sha256을 적은 `serving.json` | 모델(434MB)이 CLI 배포 업로드 한도(100MB)보다 커서 코드와 분리. 받은 파일은 해시로 확인 |
+| **모델 저장** | 이 저장소의 [GitHub Release](https://github.com/yeop-2ee/comment-guard/releases/tag/model-m2-20261110-314b2b2), 파일 목록과 sha256을 적은 `serving.json` | 모델(434MB)이 CLI 배포 업로드 한도(100MB)보다 커서 코드와 분리. 받은 파일은 해시로 확인. 처음 쓴 Vercel Blob은 무료 한도 초과로 정지돼서 옮김 |
 | **모델 실행 형식** | ONNX (onnxruntime) | PyTorch는 Python 함수 크기 한도(500MB)를 넘음. 변환 결과가 PyTorch와 같은지 valid 790건으로 확인 |
 | **버전·롤백** | 배포 전 경로 검사 → 새 배포의 `/health`와 판정 1건 확인 → `vercel promote` | 새 배포가 실패하면 승격하지 않아 이전 배포가 계속 서비스 |
 
@@ -105,7 +105,7 @@ make data          원본 다운로드 + 해시 검증
 make validate      잘못된 값 검사 + 학습/검증/평가 분할
 make train         B0·M1 학습 (M2는 python -m commentguard.m2)
 make evaluate      eval 471건으로 평가
-make test          pytest 77개
+make test          pytest 78개
 make export-onnx   M2 → ONNX, valid로 PyTorch와 같은지 확인
 make vercel-setup → upload-model → deploy → smoke → cleanup-keep / cleanup
 ```
@@ -130,7 +130,8 @@ make vercel-setup → upload-model → deploy → smoke → cleanup-keep / clean
 | [ONNX Runtime](https://onnxruntime.ai) / [tokenizers](https://github.com/huggingface/tokenizers) | 1.32.0 / 0.23.3 | 클라우드 추론 (torch 없이) |
 | [onnx](https://onnx.ai) | 1.23.2 | M2 → ONNX 변환 (로컬) |
 | [Vercel Python 런타임](https://vercel.com/docs/functions/runtimes/python) | Python 3.12 | FastAPI 앱을 Vercel 함수로 실행 |
-| [Vercel Blob](https://vercel.com/docs/vercel-blob) / vercel-blob | — / 0.6.2 | 모델 저장(비공개)과 읽기 |
+| [GitHub Releases](https://docs.github.com/repositories/releasing-projects-on-github) | — | 모델 파일 공개 저장 (함수가 HTTPS로 받음) |
+| [Vercel Blob](https://vercel.com/docs/vercel-blob) / vercel-blob | — / 0.6.2 | 처음 쓴 모델 저장소(비공개). 정지 뒤 사용하지 않음 |
 | [Vercel CLI](https://vercel.com/docs/cli) | 66.6.0 (`npx`로 고정) | 배포, 업로드, 로그, 정리 |
 | [pytest](https://docs.pytest.org) | 9.2.0 | 정상 동작 검사 |
 
@@ -159,7 +160,7 @@ comment-guard/
 │   ├── probe.py             # 행동 검사 세트 평가
 │   ├── severity.py          # 심각도 점수, 등급, 민감도 규칙, 기준값 조정
 │   ├── report.py            # 증거 리포트 (JSON·CSV, 해시)
-│   ├── model_store.py       # 로컬·Blob 모델 로드, 배포 전 경로 검사
+│   ├── model_store.py       # 로컬·원격(Release·Blob) 모델 로드, 배포 전 경로 검사
 │   ├── api.py               # FastAPI 앱
 │   ├── runlog.py            # 실행 기록 공통 함수
 │   └── static/index.html    # 웹 화면
@@ -168,7 +169,7 @@ comment-guard/
 │   ├── download_data.sh         # 데이터 다운로드 + 해시 검증
 │   ├── vercel_env.sh            # deploy.env 읽기, 로그인 확인
 │   ├── vercel_setup.sh          # 프로젝트 연결·Blob 저장소 준비
-│   ├── upload_model.sh          # 모델 업로드 (dirty 모델, 동등성 확인 안 된 모델은 거부)
+│   ├── upload_model.sh          # 모델을 GitHub Release(또는 Blob)에 업로드 (dirty 모델, 동등성 확인 안 된 모델은 거부)
 │   ├── deploy_vercel.sh         # 배포 전 경로 검사, 배포, /health·판정 확인 후 승격
 │   ├── smoke_cloud.py           # 로컬·클라우드 공용 스모크, 런타임 로그 원문 검사
 │   ├── cleanup.sh               # 자원 정리와 상태 재조회
@@ -176,7 +177,7 @@ comment-guard/
 │
 ├── configs/                 # train.yaml, severity.yaml, serving.yaml, deploy.env.example
 ├── data/                    # raw/ (원본 + MANIFEST.sha256), processed/, probes/
-├── tests/                   # pytest 77개
+├── tests/                   # pytest 78개
 ├── runs/                    # 실행 기록 (run.json, 지표, 모델 카드, 스모크, 정리 상태)
 ├── models/                  # 로컬 모델 (Git 제외)
 ├── docs/
@@ -205,7 +206,7 @@ comment-guard/
 | make, git | - |
 | Apple Silicon(MPS) 또는 GPU | 선택 — M2 학습이 빨라짐 (맥 MPS에서 약 24분) |
 | Node.js 20+ | 클라우드 단계에만 필요 (`npx`로 Vercel CLI 66.6.0 실행) |
-| Vercel 계정 (Hobby) | 클라우드 단계에만 필요. 결제 수단 없이 가능 |
+| Vercel 계정 (Hobby), GitHub CLI(`gh`) 로그인 | 클라우드 단계에만 필요. 결제 수단 없이 가능 |
 
 ### 1. 저장소 클론
 
@@ -255,12 +256,12 @@ make smoke-local    # 다른 터미널에서. 13개 케이스 → runs/*/local_s
 ```bash
 npx -y vercel@66.6.0 login                        # 브라우저 인증 (토큰을 만들지 않음)
 cp configs/deploy.env.example configs/deploy.env  # 프로젝트·저장소 이름 (Git 제외)
-make vercel-setup   # 프로젝트 연결, Blob 비공개 저장소 생성 (저장소 ID는 deploy.env에만)
-make upload-model   # 서빙 모델을 Blob 저장소에 업로드
+make vercel-setup   # 프로젝트 연결 (Blob 저장소도 만듦, MODEL_STORE=blob일 때만 사용)
+make upload-model   # 서빙 모델을 이 저장소의 GitHub Release로 올림 (gh 로그인 필요)
 make deploy         # 테스트 → 배포 전 경로 검사 → 배포 → /health·판정 확인 → 프로덕션 승격
 make smoke          # 프로덕션 도메인 스모크 + 런타임 로그 원문 검사 → runs/*/cloud_smoke.json
 make cleanup-keep   # 지난 배포만 삭제하고 상태 재조회 (프로덕션 유지)
-make cleanup        # Blob 저장소와 프로젝트까지 모두 삭제하고 상태 재조회
+make cleanup        # 모델 Release와 프로젝트까지 모두 삭제하고 상태 재조회
 ```
 
 ---
@@ -334,7 +335,7 @@ eval은 학습, 어휘 사전, 하이퍼파라미터, 심각도 기준값 조정
 | 항목 | 내용 |
 |------|------|
 | **판단 기준** | 학습 전에 정함: 기준 모델보다 확실히 높을 것, medium 민감도에서 정상 오차단율 ≤ 15%, 혐오 차단율 ≥ 60%. M2는 세 가지를 모두 통과 |
-| **정상 동작 검사** | pytest 77개(입력 검증, 리포트 재현성, 로그 원문 차단, Blob 로드, 배포 전 검사 등), 로컬 스모크 13개, **클라우드 스모크 14개**(13개 + 런타임 로그 원문 검사) 통과 |
+| **정상 동작 검사** | pytest 78개(입력 검증, 리포트 재현성, 로그 원문 차단, 원격 모델 로드, 배포 전 검사 등), 로컬 스모크 13개, **클라우드 스모크 14개**(13개 + 런타임 로그 원문 검사) 통과 |
 | **잘못된 결과 분석** | eval에서 놓친 혐오 1건(초성 비속어가 어휘 사전에 없음), 사용 중 발견한 오판 1건(신조어 칭찬을 혐오로 판정) |
 | **가장 큰 약점** | 노골적인 단어가 없는 성희롱과 비꼼 (직접 만든 행동 검사 36문장에서 성희롱 1/6, 비꼼 0/6) |
 | **한계** | 연예 뉴스 댓글에 한정, eval이 471건이라 구간이 넓음, 클라우드 지연·cold start는 몇 번만 측정, 동시 요청 부하는 미측정, 확률 보정·리포트의 법적 유용성은 미측정 |
@@ -347,12 +348,12 @@ eval은 학습, 어휘 사전, 하이퍼파라미터, 심각도 기준값 조정
 
 | 항목 | 내용 |
 |------|------|
-| **서비스·리전** | Vercel Functions (Hobby), 함수와 Blob 저장소 모두 `icn1`(서울) |
+| **서비스·리전** | Vercel Functions (Hobby), 함수 리전 `icn1`(서울) |
 | **설정** | Python 3.12, 메모리 2GB(기본값), 최대 실행 시간 60초, 의존성은 서빙용 32개 |
-| **데이터·결과 위치** | 모델 `blob://models/m2-20261110-314b2b2/`(비공개), 결과는 `runs/*-smoke-cloud-*/cloud_smoke.json`과 `runtime_logs.jsonl` |
-| **실제 입력 → 결과** | 공개 데이터 댓글로 T1~T11·필터·메타 요청, 응답의 `model_version`이 서빙 모델과 같음. 마지막 스모크 14/14 (`runs/20261122-041509-smoke-cloud-main/`) |
+| **데이터·결과 위치** | 모델 `https://github.com/yeop-2ee/comment-guard/releases/download/model-m2-20261110-314b2b2/`(처음에는 Vercel Blob 비공개 저장소), 결과는 `runs/*-smoke-cloud-*/cloud_smoke.json`과 `runtime_logs.jsonl` |
+| **실제 입력 → 결과** | 공개 데이터 댓글로 T1~T11·필터·메타 요청, 응답의 `model_version`이 서빙 모델과 같음. 마지막 스모크 14/14 (`runs/20261122-130351-smoke-cloud-release/`) |
 | **지연** | 1건 수백 ms, 100건 약 10~14초, cold start 25~30초(3회 측정) |
-| **배포 중 문제** | 의존성 미설치, `/tmp` 부족, 주소 탐색 실패를 고친 뒤 배포. 운영 중 판정 실패 약 10분이 있었고 복구한 뒤 승격 전 판정 확인을 추가(`docs/CLOUD_RUNS.md` 3장, 7장) |
+| **배포·운영 중 문제** | 의존성 미설치, `/tmp` 부족, 주소 탐색 실패를 고친 뒤 배포. 운영 중 판정 실패 약 10분이 있었고 복구한 뒤 승격 전 판정 확인을 추가. Blob 저장소가 무료 한도 초과로 정지돼 모델을 GitHub Release로 옮김(`docs/CLOUD_RUNS.md` 3장, 7장, 8장) |
 | **모델 선택 시도** | M1·M3도 클라우드 화면에서 고르게 해 봤지만 M3 전환 때 메모리 부족 → M2만 유지 (6장) |
 
 ---
@@ -394,10 +395,10 @@ eval은 학습, 어휘 사전, 하이퍼파라미터, 심각도 기준값 조정
 
 | 항목 | 내용 |
 |------|------|
-| **권한** | 배포자는 `vercel login`(브라우저 인증)으로 이 프로젝트와 저장소만 다룸. 함수는 저장소 연결 때 Vercel이 만든 토큰으로 이 저장소 하나를 읽음(토큰 자체는 쓰기도 가능, 한계로 기록). 프로덕션 도메인만 공개, 다른 배포 주소는 로그인 필요 |
-| **비용** | Hobby(무료) 플랜, 결제 수단 없음. 한도를 넘으면 과금 없이 멈춤. 요청이 없으면 0, 최대 실행 시간 60초, Blob 1GB 중 416.64MB 사용 |
-| **정리** | `make cleanup-keep`로 지난 배포를 지우고 상태를 다시 조회: 배포 1개(프로덕션), 저장소 1개(M2 파일 5개), `/health` 200 (`runs/20261122-041711-cleanup-keep/cleanup_status.txt`) |
-| **남긴 자원과 계획** | 채점 기간 동안 프로덕션·모델·프로젝트를 남김. 채점 뒤 `make cleanup`으로 모두 지우고 상태를 다시 조회 |
+| **권한** | 배포자는 `vercel login`(브라우저 인증)과 `gh` 로그인으로 이 프로젝트와 이 저장소의 Release만 다룸. 함수는 공개 Release 파일을 인증 없이 읽음. 프로덕션 도메인만 공개, 다른 배포 주소는 로그인 필요 |
+| **비용** | Hobby(무료) 플랜, 결제 수단 없음. 한도를 넘으면 과금 없이 멈춤(실제로 Blob이 전송 한도를 넘어 정지됨). 요청이 없으면 0, 최대 실행 시간 60초, GitHub Release는 과금 없음 |
+| **정리** | `make cleanup-keep`로 지난 배포 11개를 지우고 상태를 다시 조회: 배포 1개(프로덕션), 모델 Release 1개, 정지된 Blob 저장소 1개(삭제는 사람 확인 필요), `/health` 200 (`runs/20261122-130523-cleanup-keep/cleanup_status.txt`) |
+| **남긴 자원과 계획** | 채점 기간 동안 프로덕션·모델 Release·프로젝트를 남김. 채점 뒤 `make cleanup`으로 모두 지우고 상태를 다시 조회. 정지된 Blob 저장소는 터미널에서 직접 삭제 |
 
 자세한 내용은 `docs/COST_AND_CLEANUP.md`에 있습니다.
 
@@ -450,7 +451,7 @@ eval은 학습, 어휘 사전, 하이퍼파라미터, 심각도 기준값 조정
 
 ### 이 과제에서 만든 것
 
-- `src/commentguard/`의 전처리, 검증·분할, 학습, 평가, 심각도 점수와 기준값 조정, 리포트, API, ONNX 변환·서빙, Blob 모델 로드와 배포 전 검사, 실행 기록, 웹 화면
+- `src/commentguard/`의 전처리, 검증·분할, 학습, 평가, 심각도 점수와 기준값 조정, 리포트, API, ONNX 변환·서빙, 원격(Release·Blob) 모델 로드와 배포 전 검사, 실행 기록, 웹 화면
 - `scripts/`의 배포·업로드·스모크·정리 스크립트, `tests/`, `Makefile`, `app.py`, `vercel.json`, `docs/`
 - 행동 검사 세트(`data/probes/`)의 문장
 

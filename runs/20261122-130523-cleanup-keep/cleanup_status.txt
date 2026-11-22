@@ -1,0 +1,27 @@
+# 정리 후 상태 재조회 (--keep-production) 2026-11-22T13:05:29+0900
+
+## vercel project ls
+> Projects found under mlo-ps2  [677ms]
+Project Name	Latest Production URL	Updated	Node Version	Status
+comment-guard	-	2026-11-22T04:04:50.050Z	26.x	-
+
+
+## vercel ls comment-guard
+  Age     Project                   Deployment                                             Status      Environment     Duration     Username            
+  3m      mlo-ps2/comment-guard     https://comment-guard-m11sthm2p-mlo-ps2.vercel.app     ● Ready     Production      29s          ***************     
+https://comment-guard-m11sthm2p-mlo-ps2.vercel.app
+
+## vercel blob list-stores
+> Blob stores for project comment-guard:
+  Name                   ID                       Status        Region   Size       Files   Projects        Age   
+  comment-guard-models   store_****************   ● Suspended   icn1     416.64MB   5       comment-guard   10h   
+
+
+## gh release list (모델)
+모델 m2-20261110-314b2b2	Latest	model-m2-20261110-314b2b2	2026-11-22T04:01:25Z
+
+## 프로덕션 도메인 https://comment-guard-jade.vercel.app/health
+{"status":"ok","model_version":"m2-20261110-314b2b2"} HTTP 200
+
+## 로컬 토큰 파일
+.vercel

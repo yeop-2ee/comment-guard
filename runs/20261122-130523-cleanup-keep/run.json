@@ -1,0 +1,28 @@
+{
+  "run_id": "20261122-130523-cleanup-keep",
+  "step": "cleanup",
+  "started_at": "2026-11-22T13:05:23+09:00",
+  "finished_at": "2026-11-22T13:05:35+09:00",
+  "status": "success",
+  "git_commit": "3546a14c718e38095275b9efe15c541f8f2a941b",
+  "git_dirty": false,
+  "model_version": null,
+  "inputs": {},
+  "config": {},
+  "outputs": [
+    "runs/20261122-130523-cleanup-keep/output.txt"
+  ],
+  "extra": {
+    "command": [
+      "bash",
+      "scripts/cleanup.sh",
+      "--keep-production"
+    ],
+    "exit_code": 0
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

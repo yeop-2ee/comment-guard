@@ -602,7 +602,7 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 | 진입점 | Vercel 프로덕션 도메인 (HTTPS) | 화면을 브라우저로 바로 열 수 있음. 남용은 입력 크기 제한(2.2장)과 Hobby 플랜 한도(초과 시 과금 없이 중지)로 막음. 프로덕션 외 배포 주소는 Deployment Protection(Vercel 로그인 필요)으로 막힘 |
 | 버전·롤백 | 배포 전에 `MODEL_URI` 경로를 검사하고(M5), 새 배포(변경 불가)를 만든 뒤 그 배포의 `/health`와 판정 1건이 통과해야 `vercel promote`로 프로덕션 도메인을 옮김 | 새 배포가 시작에 실패하면 승격하지 않아 이전 정상 배포가 계속 서비스함. 문제가 생기면 `vercel rollback`으로 되돌림 |
 | 리전 | `icn1` (서울) | 사용자가 한국에 있음. 모델 저장소도 같은 리전에 둠 |
-| 모델 저장 | **이 저장소의 GitHub Release** `model-<version>` (공개 파일, 파일 목록과 sha256을 적은 `serving.json` 포함). 처음에는 Vercel Blob 비공개 저장소를 썼음 | 코드와 모델을 분리해서 모델만 교체 가능. CLI 배포 업로드 한도(Hobby 100MB) 때문에 모델을 배포에 넣지 않음. 받은 파일은 해시로 확인. **2026-11-22 변경:** Blob은 함수가 새로 뜰 때마다 434MB를 받아 Hobby 한도를 넘었고 저장소가 정지됨(30일). GitHub Release는 전송량 과금·한도 걱정이 없어서 옮김(사용자 결정). 가중치가 공개되므로 출처와 CC BY-SA 4.0 조건을 Release 설명에 적음 (`docs/CLOUD_RUNS.md` 9장) |
+| 모델 저장 | **이 저장소의 GitHub Release** `model-<version>` (공개 파일, 파일 목록과 sha256을 적은 `serving.json` 포함). 처음에는 Vercel Blob 비공개 저장소를 썼음 | 코드와 모델을 분리해서 모델만 교체 가능. CLI 배포 업로드 한도(Hobby 100MB) 때문에 모델을 배포에 넣지 않음. 받은 파일은 해시로 확인. **2026-11-22 변경:** Blob은 함수가 새로 뜰 때마다 434MB를 받아 Hobby 한도를 넘었고 저장소가 정지됨(30일). GitHub Release는 전송량 과금·한도 걱정이 없어서 옮김(사용자 결정). 가중치가 공개되므로 출처와 CC BY-SA 4.0 조건을 Release 설명에 적음 (`docs/CLOUD_RUNS.md` 8장) |
 | 모델 실행 형식 | M1: joblib(scikit-learn). M2: ONNX로 변환해 onnxruntime으로 실행(`python -m commentguard.onnx_export`) | Python 함수 크기 한도(500MB) 안에 들어가야 함. PyTorch는 그것만으로 한도를 넘어서 서빙에는 쓰지 않음. 같은 가중치를 형식만 바꾸므로 모델 버전은 그대로 두고, valid 790건으로 PyTorch 결과와 같은지 확인(토큰 ID 일치, 확률 차이 ≤ 1e-4, 예측 100% 일치)한 뒤에만 업로드 |
 | 로그 | Vercel 런타임 로그 (Hobby 1시간 보존) | 원문은 남기지 않음. 보존이 짧아서 스모크 직후 `vercel logs`로 받아 `runs/`에 저장 |
 | 실행 설정 | 메모리 2GB(vCPU 1, Hobby 기본값이자 최대), 최대 실행 시간 60초, Python 3.12. 함수 의존성은 `pyproject.toml`의 서빙용 목록만 | ONNX로 M2를 올리는 동안 최대 1.65GB(로컬 측정). 함수가 처음 뜰 때 의존성을 `/tmp`에 설치하므로 서빙에 쓰지 않는 패키지는 넣지 않음. 모델 파일(434MB)은 `/tmp`보다 커서 메모리로 받음(6.3장) |
@@ -776,11 +776,11 @@ M2와 비교 단계는 Make 타깃이 없어서 모듈을 직접 실행합니다
 ### 10.3 자원 정리
 
 `scripts/cleanup.sh`는 두 모드가 있습니다. 채점 기간에는 `make cleanup-keep`(지난 배포만 삭제, 프로덕션·모델·프로젝트 유지)을 실행했고, 채점이 끝나면 `make cleanup`(전체 삭제)을 실행합니다(결정: 2026-11-22, 사용자).
-1. Blob 저장소의 모델 삭제 후 저장소 삭제 (보관한다면 이유와 삭제 예정일 기록)
+1. 모델 Release(`model-*`, 태그 포함) 삭제, Blob 저장소가 남아 있으면 삭제(Vercel CLI가 사람의 확인을 요구해서 터미널에서 직접 실행)
 2. Vercel 프로젝트 삭제 (배포, 프로덕션 도메인 포함)
 3. **정리 후 상태 재조회** 결과를 `runs/<id>-cleanup/cleanup_status.txt`에 저장
    - `vercel project ls`
-   - `vercel blob list-stores`
+   - `vercel blob list-stores`, `gh release list`
    - 프로덕션 도메인에 요청해 더 이상 응답하지 않는지(404) 확인
 
 남겨둔 자원이 있으면 `docs/COST_AND_CLEANUP.md`에 이유와 정리 계획을 적습니다.
@@ -913,7 +913,7 @@ comment-guard/
 | M6 추가: 시드 반복·시드 앙상블 (D8) | 완료. 서빙 모델은 M2 유지, M4·ENS 등 삭제 | `runs/20261116-002311-train-m2s43` ~ `-004633-probe-behavior_v2` |
 | M6 추가: 성능 개선 후보 (D7) | 완료. 서빙 모델은 M2 유지 | `runs/20261115-232408-train-m3`, `-233346-train-m4`, `runs/20261116-000626-train-ens`, `-000811-compare-all` |
 | M7 README와 재실행 | README 작성함(미실행 단계는 미실행으로 표시). 새 폴더 재실행은 시작 전 | `README.md` |
-| M8 자원 정리와 최종 점검 | 부분 정리 완료(지난 배포 5개 삭제, 프로덕션·모델은 채점 기간 동안 유지). 전체 삭제는 채점 뒤 `make cleanup` | `docs/COST_AND_CLEANUP.md`, `runs/20261122-034232-cleanup-keep` |
+| M8 자원 정리와 최종 점검 | 부분 정리 완료(지난 배포 11개 삭제, 프로덕션·모델 Release는 채점 기간 동안 유지, 정지된 Blob 저장소는 사람 확인 후 삭제). 전체 삭제는 채점 뒤 `make cleanup` | `docs/COST_AND_CLEANUP.md`, `runs/20261122-130523-cleanup-keep` |
 
 ### M0. 저장소 뼈대
 - [x] 12장 구조 생성, `.gitignore`(`.venv`, `models/`, `configs/deploy.env` 등), `requirements.txt` 초안
