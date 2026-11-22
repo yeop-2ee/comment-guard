@@ -1,0 +1,18 @@
+{
+  "missed_hate_total": 1,
+  "candidates": [
+    {
+      "eval_row": 440,
+      "true": "hate",
+      "pred": "none",
+      "probs": {
+        "none": 0.6687999963760376,
+        "offensive": 0.32440000772476196,
+        "hate": 0.006800000090152025
+      },
+      "severity_score": 17,
+      "bias_true": "none",
+      "top_ngrams": null
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "run_id": "20261122-125331-data",
+  "step": "data",
+  "started_at": "2026-11-22T12:53:31+09:00",
+  "finished_at": "2026-11-22T12:53:31+09:00",
+  "status": "success",
+  "git_commit": "eeba8ff33ef3d72ce96ea5a45bb984d78cd9282a",
+  "git_dirty": false,
+  "model_version": null,
+  "inputs": {},
+  "config": {},
+  "outputs": [
+    "runs/20261122-125331-data/output.txt"
+  ],
+  "extra": {
+    "command": [
+      "bash",
+      "scripts/download_data.sh"
+    ],
+    "exit_code": 0
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

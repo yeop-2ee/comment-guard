@@ -1,0 +1,63 @@
+{
+  "run_id": "20261122-125754-train-m2",
+  "step": "train",
+  "started_at": "2026-11-22T12:57:54+09:00",
+  "finished_at": "2026-11-22T13:11:01+09:00",
+  "status": "success",
+  "git_commit": "eeba8ff33ef3d72ce96ea5a45bb984d78cd9282a",
+  "git_dirty": false,
+  "model_version": "m2-20261122-eeba8ff",
+  "inputs": {
+    "<임시 폴더>/fresh-20261122/data/processed/train_fit.tsv": "sha256:b6a752ef7bfc84b56d0228c1df0d327a35a146c516ef65c2f49fc1ea0485a6a8",
+    "<임시 폴더>/fresh-20261122/data/processed/valid.tsv": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80",
+    "<임시 폴더>/fresh-20261122/configs/train.yaml": "sha256:24c43cd9a9ec9ecb1d8ae2546e29e80f2f4e03ea64e2661db8b70c3d57c1eb85",
+    "<임시 폴더>/fresh-20261122/configs/severity.yaml": "sha256:efcc4bbf7af7d7ac11900f112a8cd7f6cfee080c39a0988230e3cb02e847d28e"
+  },
+  "config": {
+    "m2": {
+      "base_model": "beomi/KcELECTRA-base",
+      "revision": "681201a097b8120e6dd2a2e63a3e13d338736f88",
+      "max_length": 80,
+      "batch_size": 32,
+      "lr_grid": [
+        2e-05,
+        5e-05
+      ],
+      "max_epochs": 5,
+      "patience": 1,
+      "weight_decay": 0.01,
+      "warmup_ratio": 0.1,
+      "dropout": 0.1,
+      "bias_loss_weight": 0.5
+    },
+    "seed": 42,
+    "device": "mps",
+    "severity_tuning": {
+      "max_none_false_block_medium": 0.15,
+      "min_hate_block_medium": 0.6
+    }
+  },
+  "outputs": [
+    "models/m2-20261122-eeba8ff/",
+    "runs/20261122-125754-train-m2/model_card.json"
+  ],
+  "extra": {
+    "valid_metrics": {
+      "m2_hate_macro_f1": 0.7132,
+      "m2_bias_macro_f1": 0.7126
+    },
+    "selected": {
+      "lr": 2e-05,
+      "epoch": 4
+    },
+    "severity": {
+      "caution": 39,
+      "severe": 70
+    }
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

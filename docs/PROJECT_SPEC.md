@@ -5,7 +5,7 @@
 > 구현 중 결정이 바뀌면 이 문서를 먼저 수정한 뒤 코드를 바꿉니다.
 
 - 작성일: 2026-11-09
-- 상태: v1.5 (2026-11-22, Vercel 배포 구현: 진입점, Blob 모델 로드, ONNX 서빙, 배포·스모크 스크립트, 활용 분야 추가). D1~D6 모두 결정됨. 단계별 진행 상태는 13장에 있습니다.
+- 상태: v1.6 (2026-11-22, 제출본). M0~M8 모두 실행: Vercel 배포와 클라우드 스모크, 오류 재현과 복구, 새 폴더 재실행, 부분 정리. 프로덕션은 채점 기간 동안 유지하고 채점 뒤 전체 삭제. D1~D6 모두 결정됨. 단계별 진행 상태는 13장에 있습니다.
 - 서빙 모델: M2 `m2-20261110-314b2b2` (4.3장, 근거는 `docs/EVALUATION.md` 8장)
 - 관련 문서: `docs/DATA.md`(데이터), `docs/EVALUATION.md`(평가 결과), `README.md`(제출용)
 
@@ -889,7 +889,7 @@ comment-guard/
     ├── EVALUATION.md
     ├── CLOUD_RUNS.md            # 클라우드 실행 기록 (M4)
     ├── INCIDENT.md              # 오류 재현과 복구 기록 (M5)
-    ├── RERUN.md                 # (예정, M7)
+    ├── RERUN.md                 # 새 폴더 재실행 기록 (M7)
     └── COST_AND_CLEANUP.md      # 권한, 비용, 정리 후 상태 (M8)
 ```
 
@@ -912,7 +912,7 @@ comment-guard/
 | M6 M2 사전학습 모델 | 로컬 범위 완료. cold start 측정과 클라우드 스모크는 M4에서 | `runs/20261110-003741-train-m2`, `-010215-evaluate-m2`, `-010228-compare`, `-010553-smoke-local`, 행동 검사 2건 |
 | M6 추가: 시드 반복·시드 앙상블 (D8) | 완료. 서빙 모델은 M2 유지, M4·ENS 등 삭제 | `runs/20261116-002311-train-m2s43` ~ `-004633-probe-behavior_v2` |
 | M6 추가: 성능 개선 후보 (D7) | 완료. 서빙 모델은 M2 유지 | `runs/20261115-232408-train-m3`, `-233346-train-m4`, `runs/20261116-000626-train-ens`, `-000811-compare-all` |
-| M7 README와 재실행 | README 작성함(미실행 단계는 미실행으로 표시). 새 폴더 재실행은 시작 전 | `README.md` |
+| M7 README와 재실행 | 완료. 새 폴더에서 README 명령만으로 setup → all-local → M2 학습·평가 → 로컬·클라우드 스모크. M1·M2 eval 결과가 원래와 같음 | `README.md`, `docs/RERUN.md`, `runs/20261122-125331-data` ~ `-131107-evaluate-m2` |
 | M8 자원 정리와 최종 점검 | 부분 정리 완료(지난 배포 11개 삭제, 프로덕션·모델 Release는 채점 기간 동안 유지, 정지된 Blob 저장소는 사람 확인 후 삭제). 전체 삭제는 채점 뒤 `make cleanup` | `docs/COST_AND_CLEANUP.md`, `runs/20261122-130523-cleanup-keep` |
 
 ### M0. 저장소 뼈대
@@ -964,13 +964,13 @@ comment-guard/
 
 ### M7. README와 재실행
 - [x] README 작성. 클라우드 단계가 끝나면 해당 절을 갱신
-- [ ] 9장 새 폴더 재실행 → `docs/RERUN.md`
+- [x] 9장 새 폴더 재실행 → `docs/RERUN.md` (M1·M2 eval 결과 재현)
 - **완료 조건:** README 명령만으로 재실행 성공
 
 ### M8. 자원 정리와 최종 점검
 - [x] `scripts/cleanup.sh` 작성, `make cleanup-keep` 실행, 상태 재조회 기록, `docs/COST_AND_CLEANUP.md` (전체 삭제 `make cleanup`은 채점 뒤)
-- [ ] 비밀값 검사: `git log -p`에서 키나 토큰 패턴 검색(예: `gitleaks` 또는 grep)
-- [ ] 로그아웃 상태에서 저장소 공개 여부 확인
+- [x] 비밀값 검사: 모든 커밋에서 토큰 패턴(`vercel_blob_rw_`, JWT, `ghp_`, `AKIA` 등)과 저장소 ID·사용자 이름 검색 → 실제 값 없음(변수 이름과 CLI 도움말만 걸림, 2026-11-22)
+- [x] 로그아웃 상태에서 저장소 공개 확인 (HTTP 200)
 - **완료 조건:** 14장 대응표의 모든 항목에 근거 파일이 있음
 
 ---

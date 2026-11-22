@@ -1,0 +1,36 @@
+{
+  "run_id": "20261122-130554-smoke-cloud-rerun",
+  "step": "smoke",
+  "started_at": "2026-11-22T13:05:54+09:00",
+  "finished_at": "2026-11-22T13:06:05+09:00",
+  "status": "success",
+  "git_commit": "eeba8ff33ef3d72ce96ea5a45bb984d78cd9282a",
+  "git_dirty": false,
+  "model_version": "m2-20261110-314b2b2",
+  "inputs": {},
+  "config": {
+    "target": "cloud",
+    "url": "https://comment-guard-jade.vercel.app",
+    "region": null,
+    "deployment_id": null,
+    "deployment_url": null,
+    "model_uri": null
+  },
+  "outputs": [
+    "runs/20261122-130554-smoke-cloud-rerun/cloud_smoke.json"
+  ],
+  "extra": {
+    "passed": 13,
+    "total": 13,
+    "url": "https://comment-guard-jade.vercel.app",
+    "region": null,
+    "deployment_id": null,
+    "deployment_url": null,
+    "model_uri": null
+  },
+  "error": null,
+  "env": {
+    "python": "3.11.15",
+    "platform": "macOS-26.6.2-arm64-arm-64bit"
+  }
+}

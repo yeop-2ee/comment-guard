@@ -1,0 +1,2244 @@
+{
+  "target": "local",
+  "url": "http://127.0.0.1:8765",
+  "region": null,
+  "deployment_id": null,
+  "deployment_url": null,
+  "model_uri": null,
+  "model_version": "m1-20261122-eeba8ff",
+  "run_id": "20261122-130552-smoke-local",
+  "git_commit": "eeba8ff33ef3d72ce96ea5a45bb984d78cd9282a",
+  "started_at": "2026-11-22T13:05:52+09:00",
+  "passed": 13,
+  "total": 13,
+  "cases": [
+    {
+      "id": "T11",
+      "desc": "/health 200, model_version 확인",
+      "method": "GET",
+      "path": "/health",
+      "request": null,
+      "status": 200,
+      "latency_ms": 13.0,
+      "response": {
+        "status": "ok",
+        "model_version": "m1-20261122-eeba8ff"
+      },
+      "passed": true,
+      "problem": null
+    },
+    {
+      "id": "T1",
+      "desc": "정상 댓글 1건",
+      "method": "POST",
+      "path": "/v1/classify",
+      "request": {
+        "texts": [
+          "둘다 넘 좋다~행복하세요"
+        ]
+      },
+      "status": 200,
+      "latency_ms": 10.3,
+      "response": {
+        "model_version": "m1-20261122-eeba8ff",
+        "results": [
+          {
+            "index": 0,
+            "label": "none",
+            "probs": {
+              "none": 0.8167,
+              "offensive": 0.0877,
+              "hate": 0.0957
+            },
+            "severity_score": 14,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          }
+        ]
+      },
+      "passed": true,
+      "problem": null
+    },
+    {
+      "id": "T2",
+      "desc": "100건 배치, 순서 유지",
+      "method": "POST",
+      "path": "/v1/classify",
+      "request": "(생략: 크기가 큼, 공개 데이터 댓글)",
+      "status": 200,
+      "latency_ms": 12.6,
+      "response": {
+        "model_version": "m1-20261122-eeba8ff",
+        "results": [
+          {
+            "index": 0,
+            "label": "none",
+            "probs": {
+              "none": 0.4514,
+              "offensive": 0.2757,
+              "hate": 0.2729
+            },
+            "severity_score": 41,
+            "grade": "normal",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 1,
+            "label": "none",
+            "probs": {
+              "none": 0.8167,
+              "offensive": 0.0877,
+              "hate": 0.0957
+            },
+            "severity_score": 14,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 2,
+            "label": "offensive",
+            "probs": {
+              "none": 0.4094,
+              "offensive": 0.4172,
+              "hate": 0.1734
+            },
+            "severity_score": 38,
+            "grade": "normal",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 3,
+            "label": "none",
+            "probs": {
+              "none": 0.8198,
+              "offensive": 0.1485,
+              "hate": 0.0317
+            },
+            "severity_score": 11,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 4,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3089,
+              "offensive": 0.5406,
+              "hate": 0.1505
+            },
+            "severity_score": 42,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 5,
+            "label": "none",
+            "probs": {
+              "none": 0.6037,
+              "offensive": 0.1981,
+              "hate": 0.1982
+            },
+            "severity_score": 30,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 6,
+            "label": "offensive",
+            "probs": {
+              "none": 0.2142,
+              "offensive": 0.5873,
+              "hate": 0.1986
+            },
+            "severity_score": 49,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 7,
+            "label": "none",
+            "probs": {
+              "none": 0.4702,
+              "offensive": 0.3554,
+              "hate": 0.1744
+            },
+            "severity_score": 35,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 8,
+            "label": "offensive",
+            "probs": {
+              "none": 0.1211,
+              "offensive": 0.5201,
+              "hate": 0.3589
+            },
+            "severity_score": 62,
+            "grade": "severe",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 9,
+            "label": "hate",
+            "probs": {
+              "none": 0.1336,
+              "offensive": 0.2416,
+              "hate": 0.6248
+            },
+            "severity_score": 75,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 10,
+            "label": "offensive",
+            "probs": {
+              "none": 0.1908,
+              "offensive": 0.5782,
+              "hate": 0.231
+            },
+            "severity_score": 52,
+            "grade": "caution",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 11,
+            "label": "hate",
+            "probs": {
+              "none": 0.2931,
+              "offensive": 0.2105,
+              "hate": 0.4964
+            },
+            "severity_score": 60,
+            "grade": "severe",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 12,
+            "label": "hate",
+            "probs": {
+              "none": 0.2204,
+              "offensive": 0.3359,
+              "hate": 0.4437
+            },
+            "severity_score": 61,
+            "grade": "severe",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 13,
+            "label": "offensive",
+            "probs": {
+              "none": 0.2341,
+              "offensive": 0.5512,
+              "hate": 0.2147
+            },
+            "severity_score": 49,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 14,
+            "label": "none",
+            "probs": {
+              "none": 0.338,
+              "offensive": 0.3362,
+              "hate": 0.3258
+            },
+            "severity_score": 49,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 15,
+            "label": "hate",
+            "probs": {
+              "none": 0.1717,
+              "offensive": 0.383,
+              "hate": 0.4453
+            },
+            "severity_score": 64,
+            "grade": "severe",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 16,
+            "label": "offensive",
+            "probs": {
+              "none": 0.1331,
+              "offensive": 0.4976,
+              "hate": 0.3694
+            },
+            "severity_score": 62,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 17,
+            "label": "none",
+            "probs": {
+              "none": 0.5349,
+              "offensive": 0.3309,
+              "hate": 0.1342
+            },
+            "severity_score": 30,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 18,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3974,
+              "offensive": 0.4186,
+              "hate": 0.1839
+            },
+            "severity_score": 39,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 19,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3352,
+              "offensive": 0.3471,
+              "hate": 0.3177
+            },
+            "severity_score": 49,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 20,
+            "label": "hate",
+            "probs": {
+              "none": 0.2572,
+              "offensive": 0.3107,
+              "hate": 0.432
+            },
+            "severity_score": 59,
+            "grade": "severe",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 21,
+            "label": "none",
+            "probs": {
+              "none": 0.4705,
+              "offensive": 0.2648,
+              "hate": 0.2647
+            },
+            "severity_score": 40,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 22,
+            "label": "none",
+            "probs": {
+              "none": 0.8381,
+              "offensive": 0.0984,
+              "hate": 0.0635
+            },
+            "severity_score": 11,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 23,
+            "label": "hate",
+            "probs": {
+              "none": 0.1235,
+              "offensive": 0.1327,
+              "hate": 0.7438
+            },
+            "severity_score": 81,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 24,
+            "label": "none",
+            "probs": {
+              "none": 0.7039,
+              "offensive": 0.1486,
+              "hate": 0.1474
+            },
+            "severity_score": 22,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 25,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3701,
+              "offensive": 0.4174,
+              "hate": 0.2126
+            },
+            "severity_score": 42,
+            "grade": "normal",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 26,
+            "label": "none",
+            "probs": {
+              "none": 0.879,
+              "offensive": 0.0884,
+              "hate": 0.0326
+            },
+            "severity_score": 8,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 27,
+            "label": "hate",
+            "probs": {
+              "none": 0.1194,
+              "offensive": 0.2556,
+              "hate": 0.625
+            },
+            "severity_score": 75,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 28,
+            "label": "hate",
+            "probs": {
+              "none": 0.2236,
+              "offensive": 0.3822,
+              "hate": 0.3942
+            },
+            "severity_score": 59,
+            "grade": "severe",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 29,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3566,
+              "offensive": 0.5497,
+              "hate": 0.0937
+            },
+            "severity_score": 37,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 30,
+            "label": "none",
+            "probs": {
+              "none": 0.4867,
+              "offensive": 0.3156,
+              "hate": 0.1977
+            },
+            "severity_score": 36,
+            "grade": "normal",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 31,
+            "label": "offensive",
+            "probs": {
+              "none": 0.2849,
+              "offensive": 0.3662,
+              "hate": 0.3489
+            },
+            "severity_score": 53,
+            "grade": "caution",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 32,
+            "label": "none",
+            "probs": {
+              "none": 0.5536,
+              "offensive": 0.2617,
+              "hate": 0.1847
+            },
+            "severity_score": 32,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 33,
+            "label": "none",
+            "probs": {
+              "none": 0.4782,
+              "offensive": 0.2425,
+              "hate": 0.2793
+            },
+            "severity_score": 40,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 34,
+            "label": "hate",
+            "probs": {
+              "none": 0.2752,
+              "offensive": 0.2152,
+              "hate": 0.5095
+            },
+            "severity_score": 62,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 35,
+            "label": "hate",
+            "probs": {
+              "none": 0.1599,
+              "offensive": 0.4022,
+              "hate": 0.4379
+            },
+            "severity_score": 64,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 36,
+            "label": "hate",
+            "probs": {
+              "none": 0.224,
+              "offensive": 0.3496,
+              "hate": 0.4264
+            },
+            "severity_score": 60,
+            "grade": "severe",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 37,
+            "label": "offensive",
+            "probs": {
+              "none": 0.1561,
+              "offensive": 0.5721,
+              "hate": 0.2718
+            },
+            "severity_score": 56,
+            "grade": "severe",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 38,
+            "label": "hate",
+            "probs": {
+              "none": 0.2246,
+              "offensive": 0.3214,
+              "hate": 0.454
+            },
+            "severity_score": 61,
+            "grade": "severe",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 39,
+            "label": "hate",
+            "probs": {
+              "none": 0.2247,
+              "offensive": 0.3257,
+              "hate": 0.4495
+            },
+            "severity_score": 61,
+            "grade": "severe",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 40,
+            "label": "hate",
+            "probs": {
+              "none": 0.3356,
+              "offensive": 0.3008,
+              "hate": 0.3636
+            },
+            "severity_score": 51,
+            "grade": "caution",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 41,
+            "label": "hate",
+            "probs": {
+              "none": 0.327,
+              "offensive": 0.3269,
+              "hate": 0.3461
+            },
+            "severity_score": 51,
+            "grade": "caution",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 42,
+            "label": "hate",
+            "probs": {
+              "none": 0.1147,
+              "offensive": 0.2751,
+              "hate": 0.6102
+            },
+            "severity_score": 75,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 43,
+            "label": "none",
+            "probs": {
+              "none": 0.454,
+              "offensive": 0.325,
+              "hate": 0.221
+            },
+            "severity_score": 38,
+            "grade": "normal",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 44,
+            "label": "none",
+            "probs": {
+              "none": 0.519,
+              "offensive": 0.3627,
+              "hate": 0.1183
+            },
+            "severity_score": 30,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 45,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3502,
+              "offensive": 0.3616,
+              "hate": 0.2882
+            },
+            "severity_score": 47,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 46,
+            "label": "hate",
+            "probs": {
+              "none": 0.254,
+              "offensive": 0.3656,
+              "hate": 0.3804
+            },
+            "severity_score": 56,
+            "grade": "severe",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 47,
+            "label": "hate",
+            "probs": {
+              "none": 0.0577,
+              "offensive": 0.1917,
+              "hate": 0.7505
+            },
+            "severity_score": 85,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 48,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3186,
+              "offensive": 0.3958,
+              "hate": 0.2856
+            },
+            "severity_score": 48,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 49,
+            "label": "offensive",
+            "probs": {
+              "none": 0.2818,
+              "offensive": 0.4845,
+              "hate": 0.2337
+            },
+            "severity_score": 48,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 50,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3127,
+              "offensive": 0.5249,
+              "hate": 0.1624
+            },
+            "severity_score": 42,
+            "grade": "normal",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 51,
+            "label": "none",
+            "probs": {
+              "none": 0.5595,
+              "offensive": 0.206,
+              "hate": 0.2346
+            },
+            "severity_score": 34,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 52,
+            "label": "hate",
+            "probs": {
+              "none": 0.0411,
+              "offensive": 0.1683,
+              "hate": 0.7906
+            },
+            "severity_score": 87,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 53,
+            "label": "none",
+            "probs": {
+              "none": 0.5953,
+              "offensive": 0.2948,
+              "hate": 0.1099
+            },
+            "severity_score": 26,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 54,
+            "label": "offensive",
+            "probs": {
+              "none": 0.1193,
+              "offensive": 0.4521,
+              "hate": 0.4285
+            },
+            "severity_score": 65,
+            "grade": "severe",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 55,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3163,
+              "offensive": 0.5607,
+              "hate": 0.123
+            },
+            "severity_score": 40,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 56,
+            "label": "hate",
+            "probs": {
+              "none": 0.0407,
+              "offensive": 0.2447,
+              "hate": 0.7146
+            },
+            "severity_score": 84,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 57,
+            "label": "hate",
+            "probs": {
+              "none": 0.197,
+              "offensive": 0.296,
+              "hate": 0.507
+            },
+            "severity_score": 65,
+            "grade": "severe",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 58,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3984,
+              "offensive": 0.415,
+              "hate": 0.1866
+            },
+            "severity_score": 39,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 59,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3013,
+              "offensive": 0.4319,
+              "hate": 0.2668
+            },
+            "severity_score": 48,
+            "grade": "normal",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 60,
+            "label": "offensive",
+            "probs": {
+              "none": 0.2917,
+              "offensive": 0.356,
+              "hate": 0.3523
+            },
+            "severity_score": 53,
+            "grade": "caution",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 61,
+            "label": "none",
+            "probs": {
+              "none": 0.5367,
+              "offensive": 0.3547,
+              "hate": 0.1087
+            },
+            "severity_score": 29,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 62,
+            "label": "hate",
+            "probs": {
+              "none": 0.2652,
+              "offensive": 0.3423,
+              "hate": 0.3925
+            },
+            "severity_score": 56,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 63,
+            "label": "hate",
+            "probs": {
+              "none": 0.2431,
+              "offensive": 0.26,
+              "hate": 0.4969
+            },
+            "severity_score": 63,
+            "grade": "severe",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 64,
+            "label": "offensive",
+            "probs": {
+              "none": 0.343,
+              "offensive": 0.3954,
+              "hate": 0.2617
+            },
+            "severity_score": 46,
+            "grade": "normal",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 65,
+            "label": "offensive",
+            "probs": {
+              "none": 0.1768,
+              "offensive": 0.5041,
+              "hate": 0.319
+            },
+            "severity_score": 57,
+            "grade": "severe",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 66,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3191,
+              "offensive": 0.3934,
+              "hate": 0.2875
+            },
+            "severity_score": 48,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 67,
+            "label": "none",
+            "probs": {
+              "none": 0.5764,
+              "offensive": 0.2747,
+              "hate": 0.1489
+            },
+            "severity_score": 29,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 68,
+            "label": "offensive",
+            "probs": {
+              "none": 0.1948,
+              "offensive": 0.5539,
+              "hate": 0.2512
+            },
+            "severity_score": 53,
+            "grade": "caution",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 69,
+            "label": "offensive",
+            "probs": {
+              "none": 0.298,
+              "offensive": 0.5118,
+              "hate": 0.1902
+            },
+            "severity_score": 45,
+            "grade": "normal",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 70,
+            "label": "none",
+            "probs": {
+              "none": 0.4328,
+              "offensive": 0.3768,
+              "hate": 0.1904
+            },
+            "severity_score": 38,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 71,
+            "label": "offensive",
+            "probs": {
+              "none": 0.1874,
+              "offensive": 0.4169,
+              "hate": 0.3957
+            },
+            "severity_score": 60,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 72,
+            "label": "none",
+            "probs": {
+              "none": 0.7053,
+              "offensive": 0.1732,
+              "hate": 0.1215
+            },
+            "severity_score": 21,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 73,
+            "label": "none",
+            "probs": {
+              "none": 0.3904,
+              "offensive": 0.2493,
+              "hate": 0.3603
+            },
+            "severity_score": 48,
+            "grade": "normal",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 74,
+            "label": "hate",
+            "probs": {
+              "none": 0.2239,
+              "offensive": 0.3545,
+              "hate": 0.4216
+            },
+            "severity_score": 60,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 75,
+            "label": "none",
+            "probs": {
+              "none": 0.3572,
+              "offensive": 0.3098,
+              "hate": 0.3329
+            },
+            "severity_score": 49,
+            "grade": "normal",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 76,
+            "label": "none",
+            "probs": {
+              "none": 0.6645,
+              "offensive": 0.16,
+              "hate": 0.1755
+            },
+            "severity_score": 26,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 77,
+            "label": "hate",
+            "probs": {
+              "none": 0.2075,
+              "offensive": 0.2886,
+              "hate": 0.5039
+            },
+            "severity_score": 65,
+            "grade": "severe",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 78,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3458,
+              "offensive": 0.4027,
+              "hate": 0.2515
+            },
+            "severity_score": 45,
+            "grade": "normal",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 79,
+            "label": "none",
+            "probs": {
+              "none": 0.4159,
+              "offensive": 0.3691,
+              "hate": 0.2151
+            },
+            "severity_score": 40,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 80,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3324,
+              "offensive": 0.3431,
+              "hate": 0.3244
+            },
+            "severity_score": 50,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 81,
+            "label": "none",
+            "probs": {
+              "none": 0.4031,
+              "offensive": 0.3569,
+              "hate": 0.24
+            },
+            "severity_score": 42,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 82,
+            "label": "none",
+            "probs": {
+              "none": 0.546,
+              "offensive": 0.2753,
+              "hate": 0.1788
+            },
+            "severity_score": 32,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 83,
+            "label": "hate",
+            "probs": {
+              "none": 0.1059,
+              "offensive": 0.1558,
+              "hate": 0.7382
+            },
+            "severity_score": 82,
+            "grade": "severe",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 84,
+            "label": "offensive",
+            "probs": {
+              "none": 0.2938,
+              "offensive": 0.459,
+              "hate": 0.2472
+            },
+            "severity_score": 48,
+            "grade": "normal",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 85,
+            "label": "offensive",
+            "probs": {
+              "none": 0.222,
+              "offensive": 0.5413,
+              "hate": 0.2366
+            },
+            "severity_score": 51,
+            "grade": "caution",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 86,
+            "label": "offensive",
+            "probs": {
+              "none": 0.1494,
+              "offensive": 0.5243,
+              "hate": 0.3264
+            },
+            "severity_score": 59,
+            "grade": "severe",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 87,
+            "label": "offensive",
+            "probs": {
+              "none": 0.2271,
+              "offensive": 0.5325,
+              "hate": 0.2404
+            },
+            "severity_score": 51,
+            "grade": "caution",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 88,
+            "label": "hate",
+            "probs": {
+              "none": 0.2196,
+              "offensive": 0.3433,
+              "hate": 0.4371
+            },
+            "severity_score": 61,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 89,
+            "label": "none",
+            "probs": {
+              "none": 0.7432,
+              "offensive": 0.1602,
+              "hate": 0.0967
+            },
+            "severity_score": 18,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 90,
+            "label": "hate",
+            "probs": {
+              "none": 0.1464,
+              "offensive": 0.3893,
+              "hate": 0.4643
+            },
+            "severity_score": 66,
+            "grade": "severe",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 91,
+            "label": "offensive",
+            "probs": {
+              "none": 0.1328,
+              "offensive": 0.4415,
+              "hate": 0.4257
+            },
+            "severity_score": 65,
+            "grade": "severe",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 92,
+            "label": "none",
+            "probs": {
+              "none": 0.4724,
+              "offensive": 0.4043,
+              "hate": 0.1233
+            },
+            "severity_score": 33,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 93,
+            "label": "hate",
+            "probs": {
+              "none": 0.2103,
+              "offensive": 0.386,
+              "hate": 0.4037
+            },
+            "severity_score": 60,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 94,
+            "label": "none",
+            "probs": {
+              "none": 0.5267,
+              "offensive": 0.3559,
+              "hate": 0.1174
+            },
+            "severity_score": 30,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 95,
+            "label": "none",
+            "probs": {
+              "none": 0.8261,
+              "offensive": 0.0842,
+              "hate": 0.0896
+            },
+            "severity_score": 13,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 96,
+            "label": "none",
+            "probs": {
+              "none": 0.6571,
+              "offensive": 0.2373,
+              "hate": 0.1056
+            },
+            "severity_score": 22,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 97,
+            "label": "hate",
+            "probs": {
+              "none": 0.021,
+              "offensive": 0.1482,
+              "hate": 0.8307
+            },
+            "severity_score": 90,
+            "grade": "severe",
+            "bias": {
+              "type": "gender",
+              "contain_gender_bias": true
+            }
+          },
+          {
+            "index": 98,
+            "label": "hate",
+            "probs": {
+              "none": 0.2327,
+              "offensive": 0.3582,
+              "hate": 0.4091
+            },
+            "severity_score": 59,
+            "grade": "severe",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          },
+          {
+            "index": 99,
+            "label": "none",
+            "probs": {
+              "none": 0.4935,
+              "offensive": 0.3454,
+              "hate": 0.1611
+            },
+            "severity_score": 33,
+            "grade": "normal",
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            }
+          }
+        ]
+      },
+      "passed": true,
+      "problem": null
+    },
+    {
+      "id": "T3",
+      "desc": "이모지·영어·초성 섞인 댓글",
+      "method": "POST",
+      "path": "/v1/classify",
+      "request": {
+        "texts": [
+          "근데 만원이하는 현금결제만 하라고 써놓은집 우리나라에 엄청 많은데 😂👍 lol ㅋㅋㅋ ㅎㅇㅌ"
+        ]
+      },
+      "status": 200,
+      "latency_ms": 4.0,
+      "response": {
+        "model_version": "m1-20261122-eeba8ff",
+        "results": [
+          {
+            "index": 0,
+            "label": "offensive",
+            "probs": {
+              "none": 0.3025,
+              "offensive": 0.4652,
+              "hate": 0.2322
+            },
+            "severity_score": 46,
+            "grade": "normal",
+            "bias": {
+              "type": "others",
+              "contain_gender_bias": false
+            }
+          }
+        ]
+      },
+      "passed": true,
+      "problem": null
+    },
+    {
+      "id": "T4",
+      "desc": "빈 문자열·공백만 → 422, index 포함",
+      "method": "POST",
+      "path": "/v1/classify",
+      "request": {
+        "texts": [
+          "ㅋㅋㅋㅋ 그래도 조아해주는 팬들 많아서 좋겠다 ㅠㅠ 니들은 온유가 안만져줌 ㅠㅠ",
+          "   "
+        ]
+      },
+      "status": 422,
+      "latency_ms": 2.3,
+      "response": {
+        "error": "validation_error",
+        "detail": [
+          {
+            "loc": [
+              "texts",
+              1
+            ],
+            "index": 1,
+            "msg": "Value error, 공백만 있는 댓글은 판정할 수 없습니다",
+            "type": "value_error"
+          }
+        ]
+      },
+      "passed": true,
+      "problem": null
+    },
+    {
+      "id": "T5",
+      "desc": "1,001자 → 422",
+      "method": "POST",
+      "path": "/v1/classify",
+      "request": "(생략: 크기가 큼, 공개 데이터 댓글)",
+      "status": 422,
+      "latency_ms": 2.0,
+      "response": {
+        "error": "validation_error",
+        "detail": [
+          {
+            "loc": [
+              "texts",
+              0
+            ],
+            "index": 0,
+            "msg": "Value error, 댓글은 1000자 이하여야 합니다 (현재 1001자)",
+            "type": "value_error"
+          }
+        ]
+      },
+      "passed": true,
+      "problem": null
+    },
+    {
+      "id": "T6",
+      "desc": "101건 → 422",
+      "method": "POST",
+      "path": "/v1/classify",
+      "request": "(생략: 크기가 큼, 공개 데이터 댓글)",
+      "status": 422,
+      "latency_ms": 2.0,
+      "response": {
+        "error": "validation_error",
+        "detail": [
+          {
+            "loc": [
+              "texts"
+            ],
+            "index": null,
+            "msg": "List should have at most 100 items after validation, not 101",
+            "type": "too_long"
+          }
+        ]
+      },
+      "passed": true,
+      "problem": null
+    },
+    {
+      "id": "T7",
+      "desc": "잘못된 민감도 → 422",
+      "method": "POST",
+      "path": "/v1/filter",
+      "request": {
+        "sensitivity": "extreme",
+        "comments": [
+          {
+            "id": "c1",
+            "text": "ㅋㅋㅋㅋ 그래도 조아해주는 팬들 많아서 좋겠다 ㅠㅠ 니들은 온유가 안만져줌 ㅠㅠ"
+          }
+        ]
+      },
+      "status": 422,
+      "latency_ms": 2.7,
+      "response": {
+        "error": "validation_error",
+        "detail": [
+          {
+            "loc": [
+              "sensitivity"
+            ],
+            "index": null,
+            "msg": "Input should be 'low', 'medium' or 'high'",
+            "type": "literal_error"
+          }
+        ]
+      },
+      "passed": true,
+      "problem": null
+    },
+    {
+      "id": "F",
+      "desc": "필터 medium 3건",
+      "method": "POST",
+      "path": "/v1/filter",
+      "request": {
+        "sensitivity": "medium",
+        "comments": [
+          {
+            "id": "c0",
+            "text": "원곡생각하나도 안나고 러블리즈 신곡나온줄!!! 너무 예쁘게 잘봤어요"
+          },
+          {
+            "id": "c1",
+            "text": "장현승 얘도 참 이젠 짠하다..."
+          },
+          {
+            "id": "c2",
+            "text": "신선하게 웃긴다ㅋㅋㅋ역시 동엽신~~!! 장소연님은 진짜 조선족인가 착각할정도로 말투가 리얼하네요"
+          }
+        ]
+      },
+      "status": 200,
+      "latency_ms": 3.3,
+      "response": {
+        "model_version": "m1-20261122-eeba8ff",
+        "sensitivity": "medium",
+        "results": [
+          {
+            "id": "c0",
+            "action": "show",
+            "grade": "normal",
+            "severity_score": 11
+          },
+          {
+            "id": "c1",
+            "action": "show",
+            "grade": "normal",
+            "severity_score": 42
+          },
+          {
+            "id": "c2",
+            "action": "show",
+            "grade": "normal",
+            "severity_score": 30
+          }
+        ],
+        "summary": {
+          "show": 3,
+          "blur": 0,
+          "hide": 0
+        }
+      },
+      "passed": true,
+      "problem": null
+    },
+    {
+      "id": "T8",
+      "desc": "리포트 text만 → missing_fields 경고",
+      "method": "POST",
+      "path": "/v1/evidence/report",
+      "request": {
+        "case_title": "스모크 테스트 (공개 데이터)",
+        "items": [
+          {
+            "text": "누군데 얘네?"
+          },
+          {
+            "text": "진짜 라디오 스타 노래한거 보세요 홍진영은비비지도 못함"
+          },
+          {
+            "text": "쑈 하지마라 짜식아!음주 1번은 실수, 2번은 고의, 3번은 인간쓰레기다.슬금슬금 기어나올 생각말고 하던대로 그냥 조용히 살어라! 잠재적 살인마."
+          }
+        ]
+      },
+      "status": 200,
+      "latency_ms": 4.1,
+      "response": {
+        "report_id": "9e59c662-256a-4272-8c51-7cb5775d685a",
+        "case_title": "스모크 테스트 (공개 데이터)",
+        "generated_at": {
+          "kst": "2026-11-22T13:05:52+09:00",
+          "utc": "2026-11-22T04:05:52+00:00"
+        },
+        "model_version": "m1-20261122-eeba8ff",
+        "severity_thresholds": {
+          "caution": 51,
+          "severe": 55
+        },
+        "summary": {
+          "total": 3,
+          "grade_counts": {
+            "severe": 1,
+            "caution": 0,
+            "normal": 2
+          },
+          "period": {
+            "earliest_posted_at": null,
+            "latest_posted_at": null
+          },
+          "authors": []
+        },
+        "warnings": [
+          "3건에 author_handle 값이 없습니다",
+          "3건에 captured_at 값이 없습니다",
+          "3건에 posted_at 값이 없습니다",
+          "3건에 screenshot_sha256 값이 없습니다",
+          "3건에 url 값이 없습니다"
+        ],
+        "items": [
+          {
+            "input_index": 2,
+            "text": "쑈 하지마라 짜식아!음주 1번은 실수, 2번은 고의, 3번은 인간쓰레기다.슬금슬금 기어나올 생각말고 하던대로 그냥 조용히 살어라! 잠재적 살인마.",
+            "text_sha256": "6088ff90b61afb339ba1b928a709b0e036ae33da11f01887dcc9809806ec4180",
+            "grade": "severe",
+            "severity_score": 62,
+            "probs": {
+              "none": 0.1211,
+              "offensive": 0.5201,
+              "hate": 0.3589
+            },
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            },
+            "url": null,
+            "posted_at": null,
+            "author_handle": null,
+            "captured_at": null,
+            "screenshot_sha256": null,
+            "missing_fields": [
+              "url",
+              "posted_at",
+              "author_handle",
+              "captured_at",
+              "screenshot_sha256"
+            ],
+            "rank": 1
+          },
+          {
+            "input_index": 0,
+            "text": "누군데 얘네?",
+            "text_sha256": "ff47431a2f0c3aaafa591b0de73aae268b5c08a603829de14e65138085be64af",
+            "grade": "normal",
+            "severity_score": 49,
+            "probs": {
+              "none": 0.2142,
+              "offensive": 0.5873,
+              "hate": 0.1986
+            },
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            },
+            "url": null,
+            "posted_at": null,
+            "author_handle": null,
+            "captured_at": null,
+            "screenshot_sha256": null,
+            "missing_fields": [
+              "url",
+              "posted_at",
+              "author_handle",
+              "captured_at",
+              "screenshot_sha256"
+            ],
+            "rank": 2
+          },
+          {
+            "input_index": 1,
+            "text": "진짜 라디오 스타 노래한거 보세요 홍진영은비비지도 못함",
+            "text_sha256": "f5816def14938ed67d5b93afae79254f18bbccace12162912f112caaa88bb3f9",
+            "grade": "normal",
+            "severity_score": 35,
+            "probs": {
+              "none": 0.4702,
+              "offensive": 0.3554,
+              "hate": 0.1744
+            },
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            },
+            "url": null,
+            "posted_at": null,
+            "author_handle": null,
+            "captured_at": null,
+            "screenshot_sha256": null,
+            "missing_fields": [
+              "url",
+              "posted_at",
+              "author_handle",
+              "captured_at",
+              "screenshot_sha256"
+            ],
+            "rank": 3
+          }
+        ],
+        "report_sha256": "560996ac49829149e58d8be14c8b44b1bb99d45182dfc2fd892acf6d3f651593",
+        "evidence_checklist": [
+          {
+            "key": "url_capture",
+            "item": "브라우저 주소창(URL)이 보이게 원본 화면을 캡처했는지",
+            "status": "not_met"
+          },
+          {
+            "key": "author_and_time",
+            "item": "작성자 ID/닉네임과 작성 일시가 함께 보이는지",
+            "status": "not_met"
+          },
+          {
+            "key": "context",
+            "item": "앞뒤 맥락(원글, 다른 댓글)까지 보존했는지",
+            "status": "user_check"
+          },
+          {
+            "key": "screen_recording",
+            "item": "화면 녹화로 해당 글을 찾아 들어가는 과정을 남겼는지",
+            "status": "user_check"
+          },
+          {
+            "key": "original_kept",
+            "item": "원본 파일을 편집하지 않고 따로 보관했는지",
+            "status": "user_check"
+          }
+        ],
+        "notices": [
+          "이 리포트는 기계학습 모델의 자동 판정 결과를 정리한 참고 자료이며 법률 자문이 아닙니다. 모욕·명예훼손 등의 해당 여부는 피해자를 알아볼 수 있는지(특정성), 공개된 장소인지(공연성), 사실 적시 여부 같은 법적 요건에 따라 달라지며, 이 모델은 이를 판단하지 않습니다. 실제 신고·고소 시에는 원본 캡처와 URL 등 원 증거를 함께 제출하고, 필요하면 법률 전문가와 상담하세요. 온라인 신고 창구로 경찰청 사이버범죄 신고시스템(ECRM)이 있으며, 온라인 접수 후 경찰서 방문 진술이 필요할 수 있습니다.",
+          "모델이 '일반'으로 판정한 댓글도 피해가 없다는 뜻이 아닙니다. 맥락에 따라 의미가 달라지는 괴롭힘, 새로운 은어와 변형 표기는 놓칠 수 있습니다."
+        ]
+      },
+      "passed": true,
+      "problem": null
+    },
+    {
+      "id": "T9",
+      "desc": "리포트 같은 입력 2회 → 해시 동일",
+      "method": "POST",
+      "path": "/v1/evidence/report",
+      "request": {
+        "case_title": "스모크 테스트 (공개 데이터)",
+        "items": [
+          {
+            "text": "누군데 얘네?"
+          },
+          {
+            "text": "진짜 라디오 스타 노래한거 보세요 홍진영은비비지도 못함"
+          },
+          {
+            "text": "쑈 하지마라 짜식아!음주 1번은 실수, 2번은 고의, 3번은 인간쓰레기다.슬금슬금 기어나올 생각말고 하던대로 그냥 조용히 살어라! 잠재적 살인마."
+          }
+        ]
+      },
+      "status": 200,
+      "latency_ms": 3.2,
+      "response": {
+        "report_id": "2954e444-c8be-4152-bb30-a35c64071943",
+        "case_title": "스모크 테스트 (공개 데이터)",
+        "generated_at": {
+          "kst": "2026-11-22T13:05:52+09:00",
+          "utc": "2026-11-22T04:05:52+00:00"
+        },
+        "model_version": "m1-20261122-eeba8ff",
+        "severity_thresholds": {
+          "caution": 51,
+          "severe": 55
+        },
+        "summary": {
+          "total": 3,
+          "grade_counts": {
+            "severe": 1,
+            "caution": 0,
+            "normal": 2
+          },
+          "period": {
+            "earliest_posted_at": null,
+            "latest_posted_at": null
+          },
+          "authors": []
+        },
+        "warnings": [
+          "3건에 author_handle 값이 없습니다",
+          "3건에 captured_at 값이 없습니다",
+          "3건에 posted_at 값이 없습니다",
+          "3건에 screenshot_sha256 값이 없습니다",
+          "3건에 url 값이 없습니다"
+        ],
+        "items": [
+          {
+            "input_index": 2,
+            "text": "쑈 하지마라 짜식아!음주 1번은 실수, 2번은 고의, 3번은 인간쓰레기다.슬금슬금 기어나올 생각말고 하던대로 그냥 조용히 살어라! 잠재적 살인마.",
+            "text_sha256": "6088ff90b61afb339ba1b928a709b0e036ae33da11f01887dcc9809806ec4180",
+            "grade": "severe",
+            "severity_score": 62,
+            "probs": {
+              "none": 0.1211,
+              "offensive": 0.5201,
+              "hate": 0.3589
+            },
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            },
+            "url": null,
+            "posted_at": null,
+            "author_handle": null,
+            "captured_at": null,
+            "screenshot_sha256": null,
+            "missing_fields": [
+              "url",
+              "posted_at",
+              "author_handle",
+              "captured_at",
+              "screenshot_sha256"
+            ],
+            "rank": 1
+          },
+          {
+            "input_index": 0,
+            "text": "누군데 얘네?",
+            "text_sha256": "ff47431a2f0c3aaafa591b0de73aae268b5c08a603829de14e65138085be64af",
+            "grade": "normal",
+            "severity_score": 49,
+            "probs": {
+              "none": 0.2142,
+              "offensive": 0.5873,
+              "hate": 0.1986
+            },
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            },
+            "url": null,
+            "posted_at": null,
+            "author_handle": null,
+            "captured_at": null,
+            "screenshot_sha256": null,
+            "missing_fields": [
+              "url",
+              "posted_at",
+              "author_handle",
+              "captured_at",
+              "screenshot_sha256"
+            ],
+            "rank": 2
+          },
+          {
+            "input_index": 1,
+            "text": "진짜 라디오 스타 노래한거 보세요 홍진영은비비지도 못함",
+            "text_sha256": "f5816def14938ed67d5b93afae79254f18bbccace12162912f112caaa88bb3f9",
+            "grade": "normal",
+            "severity_score": 35,
+            "probs": {
+              "none": 0.4702,
+              "offensive": 0.3554,
+              "hate": 0.1744
+            },
+            "bias": {
+              "type": "none",
+              "contain_gender_bias": false
+            },
+            "url": null,
+            "posted_at": null,
+            "author_handle": null,
+            "captured_at": null,
+            "screenshot_sha256": null,
+            "missing_fields": [
+              "url",
+              "posted_at",
+              "author_handle",
+              "captured_at",
+              "screenshot_sha256"
+            ],
+            "rank": 3
+          }
+        ],
+        "report_sha256": "560996ac49829149e58d8be14c8b44b1bb99d45182dfc2fd892acf6d3f651593",
+        "evidence_checklist": [
+          {
+            "key": "url_capture",
+            "item": "브라우저 주소창(URL)이 보이게 원본 화면을 캡처했는지",
+            "status": "not_met"
+          },
+          {
+            "key": "author_and_time",
+            "item": "작성자 ID/닉네임과 작성 일시가 함께 보이는지",
+            "status": "not_met"
+          },
+          {
+            "key": "context",
+            "item": "앞뒤 맥락(원글, 다른 댓글)까지 보존했는지",
+            "status": "user_check"
+          },
+          {
+            "key": "screen_recording",
+            "item": "화면 녹화로 해당 글을 찾아 들어가는 과정을 남겼는지",
+            "status": "user_check"
+          },
+          {
+            "key": "original_kept",
+            "item": "원본 파일을 편집하지 않고 따로 보관했는지",
+            "status": "user_check"
+          }
+        ],
+        "notices": [
+          "이 리포트는 기계학습 모델의 자동 판정 결과를 정리한 참고 자료이며 법률 자문이 아닙니다. 모욕·명예훼손 등의 해당 여부는 피해자를 알아볼 수 있는지(특정성), 공개된 장소인지(공연성), 사실 적시 여부 같은 법적 요건에 따라 달라지며, 이 모델은 이를 판단하지 않습니다. 실제 신고·고소 시에는 원본 캡처와 URL 등 원 증거를 함께 제출하고, 필요하면 법률 전문가와 상담하세요. 온라인 신고 창구로 경찰청 사이버범죄 신고시스템(ECRM)이 있으며, 온라인 접수 후 경찰서 방문 진술이 필요할 수 있습니다.",
+          "모델이 '일반'으로 판정한 댓글도 피해가 없다는 뜻이 아닙니다. 맥락에 따라 의미가 달라지는 괴롭힘, 새로운 은어와 변형 표기는 놓칠 수 있습니다."
+        ]
+      },
+      "passed": true,
+      "problem": null
+    },
+    {
+      "id": "T10",
+      "desc": "리포트 CSV (BOM, 행 수)",
+      "method": "POST",
+      "path": "/v1/evidence/report?format=csv",
+      "request": {
+        "case_title": "스모크 테스트 (공개 데이터)",
+        "items": [
+          {
+            "text": "누군데 얘네?"
+          },
+          {
+            "text": "진짜 라디오 스타 노래한거 보세요 홍진영은비비지도 못함"
+          },
+          {
+            "text": "쑈 하지마라 짜식아!음주 1번은 실수, 2번은 고의, 3번은 인간쓰레기다.슬금슬금 기어나올 생각말고 하던대로 그냥 조용히 살어라! 잠재적 살인마."
+          }
+        ]
+      },
+      "status": 200,
+      "latency_ms": 3.1,
+      "response": "﻿# report_id: 90ca32f1-2d0c-46f7-ac12-a14c6450479c\n# case_title: 스모크 테스트 (공개 데이터)\n# generated_at: 2026-11-22T13:05:52+09:00 (KST) / 2026-11-22T04:05:52+00:00 (UTC)\n# model_version: m1-20261122-eeba8ff\n# severity_thresholds: caution>=51, severe>=55\n# total: 3 / severe 1, caution 0, normal 2\n# period: - ~ -\n# report_sha256: 560996ac49829149e58d8be14c8b44b1bb99d45182dfc2fd892acf6d3f651593\n# notice: 이 리포트는 기계학습 모델의 자동 판정 결과를 정리한 참고 자료이며 법률 자문이 아닙니다. 모욕·명예훼손 등의 해당 여부는 피해자를 알아볼 수 있는지(특정성), 공개된 장소인지(공연성), 사실 적시 여부 같은 법적 요건에 따라 달라지며, 이 모델은 이를 판단하지 않습니다. 실제 신고·고소 시에는 원본 캡처와 URL 등 원 증거를 함께 제출하고, 필요하면 법률 전문가와 상담하세요. 온라인 신고 창구로 경찰청 사이버범죄 신고시스템(ECRM)이 있으며, 온라인 접수 후 경찰서 방문 진술이 필요할 수 있습니다.\n# notice: 모델이 '일반'으로 판정한 댓글도 피해가 없다는 뜻이 아닙니다. 맥락에 따라 의미가 달라지는 괴롭힘, 새로운 은어와 변형 표기는 놓칠 수 있습니다.\nrank,grade,severity_score,text,prob_none,prob_offensive,prob_hate,bias_type,contain_gender_bias,url,posted_at,author_handle,captured_at,screenshot_sha256,text_sha256,missing_fields\n1,severe,62,\"쑈 하지마라 짜식아!음주 1번은 실수, 2번은 고의, 3번은 인간쓰레기다.슬금슬금 기어나올 생각말고 하던대로 그냥 조용히 살어라! 잠재적 살인마.\",0.1211,0.5201,0.3589,none,False,,,,,,6088ff90b61afb339ba1b928a709b0e036ae33da11f01887dcc9809806ec4180,url;posted_at;author_handle;captured_at;screenshot_sha256\n2,normal,49,누군데 얘네?,0.2142,0.5873,0.1986,none,False,,,,,,ff47431a2f0c3aaafa591b0de73aae268b5c08a603829de14e65138085be64af,url;posted_at;author_handle;captured_at;screenshot_sha256\n3,normal,35,진짜 라디오 스타 노래한거 보세요 홍진영은비비지도 못함,0.4702,0.3554,0.1744,none,False,,,,,,f5816def14938ed67d5b93afae79254f18bbccace12162912f112caaa88bb3f9,url;posted_at;author_handle;captured_at;screenshot_sha256\n",
+      "passed": true,
+      "problem": null
+    },
+    {
+      "id": "META",
+      "desc": "/v1/meta",
+      "method": "GET",
+      "path": "/v1/meta",
+      "request": null,
+      "status": 200,
+      "latency_ms": 2.1,
+      "response": {
+        "model_version": "m1-20261122-eeba8ff",
+        "model_id": "m1",
+        "name": "M1 · TF-IDF + 로지스틱 회귀",
+        "git_commit": "eeba8ff33ef3d72ce96ea5a45bb984d78cd9282a",
+        "git_dirty": false,
+        "data": {
+          "train_fit": "sha256:b6a752ef7bfc84b56d0228c1df0d327a35a146c516ef65c2f49fc1ea0485a6a8",
+          "valid": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80",
+          "rows": {
+            "train_fit": 7106,
+            "valid": 790
+          }
+        },
+        "severity": {
+          "thresholds": {
+            "caution": 51,
+            "severe": 55
+          },
+          "sensitivity": {
+            "low": {
+              "normal": "show",
+              "caution": "show",
+              "severe": "hide"
+            },
+            "medium": {
+              "normal": "show",
+              "caution": "blur",
+              "severe": "hide"
+            },
+            "high": {
+              "normal": "show",
+              "caution": "hide",
+              "severe": "hide"
+            }
+          }
+        },
+        "valid_metrics": {
+          "b0_hate_macro_f1": 0.2043,
+          "m1_hate_macro_f1": 0.5797,
+          "m1_bias_macro_f1": 0.6398
+        },
+        "eval_metrics": {
+          "evaluate_run_id": "20261122-125428-evaluate",
+          "rows": 471,
+          "b0_hate_macro_f1": 0.169,
+          "m1_hate_macro_f1": 0.5694,
+          "m1_hate_macro_f1_ci95": [
+            0.5239,
+            0.6129
+          ],
+          "bias_macro_f1": 0.6624,
+          "medium_filter": {
+            "hate_block_rate": 0.5983606557377049,
+            "none_false_block_rate": 0.08125
+          },
+          "fitness_criteria": {
+            "m1_ci_above_b0_ci": true,
+            "medium_none_false_block_le_15pct": true,
+            "medium_hate_block_ge_60pct": false
+          }
+        },
+        "limits": {
+          "max_batch": 100,
+          "max_text_chars": 1000,
+          "max_report_items": 500
+        }
+      },
+      "passed": true,
+      "problem": null
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "train_clean": {
+    "rows_in": 7896,
+    "removed_empty": 0,
+    "removed_invalid_hate": 0,
+    "removed_invalid_bias": 0,
+    "removed_invalid_contain_gender_bias": 0,
+    "removed_gender_bias_inconsistent": 0,
+    "rows_out": 7896
+  },
+  "eval_clean": {
+    "rows_in": 471,
+    "removed_empty": 0,
+    "removed_invalid_hate": 0,
+    "removed_invalid_bias": 0,
+    "removed_invalid_contain_gender_bias": 0,
+    "removed_gender_bias_inconsistent": 0,
+    "rows_out": 471
+  },
+  "train_dedupe": {
+    "removed_exact_duplicates": 0,
+    "conflicting_label_texts": 0,
+    "removed_conflicting_label_rows": 0,
+    "removed_train_eval_overlap": 0
+  },
+  "eval_duplicate_texts": 0,
+  "split": {
+    "valid_size": 0.1,
+    "random_state": 42,
+    "stratify_on": "hate"
+  },
+  "distribution": {
+    "train_fit": {
+      "rows": 7106,
+      "hate": {
+        "none": 3137,
+        "offensive": 2249,
+        "hate": 1720
+      },
+      "bias": {
+        "none": 4631,
+        "others": 1378,
+        "gender": 1097
+      },
+      "contain_gender_bias": {
+        "False": 6009,
+        "True": 1097
+      }
+    },
+    "valid": {
+      "rows": 790,
+      "hate": {
+        "offensive": 250,
+        "hate": 191,
+        "none": 349
+      },
+      "bias": {
+        "others": 138,
+        "gender": 135,
+        "none": 517
+      },
+      "contain_gender_bias": {
+        "False": 655,
+        "True": 135
+      }
+    },
+    "eval": {
+      "rows": 471,
+      "hate": {
+        "none": 160,
+        "offensive": 189,
+        "hate": 122
+      },
+      "bias": {
+        "none": 342,
+        "gender": 67,
+        "others": 62
+      },
+      "contain_gender_bias": {
+        "False": 404,
+        "True": 67
+      }
+    }
+  },
+  "outputs": {
+    "data/processed/train_fit.tsv": "sha256:b6a752ef7bfc84b56d0228c1df0d327a35a146c516ef65c2f49fc1ea0485a6a8",
+    "data/processed/valid.tsv": "sha256:aec190ccee100c48e05f6ee3e98a8a6a974eea9e1013108beb3dce76ca1b2a80",
+    "data/processed/eval.tsv": "sha256:6904b087a99ed155b7922d98448cd6c5bbe7a9f63ad6f5bf1b9377cb31434ff6"
+  }
+}
