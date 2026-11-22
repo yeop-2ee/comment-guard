@@ -2,24 +2,32 @@
 # Vercel 배포 (명세서 6.2장): 새 배포를 프로덕션 도메인 없이 만들고(--skip-domain),
 # 그 배포의 /health가 통과해야 vercel promote로 프로덕션 도메인을 옮깁니다.
 # 실패하면 승격하지 않으므로 프로덕션 도메인은 이전 정상 배포를 계속 서비스합니다.
-# MODEL_URI는 배포마다 --env로 지정합니다 (기본: 서빙 모델의 blob://models/<version>/).
+# MODEL_URI는 배포마다 --env로 지정합니다 (기본: 서빙 모델의 GitHub Release 주소).
 source "$(dirname "$0")/vercel_env.sh"
 PY="$ROOT/.venv/bin/python"
 export PYTHONPATH="$ROOT/src"
 
 VERSION="$(basename "$("$PY" -c 'from commentguard.model_store import serving_dir; print(serving_dir())')")"
-MODEL_URI="${MODEL_URI:-blob://models/$VERSION/}"
+if [[ "${MODEL_STORE:-release}" == "release" ]]; then
+  MODEL_URI="${MODEL_URI:-https://github.com/$GITHUB_REPO/releases/download/model-$VERSION/}"
+else
+  MODEL_URI="${MODEL_URI:-blob://models/$VERSION/}"
+fi
 # 화면에서 함께 고를 모델 (configs/serving.yaml의 cloud_extra)
-EXTRA_MODEL_URIS="${EXTRA_MODEL_URIS-$("$PY" -c 'from commentguard.model_store import cloud_extra_dirs; print(",".join(f"blob://models/{d.name}/" for d in cloud_extra_dirs()))')}"
+EXTRA_MODEL_URIS="${EXTRA_MODEL_URIS-$(MODEL_STORE="${MODEL_STORE:-release}" GITHUB_REPO="${GITHUB_REPO:-}" "$PY" -c '
+import os
+from commentguard.model_store import cloud_extra_dirs
+fmt = "https://github.com/{r}/releases/download/model-{v}/" if os.environ["MODEL_STORE"] == "release" else "blob://models/{v}/"
+print(",".join(fmt.format(r=os.environ["GITHUB_REPO"], v=d.name) for d in cloud_extra_dirs()))')}"
 TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 echo "[deploy] MODEL_URI=$MODEL_URI EXTRA_MODEL_URIS=$EXTRA_MODEL_URIS region=$REGION"
 
 # 배포 전 검사 (M5 수정): MODEL_URI 경로에 serving.json과 모델 파일이 모두 있어야 배포를 만듦
 if ! "$PY" -c 'import sys
-from commentguard.model_store import check_blob_uri
+from commentguard.model_store import check_model_uri
 for uri in [sys.argv[1], *filter(None, sys.argv[2].split(","))]:
-    m = check_blob_uri(uri); print("[deploy] 배포 전 검사 통과:", m["model_version"], ", ".join(m["files"]))' "$MODEL_URI" "$EXTRA_MODEL_URIS"; then
+    m = check_model_uri(uri); print("[deploy] 배포 전 검사 통과:", m["model_version"], ", ".join(m["files"]))' "$MODEL_URI" "$EXTRA_MODEL_URIS"; then
   echo "[deploy] 배포 전 검사 실패 → 새 배포를 만들지 않음" >&2
   exit 1
 fi

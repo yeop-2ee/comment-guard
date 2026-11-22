@@ -602,7 +602,7 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 | 진입점 | Vercel 프로덕션 도메인 (HTTPS) | 화면을 브라우저로 바로 열 수 있음. 남용은 입력 크기 제한(2.2장)과 Hobby 플랜 한도(초과 시 과금 없이 중지)로 막음. 프로덕션 외 배포 주소는 Deployment Protection(Vercel 로그인 필요)으로 막힘 |
 | 버전·롤백 | 배포 전에 `MODEL_URI` 경로를 검사하고(M5), 새 배포(변경 불가)를 만든 뒤 그 배포의 `/health`와 판정 1건이 통과해야 `vercel promote`로 프로덕션 도메인을 옮김 | 새 배포가 시작에 실패하면 승격하지 않아 이전 정상 배포가 계속 서비스함. 문제가 생기면 `vercel rollback`으로 되돌림 |
 | 리전 | `icn1` (서울) | 사용자가 한국에 있음. 모델 저장소도 같은 리전에 둠 |
-| 모델 저장 | Vercel Blob **비공개** 저장소 (버전별 경로 `models/<version>/`, 파일 목록과 sha256을 적은 `serving.json` 포함) | 코드와 모델을 분리해서 모델만 교체 가능. CLI 배포 업로드 한도(Hobby 100MB) 때문에 모델을 배포에 넣지 않음. 받은 파일은 해시로 확인 |
+| 모델 저장 | **이 저장소의 GitHub Release** `model-<version>` (공개 파일, 파일 목록과 sha256을 적은 `serving.json` 포함). 처음에는 Vercel Blob 비공개 저장소를 썼음 | 코드와 모델을 분리해서 모델만 교체 가능. CLI 배포 업로드 한도(Hobby 100MB) 때문에 모델을 배포에 넣지 않음. 받은 파일은 해시로 확인. **2026-11-22 변경:** Blob은 함수가 새로 뜰 때마다 434MB를 받아 Hobby 한도를 넘었고 저장소가 정지됨(30일). GitHub Release는 전송량 과금·한도 걱정이 없어서 옮김(사용자 결정). 가중치가 공개되므로 출처와 CC BY-SA 4.0 조건을 Release 설명에 적음 (`docs/CLOUD_RUNS.md` 9장) |
 | 모델 실행 형식 | M1: joblib(scikit-learn). M2: ONNX로 변환해 onnxruntime으로 실행(`python -m commentguard.onnx_export`) | Python 함수 크기 한도(500MB) 안에 들어가야 함. PyTorch는 그것만으로 한도를 넘어서 서빙에는 쓰지 않음. 같은 가중치를 형식만 바꾸므로 모델 버전은 그대로 두고, valid 790건으로 PyTorch 결과와 같은지 확인(토큰 ID 일치, 확률 차이 ≤ 1e-4, 예측 100% 일치)한 뒤에만 업로드 |
 | 로그 | Vercel 런타임 로그 (Hobby 1시간 보존) | 원문은 남기지 않음. 보존이 짧아서 스모크 직후 `vercel logs`로 받아 `runs/`에 저장 |
 | 실행 설정 | 메모리 2GB(vCPU 1, Hobby 기본값이자 최대), 최대 실행 시간 60초, Python 3.12. 함수 의존성은 `pyproject.toml`의 서빙용 목록만 | ONNX로 M2를 올리는 동안 최대 1.65GB(로컬 측정). 함수가 처음 뜰 때 의존성을 `/tmp`에 설치하므로 서빙에 쓰지 않는 패키지는 넣지 않음. 모델 파일(434MB)은 `/tmp`보다 커서 메모리로 받음(6.3장) |
@@ -610,8 +610,8 @@ eval은 실제 분포의 평균 성능을 보여주지만, 서비스에서 문�
 
 ### 6.3 서비스 시작 동작
 
-1. 환경변수 `MODEL_URI`(예: `blob://models/m2-20261110-314b2b2/`)를 읽습니다. 배포할 때 `vercel deploy --env MODEL_URI=...`로 배포마다 지정합니다.
-2. `blob://` 모델은 **첫 요청에서** 불러옵니다. Blob 자격 증명이 단기 OIDC 토큰이면 요청 헤더(`x-vercel-oidc-token`)로만 들어오기 때문에 이렇게 설계했습니다. 실제 배포에서는 저장소를 연결할 때 Vercel이 만든 환경 변수 `BLOB_READ_WRITE_TOKEN`으로 읽었습니다(10.1장). 그 경로의 `serving.json`을 읽고, 적힌 파일(M1: `model.joblib`, M2: `model.onnx`·토크나이저)을 받아 sha256과 크기를 확인한 뒤 로드합니다. `model.onnx`는 `/tmp`보다 커서 크기만큼 메모리를 한 번 잡고 그 자리에 받으며, 나머지 작은 파일은 `/tmp`에 받습니다. `model_card.json`의 `model_id`로 로더를 고르고, 가중치(`model.safetensors`) 없이 `model.onnx`만 있으면 ONNX로 로드합니다. 허브에는 접속하지 않습니다.
+1. 환경변수 `MODEL_URI`(예: `https://github.com/yeop-2ee/comment-guard/releases/download/model-m2-20261110-314b2b2/`, Blob을 쓸 때는 `blob://models/<version>/`)를 읽습니다. 배포할 때 `vercel deploy --env MODEL_URI=...`로 배포마다 지정합니다.
+2. 원격(`https://`, `blob://`) 모델은 **첫 요청에서** 불러옵니다. Blob 자격 증명이 단기 OIDC 토큰이면 요청 헤더(`x-vercel-oidc-token`)로만 들어오기 때문에 이렇게 설계했습니다. 실제 배포에서는 저장소를 연결할 때 Vercel이 만든 환경 변수 `BLOB_READ_WRITE_TOKEN`으로 읽었습니다(10.1장). 그 경로의 `serving.json`을 읽고, 적힌 파일(M1: `model.joblib`, M2: `model.onnx`·토크나이저)을 받아 sha256과 크기를 확인한 뒤 로드합니다. `model.onnx`는 `/tmp`보다 커서 크기만큼 메모리를 한 번 잡고 그 자리에 받으며, 나머지 작은 파일은 `/tmp`에 받습니다. `model_card.json`의 `model_id`로 로더를 고르고, 가중치(`model.safetensors`) 없이 `model.onnx`만 있으면 ONNX로 로드합니다. 허브에는 접속하지 않습니다.
 3. 실패하면 **명확한 오류 메시지(`model_load_failed`)를 로그에 남기고, 빈 모델로 응답하지 않습니다.** 모든 요청이 503(`{"error": "model_load_failed"}`)을 받고, 다음 요청에서 다시 시도합니다. 배포 스크립트는 새 배포의 `/health`가 200이 아니면 승격하지 않습니다.
    - `MODEL_URI`가 없으면 `configs/serving.yaml`이 가리키는 로컬 모델을 시작할 때 불러옵니다(로컬 개발용). 로컬 경로를 주면 그 경로에서 읽고, 실패하면 시작이 실패합니다.
    - M1의 모델 파일은 joblib(pickle)이라 읽을 때 코드가 실행될 수 있습니다. 신뢰하는 본인 저장소에서만 읽습니다.
@@ -755,8 +755,8 @@ M2와 비교 단계는 Make 타깃이 없어서 모듈을 직접 실행합니다
 
 | 주체 | 권한 | 대상 | 이유 |
 |---|---|---|---|
-| 본인 계정 (배포자, `vercel login`) | 프로젝트 배포·승격·롤백, Blob 저장소 생성·업로드·삭제, 로그 조회 | 본인 Hobby 계정의 이 프로젝트와 저장소 | 배포와 정리 |
-| 함수 (런타임) | Blob 저장소 읽기·쓰기가 가능한 토큰 `BLOB_READ_WRITE_TOKEN` (저장소 연결 시 Vercel이 자동 생성) | 이 프로젝트에 연결한 저장소 하나 | 코드는 읽기만 함. 토큰이 쓰기도 가능한 점은 한계로 기록(`docs/COST_AND_CLEANUP.md`) |
+| 본인 계정 (배포자, `vercel login`, `gh` 로그인) | 프로젝트 배포·승격·롤백, Blob 저장소 생성·삭제, 로그 조회, 이 저장소의 Release 생성·삭제 | 본인 Hobby 계정의 이 프로젝트, 이 GitHub 저장소 | 배포와 정리 |
+| 함수 (런타임) | 공개 GitHub Release 파일 읽기 (인증 없음, 토큰 없음) | 이 저장소의 `model-<version>` Release | 모델은 공개 파일. Blob을 쓰던 동안에는 Vercel이 만든 `BLOB_READ_WRITE_TOKEN`(쓰기도 가능)으로 읽었음 |
 | 호출자 | 없음 (공개) | 프로덕션 도메인만. 다른 배포 주소는 Vercel 로그인 필요 | 화면 공개 |
 
 - **장기 토큰을 직접 만들지 않습니다.** 로컬에서는 `vercel login`으로 인증합니다. 저장소를 프로젝트에 연결하면 Vercel이 프로젝트 환경 변수 `BLOB_READ_WRITE_TOKEN`을 자동으로 만들고, `vercel env pull`이 이것과 단기 OIDC 토큰을 `.env.local`(Git 제외)에 받습니다. 스크립트는 OIDC 토큰만 쓰고, 두 토큰 모두 출력·기록하지 않으며, 정리 단계에서 저장소·프로젝트와 함께 지웁니다.

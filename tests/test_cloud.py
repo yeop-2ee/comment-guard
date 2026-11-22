@@ -139,12 +139,12 @@ def test_predeploy_check_blocks_wrong_path_and_missing_file(monkeypatch, tmp_pat
     """M5 수정: 배포 전에 MODEL_URI 경로와 파일을 검사해서 망가진 배포를 만들지 않음."""
     objects = _blob_objects(tiny_model, tmp_path)
     _fake_blob(monkeypatch, objects)
-    assert model_store.check_blob_uri("blob://models/v1/")["model_version"] == TEST_VERSION
+    assert model_store.check_model_uri("blob://models/v1/")["model_version"] == TEST_VERSION
     with pytest.raises(ModelLoadError, match="serving.json 없음"):
-        model_store.check_blob_uri("blob://models/m2-20261110-WRONG/")
+        model_store.check_model_uri("blob://models/m2-20261110-WRONG/")
     del objects["models/v1/model.joblib"]
     with pytest.raises(ModelLoadError, match="model.joblib 없음"):
-        model_store.check_blob_uri("blob://models/v1/")
+        model_store.check_model_uri("blob://models/v1/")
 
 
 def test_cloud_registry_swaps_large_models(monkeypatch, tiny_model):
@@ -185,3 +185,33 @@ def test_cloud_extra_models_listed_from_cards(monkeypatch, tmp_path, tiny_model)
         assert {r["model_version"]: r["loaded"] for r in rows} == {TEST_VERSION: True, "m1-other": False}
         assert c.get("/v1/meta?model=m1-other").json()["model_version"] == "m1-other"
         assert c.get("/health").json()["model_version"] == TEST_VERSION
+
+
+@pytest.fixture()
+def http_dir(tmp_path):
+    """GitHub Release 대신 로컬 HTTP 서버로 같은 방식(주소 뒤에 파일 이름)을 흉내 냄."""
+    import functools
+    import http.server
+    import threading
+
+    handler = functools.partial(http.server.SimpleHTTPRequestHandler, directory=str(tmp_path))
+    handler.log_message = lambda *a: None
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    yield tmp_path, f"http://127.0.0.1:{server.server_address[1]}/"
+    server.shutdown()
+
+
+def test_https_store_loads_and_checks(monkeypatch, http_dir, tiny_model):
+    """https:// MODEL_URI: serving.json → 파일 받기 → 해시 확인 (테스트에서는 http로 같은 코드 경로)."""
+    root, base = http_dir
+    for path, data in _blob_objects(tiny_model, root / "src", "x").items():
+        (root / path.split("/", 1)[1]).write_bytes(data)
+    monkeypatch.setattr(model_store, "HTTPS_SCHEME", "http://")
+    monkeypatch.setattr(model_store, "REMOTE_SCHEMES", ("blob://", "http://"))
+    assert model_store.check_model_uri(base)["model_version"] == TEST_VERSION
+    assert model_store.load_from_uri(base).version == TEST_VERSION
+    with pytest.raises(ModelLoadError, match="serving.json 없음"):
+        model_store.check_model_uri(base + "WRONG/")
+    with pytest.raises(ModelLoadError, match="형식 오류"):
+        model_store._HttpStore(base.rstrip("/"))

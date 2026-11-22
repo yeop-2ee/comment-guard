@@ -212,7 +212,7 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
         uris = {app.state.model.version: (uri, app.state.model.card)}
         for extra in filter(None, (x.strip() for x in os.environ.get("EXTRA_MODEL_URIS", "").split(","))):
             try:
-                card = model_store.read_blob_card(extra)
+                card = model_store.read_model_card(extra)
                 uris[card["model_version"]] = (extra, card)
             except model_store.ModelLoadError as e:  # 추가 모델이 없어도 기본 모델은 서비스
                 log_event("model_load_failed", severity="ERROR", model_uri=extra, error=str(e))
@@ -220,7 +220,7 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
         app.state.model = None  # 기본 모델도 바꿔 끼울 수 있게 레지스트리만 참조를 가짐
 
     def ensure_model(request: Request) -> None:
-        """blob:// 모델은 첫 요청에서 불러옵니다. 실패하면 다음 요청에서 다시 시도합니다."""
+        """원격(https://, blob://) 모델은 첫 요청에서 불러옵니다. 실패하면 다음 요청에서 다시 시도합니다."""
         if app.state.registry is not None or not app.state.lazy_uri:
             return
         with load_lock:
@@ -233,7 +233,7 @@ def create_app(model: model_store.CommentModel | None = None, load_on_startup: b
     async def lifespan(app: FastAPI):
         if app.state.model is None and load_on_startup:
             uri = os.environ.get("MODEL_URI")
-            if uri and uri.startswith(model_store.BLOB_SCHEME):
+            if uri and uri.startswith(model_store.REMOTE_SCHEMES):
                 app.state.lazy_uri = uri
             else:
                 load(uri)
