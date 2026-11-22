@@ -10,6 +10,15 @@ OUT="${COMMENTGUARD_RUN_DIR:-$ROOT/.state}/cleanup_status.txt"
 mkdir -p "$(dirname "$OUT")"
 masked() { "$PY" -c 'import sys; from commentguard.runlog import mask; sys.stdout.write(mask(sys.stdin.read()))'; }
 
+# Blob 저장소 삭제는 Vercel CLI가 사람의 확인을 요구함 → 터미널에서 직접 실행할 때만 삭제하고, 아니면 할 일을 알려 줌
+store_rm() {
+  if [[ -t 0 ]]; then
+    vc blob delete-store "$BLOB_STORE_ID"
+  else
+    echo "[cleanup] Blob 저장소 $BLOB_STORE 삭제는 확인이 필요해서 건너뜀 → 터미널에서: npx -y $VERCEL_CLI blob delete-store <configs/deploy.env의 BLOB_STORE_ID>"
+  fi
+}
+
 case "$MODE" in
   --keep-production)
     prod_id="$("$PY" -c 'import json; print(json.load(open(".state/last_deploy.json"))["deployment_id"])')"
@@ -22,8 +31,7 @@ case "$MODE" in
     done
     if [[ "${MODEL_STORE:-release}" == "release" && -n "${BLOB_STORE_ID:-}" ]] && vc blob list-stores 2>&1 | grep -q -- "$BLOB_STORE"; then
       echo "[cleanup] 쓰지 않는 Blob 저장소 삭제: $BLOB_STORE (모델은 GitHub Release에서 받음)"
-      vc blob empty-store --confirm-name "$BLOB_STORE_ID" || true
-      vc blob delete-store "$BLOB_STORE_ID" --confirm-name "$BLOB_STORE_ID"
+      store_rm
     fi
     rm -f .env.local  # 개발용 토큰 파일 (다시 필요하면 make vercel-setup)
     ;;
@@ -35,9 +43,8 @@ case "$MODE" in
       done
     fi
     if vc blob list-stores 2>&1 | grep -q -- "$BLOB_STORE"; then
-      echo "[cleanup] Blob 저장소의 모델 삭제 후 저장소 삭제: $BLOB_STORE"
-      vc blob empty-store --confirm-name "$BLOB_STORE_ID" || true
-      vc blob delete-store "$BLOB_STORE_ID" --confirm-name "$BLOB_STORE_ID"
+      echo "[cleanup] Blob 저장소 삭제: $BLOB_STORE"
+      store_rm
     fi
     echo "[cleanup] Vercel 프로젝트 삭제: $VERCEL_PROJECT (배포, 도메인, 환경 변수 포함)"
     vc project rm "$VERCEL_PROJECT" --confirm-name "$VERCEL_PROJECT"
